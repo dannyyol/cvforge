@@ -1,4 +1,4 @@
-import { Eye, FileText, Save } from 'lucide-react';
+import { Download, Eye, FileText, Save } from 'lucide-react';
 import React from 'react';
 
 export const Navbar: React.FC = () => {
@@ -21,6 +21,17 @@ export const Navbar: React.FC = () => {
           <Eye className="w-4 h-4" />
           Preview
         </button>
+
+        <div className="relative">
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </button>
+
+          
+        </div>
         </div>
     </nav>
   );
