@@ -13,7 +13,7 @@ export default {
           300: '#84c2ff',
           400: '#4da6ff',
           500: '#1a8cff',   // MAIN brand color (default button, links, key actions)
-          600: '#006fd6',   // Hover / Active shade
+          600: '#006fd6',
           700: '#0054a3',
           800: '#003b73',
           900: '#00264d',
@@ -27,7 +27,7 @@ export default {
           300: '#b899ff',
           400: '#9966ff',
           500: '#7a33ff',   // Secondary button background
-          600: '#661fd6',   // Hover
+          600: '#661fd6', 
           700: '#4d18a3',
           800: '#351173',
           900: '#230b4d',
@@ -38,8 +38,8 @@ export default {
         success: {
           50: '#ecfdf5',
           100: '#d1fae5',
-          500: '#10b981',  // Main success usage
-          600: '#059669',  // Hover
+          500: '#10b981',
+          600: '#059669',  
         },
 
         // Warning — caution messages, non-critical alerts
@@ -69,10 +69,10 @@ export default {
         // NEUTRALS / STRUCTURE
         // Use for text, borders, background hierarchy
         gray: {
-          50:  '#f9fafb',   // Background
+          50:  '#f9fafb',   // hover
           100: '#f3f4f6',   // Subtle dividers
           200: '#e5e7eb',   // Borders
-          300: '#d1d5db', 
+          300: '#d1d5db',  //border
           400: '#9ca3af',   // Placeholder text
           500: '#6b7280',   // Secondary text
           600: '#4b5563',   // Body text
