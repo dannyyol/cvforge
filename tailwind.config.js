@@ -13,7 +13,7 @@ export default {
           300: '#84c2ff',
           400: '#4da6ff',
           500: '#1a8cff',   // MAIN brand color (default button, links, key actions)
-          600: '#006fd6',
+          600: '#006fd6', // hover - blue background
           700: '#0054a3',
           800: '#003b73',
           900: '#00264d',
