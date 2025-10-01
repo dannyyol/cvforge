@@ -47,6 +47,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <div className="relative">
           <button
+                      onClick={() => setShowExportMenu(!showExportMenu)}
+
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-surface-muted bg-primary-500 rounded-lg hover:bg-primary-600 transition-colors"
           >
             <Download className="w-4 h-4" />
@@ -57,15 +59,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             <>
               <div
                 className="fixed inset-0 z-10"
+                onClick={() => setShowExportMenu(false)}
               />
-              <div className="absolute right-0 mt-2 w-48 bg-surface-muted border border-gray-200 rounded-lg shadow-lg z-20">
+              <div className="absolute right-0 mt-2 w-48 bg-surface border border-gray-200 rounded-lg shadow-lg z-20">
                 <button
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
+                  onClick={() => {
+                    onExportPDF();
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-surface-muted rounded-t-lg"
                 >
                   Export as PDF
                 </button>
                 <button
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg border-t border-gray-100"
+                  onClick={() => {
+                    onExportDOCX();
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-surface-muted rounded-b-lg border-t border-gray-100"
                 >
                   Export as DOCX
                 </button>
