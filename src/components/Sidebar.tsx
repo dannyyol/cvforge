@@ -1,6 +1,6 @@
 import React from 'react';
 import { GripVertical, Eye, EyeOff } from 'lucide-react';
-import { CVSection } from '../types/cv';
+import type { CVSection } from '../types/cv';
 
 interface SidebarProps {
   sections: CVSection[];
@@ -8,6 +8,8 @@ interface SidebarProps {
   onSectionClick: (sectionId: string) => void;
   onToggleVisibility: (sectionId: string) => void;
   onReorderSections: (sections: CVSection[]) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -15,7 +17,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeSection,
   onSectionClick,
   onToggleVisibility,
-  onReorderSections
+  onReorderSections,
+  isOpen,
+  onClose
 }) => {
   const [draggedItem, setDraggedItem] = React.useState<string | null>(null);
 
@@ -49,8 +53,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setDraggedItem(null);
   };
 
+  const handleSectionClick = (sectionId: string) => {
+    onSectionClick(sectionId);
+    if (window.innerWidth < 1024) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="w-64 bg-surface border-r border-gray-200 flex flex-col h-full">
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      <div
+        className={`
+          fixed lg:relative
+          w-64 bg-white border-r border-gray-200 flex flex-col h-full
+          z-30 transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
       <div className="p-4 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900">CV Sections</h2>
         <p className="text-xs text-gray-500 mt-1">Drag to reorder</p>
@@ -64,11 +89,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onDragStart={(e) => handleDragStart(e, section.id)}
             onDragOver={(e) => handleDragOver(e, section.id)}
             onDragEnd={handleDragEnd}
-            onClick={() => onSectionClick(section.id)}
+            onClick={() => handleSectionClick(section.id)}
             className={`
               flex items-center gap-2 px-4 py-3 cursor-pointer border-b border-gray-100
               transition-colors
-              ${activeSection === section.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'hover:bg-surface-muted'}
+              ${activeSection === section.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : 'hover:bg-gray-50'}
               ${draggedItem === section.id ? 'opacity-50' : ''}
             `}
           >
@@ -94,6 +119,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
