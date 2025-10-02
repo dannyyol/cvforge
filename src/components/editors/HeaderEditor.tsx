@@ -1,5 +1,5 @@
 import React from 'react';
-import { HeaderContent } from '../../types/cv';
+import type { HeaderContent } from '../../types/cv';
 
 interface HeaderEditorProps {
   content: HeaderContent;

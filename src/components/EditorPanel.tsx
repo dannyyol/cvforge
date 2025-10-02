@@ -1,5 +1,6 @@
 import React from 'react';
 import type { CVSection } from '../types/cv';
+import { HeaderEditor } from './editors/HeaderEditor';
 
 
 interface EditorPanelProps {
@@ -24,6 +25,20 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
     );
   }
 
+  const renderEditor = () => {
+    switch (activeSection.type) {
+      case 'header':
+        return (
+          <HeaderEditor
+            content={activeSection.content}
+            onChange={(content) => onContentChange(activeSection.id, content)}
+          />
+        );
+        default:
+        return <div>Unknown section type</div>;
+    }
+  };
+
   return (
     <div className="flex-1 bg-white overflow-y-auto w-full">
       <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-4 z-10">
@@ -35,7 +50,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
         </p>
       </div>
 
-      <div className="p-4 md:p-6"></div>
+      <div className="p-4 md:p-6">{renderEditor()}</div>
     </div>
   );
 };
