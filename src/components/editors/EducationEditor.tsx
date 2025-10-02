@@ -60,7 +60,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({ content, onCha
               value={edu.institution}
               onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
               placeholder="Institution Name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
 
             <div className="grid grid-cols-2 gap-3">
@@ -69,14 +69,14 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({ content, onCha
                 value={edu.degree}
                 onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
                 placeholder="Degree (e.g., Bachelor of Science)"
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
               <input
                 type="text"
                 value={edu.field}
                 onChange={(e) => updateEducation(edu.id, 'field', e.target.value)}
                 placeholder="Field of Study"
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
 
@@ -85,7 +85,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({ content, onCha
               value={edu.location}
               onChange={(e) => updateEducation(edu.id, 'location', e.target.value)}
               placeholder="Location"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
 
             <div className="grid grid-cols-3 gap-3">
@@ -93,20 +93,20 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({ content, onCha
                 type="month"
                 value={edu.startDate}
                 onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
               <input
                 type="month"
                 value={edu.endDate}
                 onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
               <input
                 type="text"
                 value={edu.gpa || ''}
                 onChange={(e) => updateEducation(edu.id, 'gpa', e.target.value)}
                 placeholder="GPA (optional)"
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
 
@@ -115,7 +115,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({ content, onCha
               value={edu.honors?.join(', ') || ''}
               onChange={(e) => updateEducation(edu.id, 'honors', e.target.value.split(',').map(s => s.trim()))}
               placeholder="Honors & Awards (comma-separated)"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -123,7 +123,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({ content, onCha
 
       <button
         onClick={addEducation}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-600 border border-primary-600 rounded-lg hover:bg-primary-50 transition-colors"
       >
         <Plus className="w-4 h-4" />
         Add Education
