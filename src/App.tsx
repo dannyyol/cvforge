@@ -1,14 +1,18 @@
 import React from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
-import type { CVSection } from './types/cv';
-import { mockSections } from './data/mockData';
+import type { AISuggestion, CVSection } from './types/cv';
+import { mockAISuggestions, mockSections } from './data/mockData';
+import type { RightPanel } from './components/RightPanel';
 
 function App() {
   const [sections, setSections] = React.useState<CVSection[]>(mockSections);
 
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [activeSection, setActiveSection] = React.useState<string | null>('header');
+    const [suggestions, setSuggestions] = React.useState<AISuggestion[]>(mockAISuggestions);
+  const [currentTemplate, setCurrentTemplate] = React.useState('modern');
+
   const [isSaving, setIsSaving] = React.useState(false);
   const [lastSaved, setLastSaved] = React.useState<string>('');
 
@@ -17,6 +21,22 @@ function App() {
 
     const handleSectionClick = (sectionId: string) => {
     setActiveSection(sectionId);
+  };
+
+  const handleAcceptSuggestion = (suggestionId: string) => {
+    setSuggestions(
+      suggestions.map((s) =>
+        s.id === suggestionId ? { ...s, accepted: true } : s
+      )
+    );
+  };
+
+   const handleRejectSuggestion = (suggestionId: string) => {
+    setSuggestions(
+      suggestions.map((s) =>
+        s.id === suggestionId ? { ...s, accepted: false } : s
+      )
+    );
   };
 
   const handleToggleVisibility = (sectionId: string) => {
@@ -69,6 +89,9 @@ function App() {
     console.log('Exporting as DOCX...');
   };
 
+    const handleTemplateChange = (templateId: string) => {
+    setCurrentTemplate(templateId);
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -92,6 +115,16 @@ function App() {
           onReorderSections={handleReorderSections}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
+        />
+
+        <RightPanel
+          suggestions={suggestions}
+          onAcceptSuggestion={handleAcceptSuggestion}
+          onRejectSuggestion={handleRejectSuggestion}
+          currentTemplate={currentTemplate}
+          onTemplateChange={handleTemplateChange}
+          isOpen={isRightPanelOpen}
+          onClose={() => setIsRightPanelOpen(false)}
         />
       </div>
     </div>
