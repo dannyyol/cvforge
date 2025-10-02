@@ -235,6 +235,8 @@ export const ModernTemplate: React.FC<ModernTemplateProps> = ({ sections }) => {
             return <div key={section.id}>{renderExperience(section.content)}</div>;
           case 'education':
             return <div key={section.id}>{renderEducation(section.content)}</div>;
+          case 'skills':
+            return <div key={section.id}>{renderSkills(section.content)}</div>;
           default:
             return null;
         }
