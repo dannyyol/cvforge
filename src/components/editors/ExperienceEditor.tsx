@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { ExperienceItem } from '../../types/cv';
+import type { ExperienceItem } from '../../types/cv';
 
 interface ExperienceEditorProps {
   content: ExperienceItem[];
