@@ -2,8 +2,8 @@ import React from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import type { AISuggestion, CVSection } from './types/cv';
-import { mockAISuggestions, mockSections } from './data/mockData';
-import type { RightPanel } from './components/RightPanel';
+import { mockSections, mockAISuggestions, mockKeywords } from './data/mockData';
+import { RightPanel } from './components/RightPanel';
 
 function App() {
   const [sections, setSections] = React.useState<CVSection[]>(mockSections);
@@ -119,6 +119,7 @@ function App() {
 
         <RightPanel
           suggestions={suggestions}
+          keywords={mockKeywords}
           onAcceptSuggestion={handleAcceptSuggestion}
           onRejectSuggestion={handleRejectSuggestion}
           currentTemplate={currentTemplate}
