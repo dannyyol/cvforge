@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
-import { SkillCategory } from '../../types/cv';
+import type { SkillCategory } from '../../types/cv';
 
 interface SkillsEditorProps {
   content: SkillCategory[];
