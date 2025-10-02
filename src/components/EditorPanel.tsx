@@ -4,6 +4,8 @@ import { HeaderEditor } from './editors/HeaderEditor';
 import { SummaryEditor } from './editors/SummaryEditor';
 import { ExperienceEditor } from './editors/ExperienceEditor';
 import { EducationEditor } from './editors/EducationEditor';
+import { SkillsEditor } from './editors/SkillsEditor';
+import { ProjectsEditor } from './editors/ProjectsEditor';
 
 
 interface EditorPanelProps {
@@ -54,6 +56,20 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
         case 'education':
         return (
           <EducationEditor
+            content={activeSection.content}
+            onChange={(content) => onContentChange(activeSection.id, content)}
+          />
+        );
+        case 'skills':
+        return (
+          <SkillsEditor
+            content={activeSection.content}
+            onChange={(content) => onContentChange(activeSection.id, content)}
+          />
+        );
+      case 'projects':
+        return (
+          <ProjectsEditor
             content={activeSection.content}
             onChange={(content) => onContentChange(activeSection.id, content)}
           />
