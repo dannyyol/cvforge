@@ -2,9 +2,10 @@ import React from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import type { CVSection } from './types/cv';
+import { mockSections } from './data/mockData';
 
 function App() {
-  const [sections, setSections] = React.useState<CVSection[]>([]);
+  const [sections, setSections] = React.useState<CVSection[]>(mockSections);
 
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [activeSection, setActiveSection] = React.useState<string | null>('header');
