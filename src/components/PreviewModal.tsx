@@ -1,6 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import { CVSection } from '../types/cv';
+import type { CVSection } from '../types/cv';
 import { CVPreview } from './preview/CVPreview';
 
 interface PreviewModalProps {
