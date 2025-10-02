@@ -56,7 +56,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <p className="text-xs text-gray-500 mt-1">Drag to reorder</p>
       </div>
 
+      <div className="flex-1 overflow-y-auto">
+        {sections.map((section) => (
+          <div
+            key={section.id}
+            draggable
+            onDragStart={(e) => handleDragStart(e, section.id)}
+            onDragOver={(e) => handleDragOver(e, section.id)}
+            onDragEnd={handleDragEnd}
+            onClick={() => onSectionClick(section.id)}
+            className={`
+              flex items-center gap-2 px-4 py-3 cursor-pointer border-b border-gray-100
+              transition-colors
+              ${activeSection === section.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'hover:bg-surface-muted'}
+              ${draggedItem === section.id ? 'opacity-50' : ''}
+            `}
+          >
+            <GripVertical className="w-4 h-4 text-gray-400 flex-shrink-0" />
 
+            <span className={`flex-1 text-sm font-medium ${section.visible ? 'text-gray-900' : 'text-gray-400'}`}>
+              {section.title}
+            </span>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleVisibility(section.id);
+              }}
+              className="p-1 hover:bg-gray-200 rounded transition-colors"
+            >
+              {section.visible ? (
+                <Eye className="w-4 h-4 text-gray-600" />
+              ) : (
+                <EyeOff className="w-4 h-4 text-gray-400" />
+              )}
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
