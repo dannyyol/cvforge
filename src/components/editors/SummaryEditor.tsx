@@ -1,5 +1,5 @@
 import React from 'react';
-import { SummaryContent } from '../../types/cv';
+import type { SummaryContent } from '../../types/cv';
 
 interface SummaryEditorProps {
   content: SummaryContent;
