@@ -8,7 +8,6 @@ import { SkillsEditor } from './editors/SkillsEditor';
 import { ProjectsEditor } from './editors/ProjectsEditor';
 import { CertificationsEditor } from './editors/CertificationsEditor';
 
-
 interface EditorPanelProps {
   activeSection: CVSection | null;
   onContentChange: (sectionId: string, content: any) => void;
@@ -47,21 +46,21 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
             onChange={(content) => onContentChange(activeSection.id, content)}
           />
         );
-        case 'experience':
+      case 'experience':
         return (
           <ExperienceEditor
             content={activeSection.content}
             onChange={(content) => onContentChange(activeSection.id, content)}
           />
         );
-        case 'education':
+      case 'education':
         return (
           <EducationEditor
             content={activeSection.content}
             onChange={(content) => onContentChange(activeSection.id, content)}
           />
         );
-        case 'skills':
+      case 'skills':
         return (
           <SkillsEditor
             content={activeSection.content}
@@ -75,15 +74,14 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
             onChange={(content) => onContentChange(activeSection.id, content)}
           />
         );
-
-        case 'certifications':
+      case 'certifications':
         return (
           <CertificationsEditor
             content={activeSection.content}
             onChange={(content) => onContentChange(activeSection.id, content)}
           />
         );
-        default:
+      default:
         return <div>Unknown section type</div>;
     }
   };
