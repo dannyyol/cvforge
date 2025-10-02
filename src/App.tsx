@@ -7,6 +7,9 @@ function App() {
   const [isSaving, setIsSaving] = React.useState(false);
   const [lastSaved, setLastSaved] = React.useState<string>('');
 
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [isRightPanelOpen, setIsRightPanelOpen] = React.useState(false);
+
   const handleSave = async () => {
 
     setIsSaving(true);
@@ -40,13 +43,15 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
-      <Navbar
+       <Navbar
         onSave={handleSave}
         onPreview={handlePreview}
         onExportPDF={handleExportPDF}
         onExportDOCX={handleExportDOCX}
         isSaving={isSaving}
         lastSaved={lastSaved}
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        onToggleRightPanel={() => setIsRightPanelOpen(!isRightPanelOpen)}
       />
     </div>
   )

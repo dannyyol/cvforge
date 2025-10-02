@@ -71,7 +71,7 @@ export default {
         gray: {
           50:  '#f9fafb',   // hover
           100: '#f3f4f6',   // Subtle dividers
-          200: '#e5e7eb',   // Borders
+          200: '#e5e7eb',   // hover
           300: '#d1d5db',  //border
           400: '#9ca3af',   // Placeholder text
           500: '#6b7280',   // Secondary text
