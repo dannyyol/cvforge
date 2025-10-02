@@ -5,6 +5,7 @@ import type { AISuggestion, CVSection } from './types/cv';
 import { mockSections, mockAISuggestions, mockKeywords } from './data/mockData';
 import { RightPanel } from './components/RightPanel';
 import { EditorPanel } from './components/EditorPanel';
+import { PreviewModal } from './components/PreviewModal';
 
 function App() {
   const [sections, setSections] = React.useState<CVSection[]>(mockSections);
@@ -134,6 +135,13 @@ function App() {
           onClose={() => setIsRightPanelOpen(false)}
         />
       </div>
+
+            <PreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        sections={sections}
+        template={currentTemplate}
+      />
     </div>
   )
 }
