@@ -3,6 +3,7 @@ import type { CVSection } from '../types/cv';
 import { HeaderEditor } from './editors/HeaderEditor';
 import { SummaryEditor } from './editors/SummaryEditor';
 import { ExperienceEditor } from './editors/ExperienceEditor';
+import { EducationEditor } from './editors/EducationEditor';
 
 
 interface EditorPanelProps {
@@ -46,6 +47,13 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
         case 'experience':
         return (
           <ExperienceEditor
+            content={activeSection.content}
+            onChange={(content) => onContentChange(activeSection.id, content)}
+          />
+        );
+        case 'education':
+        return (
+          <EducationEditor
             content={activeSection.content}
             onChange={(content) => onContentChange(activeSection.id, content)}
           />
