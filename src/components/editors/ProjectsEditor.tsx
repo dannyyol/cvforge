@@ -88,7 +88,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
               value={project.name}
               onChange={(e) => updateProject(project.id, 'name', e.target.value)}
               placeholder="Project Name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
 
             <textarea
@@ -96,7 +96,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
               onChange={(e) => updateProject(project.id, 'description', e.target.value)}
               placeholder="Brief description of the project"
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
             />
 
             <input
@@ -110,7 +110,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
                 )
               }
               placeholder="Technologies used (comma-separated)"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
 
             <input
@@ -118,7 +118,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
               value={project.link || ''}
               onChange={(e) => updateProject(project.id, 'link', e.target.value)}
               placeholder="Project link (optional)"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
 
             <div className="space-y-2">
@@ -133,7 +133,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
                     onChange={(e) => updateBullet(project.id, bulletIdx, e.target.value)}
                     placeholder="Describe the impact or result..."
                     rows={2}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                   />
                   {project.bullets.length > 1 && (
                     <button
@@ -147,7 +147,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
               ))}
               <button
                 onClick={() => addBullet(project.id)}
-                className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+                className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700"
               >
                 <Plus className="w-4 h-4" />
                 Add bullet point
@@ -159,7 +159,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
 
       <button
         onClick={addProject}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-600 border border-primary-600 rounded-lg hover:bg-primary-50 transition-colors"
       >
         <Plus className="w-4 h-4" />
         Add Project
