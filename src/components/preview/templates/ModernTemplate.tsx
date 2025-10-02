@@ -1,5 +1,5 @@
 import React from 'react';
-import {
+import type{
   CVSection,
   HeaderContent,
   SummaryContent,
@@ -231,16 +231,6 @@ export const ModernTemplate: React.FC<ModernTemplateProps> = ({ sections }) => {
             return <div key={section.id}>{renderHeader(section.content)}</div>;
           case 'summary':
             return <div key={section.id}>{renderSummary(section.content)}</div>;
-          case 'experience':
-            return <div key={section.id}>{renderExperience(section.content)}</div>;
-          case 'education':
-            return <div key={section.id}>{renderEducation(section.content)}</div>;
-          case 'skills':
-            return <div key={section.id}>{renderSkills(section.content)}</div>;
-          case 'projects':
-            return <div key={section.id}>{renderProjects(section.content)}</div>;
-          case 'certifications':
-            return <div key={section.id}>{renderCertifications(section.content)}</div>;
           default:
             return null;
         }
