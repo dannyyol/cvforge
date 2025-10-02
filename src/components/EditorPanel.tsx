@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CVSection } from '../types/cv';
 import { HeaderEditor } from './editors/HeaderEditor';
+import { SummaryEditor } from './editors/SummaryEditor';
 
 
 interface EditorPanelProps {
@@ -30,6 +31,13 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
       case 'header':
         return (
           <HeaderEditor
+            content={activeSection.content}
+            onChange={(content) => onContentChange(activeSection.id, content)}
+          />
+        );
+      case 'summary':
+        return (
+          <SummaryEditor
             content={activeSection.content}
             onChange={(content) => onContentChange(activeSection.id, content)}
           />
