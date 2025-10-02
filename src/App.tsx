@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import type { AISuggestion, CVSection } from './types/cv';
 import { mockSections, mockAISuggestions, mockKeywords } from './data/mockData';
 import { RightPanel } from './components/RightPanel';
+import { EditorPanel } from './components/EditorPanel';
 
 function App() {
   const [sections, setSections] = React.useState<CVSection[]>(mockSections);
@@ -22,6 +23,8 @@ function App() {
     const handleSectionClick = (sectionId: string) => {
     setActiveSection(sectionId);
   };
+
+    const activeSecti = sections.find((s) => s.id === activeSection) || null;
 
   const handleAcceptSuggestion = (suggestionId: string) => {
     setSuggestions(
@@ -116,7 +119,10 @@ function App() {
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
-
+        <EditorPanel
+          activeSection={activeSecti}
+          onContentChange={handleContentChange}
+        />
         <RightPanel
           suggestions={suggestions}
           keywords={mockKeywords}
