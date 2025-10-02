@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { CertificationItem } from '../../types/cv';
+import type { CertificationItem } from '../../types/cv';
 
 interface CertificationsEditorProps {
   content: CertificationItem[];
