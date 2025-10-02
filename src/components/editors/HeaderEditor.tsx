@@ -21,7 +21,7 @@ export const HeaderEditor: React.FC<HeaderEditorProps> = ({ content, onChange })
           type="text"
           value={content.fullName}
           onChange={(e) => handleChange('fullName', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
         />
       </div>
 
@@ -33,7 +33,7 @@ export const HeaderEditor: React.FC<HeaderEditorProps> = ({ content, onChange })
           type="text"
           value={content.title}
           onChange={(e) => handleChange('title', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
         />
       </div>
 
@@ -46,7 +46,7 @@ export const HeaderEditor: React.FC<HeaderEditorProps> = ({ content, onChange })
             type="email"
             value={content.email}
             onChange={(e) => handleChange('email', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
         </div>
 
@@ -58,7 +58,7 @@ export const HeaderEditor: React.FC<HeaderEditorProps> = ({ content, onChange })
             type="tel"
             value={content.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
         </div>
       </div>
@@ -71,7 +71,7 @@ export const HeaderEditor: React.FC<HeaderEditorProps> = ({ content, onChange })
           type="text"
           value={content.location}
           onChange={(e) => handleChange('location', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
         />
       </div>
 
@@ -85,7 +85,7 @@ export const HeaderEditor: React.FC<HeaderEditorProps> = ({ content, onChange })
             value={content.linkedin || ''}
             onChange={(e) => handleChange('linkedin', e.target.value)}
             placeholder="linkedin.com/in/..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
         </div>
 
@@ -98,7 +98,7 @@ export const HeaderEditor: React.FC<HeaderEditorProps> = ({ content, onChange })
             value={content.github || ''}
             onChange={(e) => handleChange('github', e.target.value)}
             placeholder="github.com/..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
         </div>
 
@@ -111,7 +111,7 @@ export const HeaderEditor: React.FC<HeaderEditorProps> = ({ content, onChange })
             value={content.website || ''}
             onChange={(e) => handleChange('website', e.target.value)}
             placeholder="yoursite.com"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
         </div>
       </div>
