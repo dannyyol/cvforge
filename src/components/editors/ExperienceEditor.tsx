@@ -91,14 +91,14 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({ content, onC
                 value={exp.company}
                 onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
                 placeholder="Company Name"
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
               <input
                 type="text"
                 value={exp.position}
                 onChange={(e) => updateExperience(exp.id, 'position', e.target.value)}
                 placeholder="Position"
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
 
@@ -107,7 +107,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({ content, onC
               value={exp.location}
               onChange={(e) => updateExperience(exp.id, 'location', e.target.value)}
               placeholder="Location"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
 
             <div className="flex items-center gap-3">
@@ -115,7 +115,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({ content, onC
                 type="month"
                 value={exp.startDate}
                 onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
               <span className="text-gray-500">to</span>
               {!exp.current && (
@@ -123,7 +123,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({ content, onC
                   type="month"
                   value={exp.endDate}
                   onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
               )}
               <label className="flex items-center gap-2 ml-auto">
@@ -131,7 +131,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({ content, onC
                   type="checkbox"
                   checked={exp.current}
                   onChange={(e) => updateExperience(exp.id, 'current', e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                 />
                 <span className="text-sm text-gray-700">Current</span>
               </label>
@@ -149,7 +149,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({ content, onC
                     onChange={(e) => updateBullet(exp.id, bulletIdx, e.target.value)}
                     placeholder="Describe your achievement with metrics..."
                     rows={2}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                   />
                   {exp.bullets.length > 1 && (
                     <button
@@ -163,7 +163,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({ content, onC
               ))}
               <button
                 onClick={() => addBullet(exp.id)}
-                className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+                className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700"
               >
                 <Plus className="w-4 h-4" />
                 Add bullet point
@@ -175,7 +175,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({ content, onC
 
       <button
         onClick={addExperience}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-600 border border-primary-600 rounded-lg hover:bg-primary-50 transition-colors"
       >
         <Plus className="w-4 h-4" />
         Add Experience
