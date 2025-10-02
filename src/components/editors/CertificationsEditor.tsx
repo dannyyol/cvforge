@@ -42,7 +42,7 @@ export const CertificationsEditor: React.FC<CertificationsEditorProps> = ({
   return (
     <div className="space-y-6">
       {content.map((cert, idx) => (
-        <div key={cert.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+        <div key={cert.id} className="border border-gray-200 rounded-lg p-4 bg-surface-muted">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-2">
               <GripVertical className="w-5 h-5 text-gray-400" />
