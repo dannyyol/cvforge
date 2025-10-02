@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { EducationItem } from '../../types/cv';
+import type { EducationItem } from '../../types/cv';
 
 interface EducationEditorProps {
   content: EducationItem[];
