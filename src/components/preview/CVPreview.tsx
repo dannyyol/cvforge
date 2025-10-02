@@ -10,9 +10,25 @@ interface CVPreviewProps {
 export const CVPreview: React.FC<CVPreviewProps> = ({ sections, template }) => {
   const visibleSections = sections.filter(s => s.visible).sort((a, b) => a.order - b.order);
 
+  const renderTemplate = () => {
+    switch (template) {
+      case 'modern':
+        return <ModernTemplate sections={visibleSections} />;
+      case 'classic':
+        return <ModernTemplate sections={visibleSections} />;
+      case 'minimal':
+        return <ModernTemplate sections={visibleSections} />;
+      case 'creative':
+        return <ModernTemplate sections={visibleSections} />;
+      default:
+        return <ModernTemplate sections={visibleSections} />;
+    }
+  };
+
   return (
     <div className="bg-gray-100 p-8 overflow-y-auto">
       <div className="max-w-[8.5in] mx-auto bg-white shadow-lg">
+        {renderTemplate()}
       </div>
     </div>
   );
