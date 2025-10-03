@@ -1,6 +1,6 @@
 import React from 'react';
 import { GripVertical, Eye, EyeOff } from 'lucide-react';
-import { CVSection } from '../types/cv';
+import type { CVSection } from '../types/cv';
 
 interface SidebarProps {
   sections: CVSection[];

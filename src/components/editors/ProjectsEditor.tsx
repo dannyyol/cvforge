@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { ProjectItem } from '../../types/cv';
+import type { ProjectItem } from '../../types/cv';
 
 interface ProjectsEditorProps {
   content: ProjectItem[];
