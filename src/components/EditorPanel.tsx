@@ -19,10 +19,10 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
 }) => {
   if (!activeSection) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      <div className="flex-1 flex items-center justify-center bg-secondary-50 max-w-4xl mx-auto w-full">
         <div className="text-center">
-          <p className="text-gray-500 text-lg mb-2">No section selected</p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-secondary-500 text-lg mb-2">No section selected</p>
+          <p className="text-secondary-400 text-sm">
             Select a section from the sidebar to start editing
           </p>
         </div>
@@ -87,12 +87,12 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
   };
 
   return (
-    <div className="flex-1 bg-white overflow-y-auto w-full">
-      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-4 z-10">
-        <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+    <div className="flex-1 bg-white overflow-y-auto w-full max-w-4xl mx-auto">
+      <div className="sticky top-0 bg-white border-b border-secondary-200 px-4 md:px-6 py-4 z-10 shadow-sm">
+        <h2 className="text-lg md:text-xl font-semibold text-secondary-900">
           {activeSection.title}
         </h2>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-secondary-500 mt-1">
           Edit your {activeSection.title.toLowerCase()} information
         </p>
       </div>

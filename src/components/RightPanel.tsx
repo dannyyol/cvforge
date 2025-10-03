@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, TrendingUp, Settings, Check, X, Maximize2, Minimize2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { AISuggestion, KeywordCoverage, CVSection } from '../types/cv';
+import type { AISuggestion, KeywordCoverage, CVSection } from '../types/cv';
 import { TemplateThumbnail } from './TemplateThumbnail';
 
 interface RightPanelProps {

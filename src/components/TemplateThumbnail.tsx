@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { CVSection } from '../types/cv';
+import type { CVSection } from '../types/cv';
 import { ModernTemplate } from './preview/templates/ModernTemplate';
 import { ClassicTemplate } from './preview/templates/ClassicTemplate';
 import { MinimalTemplate } from './preview/templates/MinimalTemplate';

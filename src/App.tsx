@@ -6,6 +6,7 @@ import { Sidebar } from './components/Sidebar';
 import { EditorPanel } from './components/EditorPanel';
 import { RightPanel } from './components/RightPanel';
 import { PreviewModal } from './components/PreviewModal';
+import { FloatingPreview } from './components/FloatingPreview';
 
 function App() {
   const [sections, setSections] = React.useState<CVSection[]>(mockSections);
@@ -137,10 +138,18 @@ function App() {
           onTemplateChange={handleTemplateChange}
           isOpen={isRightPanelOpen}
           onClose={() => setIsRightPanelOpen(false)}
+          showFloatingPreview={showFloatingPreview}
           onToggleFloatingPreview={() => setShowFloatingPreview(!showFloatingPreview)}
           sections={sections}
         />
       </div>
+
+      <FloatingPreview
+        isOpen={showFloatingPreview}
+        onClose={() => setShowFloatingPreview(false)}
+        sections={sections}
+        template={currentTemplate}
+      />
 
       <PreviewModal
         isOpen={isPreviewOpen}

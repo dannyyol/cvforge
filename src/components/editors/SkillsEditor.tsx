@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
-import type { SkillCategory } from '../../types/cv';
+import { SkillCategory } from '../../types/cv';
 
 interface SkillsEditorProps {
   content: SkillCategory[];
@@ -58,18 +58,18 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({ content, onChange })
   return (
     <div className="space-y-6">
       {content.map((category) => (
-        <div key={category.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+        <div key={category.id} className="border border-secondary-200 rounded-lg p-4 bg-secondary-50">
           <div className="flex items-center justify-between mb-3">
             <input
               type="text"
               value={category.category}
               onChange={(e) => updateCategory(category.id, 'category', e.target.value)}
               placeholder="Category Name (e.g., Technical Skills)"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
             <button
               onClick={() => deleteCategory(category.id)}
-              className="ml-3 text-red-600 hover:text-red-700"
+              className="ml-3 text-error-600 hover:text-error-700"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -79,12 +79,12 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({ content, onChange })
             {category.skills.map((skill, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm"
+                className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
               >
                 {skill}
                 <button
                   onClick={() => removeSkill(category.id, idx)}
-                  className="hover:text-primary-900"
+                  className="hover:text-blue-900"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -104,7 +104,7 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({ content, onChange })
                 }
               }}
               placeholder="Add a skill and press Enter"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
             <button
               onClick={() => addSkill(category.id)}

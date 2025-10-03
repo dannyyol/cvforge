@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import type { ProjectItem } from '../../types/cv';
+import { ProjectItem } from '../../types/cv';
 
 interface ProjectsEditorProps {
   content: ProjectItem[];
@@ -66,17 +66,17 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
   return (
     <div className="space-y-6">
       {content.map((project, idx) => (
-        <div key={project.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+        <div key={project.id} className="border border-secondary-200 rounded-lg p-4 bg-secondary-50">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-2">
-              <GripVertical className="w-5 h-5 text-gray-400" />
-              <span className="text-sm font-medium text-gray-500">
+              <GripVertical className="w-5 h-5 text-secondary-400" />
+              <span className="text-sm font-medium text-secondary-500">
                 Project {idx + 1}
               </span>
             </div>
             <button
               onClick={() => deleteProject(project.id)}
-              className="text-red-600 hover:text-red-700"
+              className="text-error-600 hover:text-error-700"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -88,7 +88,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
               value={project.name}
               onChange={(e) => updateProject(project.id, 'name', e.target.value)}
               placeholder="Project Name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
 
             <textarea
@@ -96,7 +96,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
               onChange={(e) => updateProject(project.id, 'description', e.target.value)}
               placeholder="Brief description of the project"
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
             />
 
             <input
@@ -110,7 +110,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
                 )
               }
               placeholder="Technologies used (comma-separated)"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
 
             <input
@@ -118,27 +118,27 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({ content, onChang
               value={project.link || ''}
               onChange={(e) => updateProject(project.id, 'link', e.target.value)}
               placeholder="Project link (optional)"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-secondary-700">
                 Key Achievements
               </label>
               {project.bullets.map((bullet, bulletIdx) => (
                 <div key={bulletIdx} className="flex items-start gap-2">
-                  <span className="text-gray-400 mt-2">•</span>
+                  <span className="text-secondary-400 mt-2">•</span>
                   <textarea
                     value={bullet}
                     onChange={(e) => updateBullet(project.id, bulletIdx, e.target.value)}
                     placeholder="Describe the impact or result..."
                     rows={2}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                    className="flex-1 px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                   />
                   {project.bullets.length > 1 && (
                     <button
                       onClick={() => deleteBullet(project.id, bulletIdx)}
-                      className="text-red-600 hover:text-red-700 mt-2"
+                      className="text-error-600 hover:text-error-700 mt-2"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
