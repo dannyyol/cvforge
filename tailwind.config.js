@@ -4,7 +4,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        // BRAND / STRATEGIC COLORS
         // Use for main identity elements (logo, primary actions, highlights)
         primary: {
           50:  '#eef7ff',
@@ -20,17 +19,18 @@ export default {
         },
 
         // Secondary brand usage — alternative accents or less dominant actions
+        // Use for text, borders, background hierarchy
         secondary: {
-          50: '#f8f4ff',
-          100: '#eee3ff',
-          200: '#d6c2ff',
-          300: '#b899ff',
-          400: '#9966ff',
-          500: '#7a33ff',   // Secondary button background
-          600: '#661fd6', 
-          700: '#4d18a3',
-          800: '#351173',
-          900: '#230b4d',
+          50:  '#f9fafb',   // hover
+          100: '#f3f4f6',   // Subtle dividers
+          200: '#e5e7eb',   // hover
+          300: '#d1d5db',  //border
+          400: '#9ca3af',   // Placeholder text
+          500: '#6b7280',   // Secondary text
+          600: '#4b5563',   // Body text
+          700: '#374151',   // Headings
+          800: '#1f2937',
+          900: '#111827',
         },
 
         // STATUS / FEEDBACK COLORS (Semantic Use Only)
@@ -64,21 +64,6 @@ export default {
           100: '#dbeafe',
           500: '#3b82f6',  // Info badges or banners
           600: '#2563eb',
-        },
-
-        // NEUTRALS / STRUCTURE
-        // Use for text, borders, background hierarchy
-        gray: {
-          50:  '#f9fafb',   // hover
-          100: '#f3f4f6',   // Subtle dividers
-          200: '#e5e7eb',   // hover
-          300: '#d1d5db',  //border
-          400: '#9ca3af',   // Placeholder text
-          500: '#6b7280',   // Secondary text
-          600: '#4b5563',   // Body text
-          700: '#374151',   // Headings
-          800: '#1f2937',
-          900: '#111827',
         },
 
         // Surfaces — structural backgrounds (cards, sections)

@@ -23,21 +23,22 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleRightPanel
 }) => {
   const [showExportMenu, setShowExportMenu] = React.useState(false);
+  const [showPreviewMenu, setShowPreviewMenu] = React.useState(false);
 
   return (
-    <nav className="h-16 bg-surface border-b border-gray-200 flex items-center justify-between px-4 md:px-6">
+    <nav className="h-16 bg-surface border-b border-secondary-200 flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleSidebar}
-          className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="lg:hidden p-2 hover:bg-secondary-100 rounded-lg transition-colors"
         >
-          <Menu className="w-5 h-5 text-gray-700" />
+          <Menu className="w-5 h-5 text-secondary-700" />
         </button>
         <FileText className="w-6 h-6 text-primary-500" />
         <div>
-          <h1 className="text-base md:text-lg font-semibold text-gray-900">CV Builder</h1>
+          <h1 className="text-base md:text-lg font-semibold text-secondary-900">CV Builder</h1>
           {lastSaved && (
-            <p className="text-xs text-gray-500 hidden sm:block">Last saved: {lastSaved}</p>
+            <p className="text-xs text-secondary-500 hidden sm:block">Last saved: {lastSaved}</p>
           )}
         </div>
       </div>
@@ -46,7 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={onSave}
           disabled={isSaving}
-          className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium text-gray-700 bg-surface border border-gray-300 rounded-lg hover:bg-surface-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium text-secondary-700 bg-surface border border-secondary-300 rounded-lg hover:bg-surface-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
           <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save'}</span>
@@ -54,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <button
           onClick={onPreview}
-          className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium text-gray-700 bg-surface border border-gray-300 rounded-lg hover:bg-surface-muted transition-colors"
+          className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium text-secondary-700 bg-surface border border-secondary-300 rounded-lg hover:bg-surface-muted transition-colors"
         >
           <Eye className="w-4 h-4" />
           <span className="hidden md:inline">Preview</span>
@@ -75,13 +76,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="fixed inset-0 z-10"
                 onClick={() => setShowExportMenu(false)}
               />
-              <div className="absolute right-0 mt-2 w-40 sm:w-48 bg-surface border border-gray-200 rounded-lg shadow-lg z-20">
+              <div className="absolute right-0 mt-2 w-40 sm:w-48 bg-surface border border-secondary-200 rounded-lg shadow-lg z-20">
                 <button
                   onClick={() => {
                     onExportPDF();
                     setShowExportMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-surface-muted rounded-t-lg"
+                  className="w-full text-left px-4 py-2 text-sm text-secondary-700 hover:bg-surface-muted rounded-t-lg"
                 >
                   Export as PDF
                 </button>
@@ -90,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     onExportDOCX();
                     setShowExportMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-surface-muted rounded-b-lg border-t border-gray-100"
+                  className="w-full text-left px-4 py-2 text-sm text-secondary-700 hover:bg-surface-muted rounded-b-lg border-t border-secondary-100"
                 >
                   Export as DOCX
                 </button>
@@ -101,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <button
           onClick={onToggleRightPanel}
-          className="xl:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="xl:hidden p-2 hover:bg-secondary-100 rounded-lg transition-colors"
         >
           <Sparkles className="w-5 h-5 text-blue-600" />
         </button>
