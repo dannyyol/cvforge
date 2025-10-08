@@ -1,78 +1,27 @@
 /** @type {import('tailwindcss').Config} */
+import colors from 'tailwindcss/colors';
+import defaultTheme from 'tailwindcss/defaultTheme';
+
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+        heading: ['Inter', ...defaultTheme.fontFamily.sans],
+        mono: [...defaultTheme.fontFamily.mono],
+      },
       colors: {
-        // Use for main identity elements (logo, primary actions, highlights)
-        primary: {
-          50:  '#eef7ff',
-          100: '#d9ecff',
-          200: '#b3d9ff',
-          300: '#84c2ff',
-          400: '#4da6ff',
-          500: '#1a8cff',   // MAIN brand color (default button, links, key actions)
-          600: '#006fd6', // hover - blue background
-          700: '#0054a3',
-          800: '#003b73',
-          900: '#00264d',
-        },
-
-        // Secondary brand usage — alternative accents or less dominant actions
-        // Use for text, borders, background hierarchy
-        secondary: {
-          50:  '#f9fafb',   // hover
-          100: '#f3f4f6',   // Subtle dividers
-          200: '#e5e7eb',   // hover
-          300: '#d1d5db',  //border
-          400: '#9ca3af',   // Placeholder text
-          500: '#6b7280',   // Secondary text
-          600: '#4b5563',   // Body text
-          700: '#374151',   // Headings
-          800: '#1f2937',
-          900: '#111827',
-        },
-
-        // STATUS / FEEDBACK COLORS (Semantic Use Only)
-        // Success — confirmations, completed status, positive feedback
-        success: {
-          50: '#ecfdf5',
-          100: '#d1fae5',
-          500: '#10b981',
-          600: '#059669',  
-        },
-
-        // Warning — caution messages, non-critical alerts
-        warning: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          500: '#f59e0b',  // Main warning usage
-          600: '#d97706',
-        },
-
-        // Danger — destructive actions or errors
-        danger: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          500: '#ef4444',  // Delete buttons, error alerts
-          600: '#dc2626',
-        },
-
-        // Info — neutral notifications or updates
-        info: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          500: '#3b82f6',  // Info badges or banners
-          600: '#2563eb',
-        },
-
-        // Surfaces — structural backgrounds (cards, sections)
-        surface: {
-          DEFAULT: '#ffffff', // Light mode card background
-          muted: '#f8f9fa',   // Light gray surfaces
-          dark: '#1f2937',    // Dark mode surface
-        },
-      }
-    }
-  }
-}
+        primary: colors.blue,
+        secondary: colors.cyan,
+        success: colors.green,
+        warning: colors.yellow,
+        error: colors.red,
+        info: colors.sky,
+        accent: colors.teal,
+        neutral: colors.gray,
+      },
+    },
+  },
+  plugins: [],
+};

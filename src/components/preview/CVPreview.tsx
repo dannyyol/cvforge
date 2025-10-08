@@ -1,148 +1,120 @@
-import React, { useRef, useEffect, useState } from 'react';
-import type { CVSection } from '../../types/cv';
-import { ModernTemplate } from './templates/ModernTemplate';
-import { ClassicTemplate } from './templates/ClassicTemplate';
-import { MinimalTemplate } from './templates/MinimalTemplate';
-import { CreativeTemplate } from './templates/CreativeTemplate';
-import { ProfessionalTemplate } from './templates/ProfessionalTemplate';
-import { ElegantTemplate } from './templates/ElegantTemplate';
-import { CompactTemplate } from './templates/CompactTemplate';
-import { BoldTemplate } from './templates/BoldTemplate';
+import { Palette, ChevronDown, Settings, Download } from 'lucide-react';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId } from '../../types/resume';
+import ClassicTemplate from '../templates/ClassicTemplate';
+import ModernTemplate from '../templates/ModernTemplate';
+import MinimalistTemplate from '../templates/MinimalistTemplate';
+import ProfessionalTemplate from '../templates/ProfessionalTemplate';
+import PaginatedPreview from './PaginatedPreview';
+import AIReviewPanel from '../AIReviewPanel';
 
 interface CVPreviewProps {
+  personalDetails: PersonalDetails | null;
+  professionalSummary: ProfessionalSummary | null;
+  workExperiences: WorkExperience[];
+  educationEntries: EducationEntry[];
+  skills: SkillEntry[];
+  projects: ProjectEntry[];
+  certifications: CertificationEntry[];
   sections: CVSection[];
-  template: string;
+  templateId: TemplateId;
+  accentColor?: string;
+  activeTab: 'preview' | 'ai-review';
+  onTabChange: (tab: 'preview' | 'ai-review') => void;
+  onOpenTemplateSelector: () => void;
+  isMobilePreview?: boolean;
 }
 
-export const CVPreview: React.FC<CVPreviewProps> = ({ sections, template }) => {
-  const visibleSections = sections.filter(s => s.visible).sort((a, b) => a.order - b.order);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [pages, setPages] = useState<number[]>([0]);
-
-  useEffect(() => {
-    if (!contentRef.current) return;
-
-    const A4_HEIGHT_PX = 297 * 3.7795275591;
-    const contentHeight = contentRef.current.scrollHeight;
-    const pageCount = Math.ceil(contentHeight / A4_HEIGHT_PX);
-
-    setPages(Array.from({ length: Math.max(1, pageCount) }, (_, i) => i));
-  }, [visibleSections, template]);
+export default function CVPreview({ personalDetails, professionalSummary, workExperiences, educationEntries, skills, projects, certifications, sections, templateId, accentColor = 'slate', activeTab, onTabChange, onOpenTemplateSelector, isMobilePreview = false }: CVPreviewProps) {
+  const commonProps = {
+    personalDetails,
+    professionalSummary,
+    workExperiences,
+    educationEntries,
+    skills,
+    projects,
+    certifications,
+    sections,
+    accentColor,
+  };
 
   const renderTemplate = () => {
-    switch (template) {
+    switch (templateId) {
       case 'modern':
-        return <ModernTemplate sections={visibleSections} />;
-      case 'classic':
-        return <ClassicTemplate sections={visibleSections} />;
-      case 'minimal':
-        return <MinimalTemplate sections={visibleSections} />;
-      case 'creative':
-        return <CreativeTemplate sections={visibleSections} />;
+        return <ModernTemplate {...commonProps} />;
+      case 'minimalist':
+        return <MinimalistTemplate {...commonProps} />;
       case 'professional':
-        return <ProfessionalTemplate sections={visibleSections} />;
-      case 'elegant':
-        return <ElegantTemplate sections={visibleSections} />;
-      case 'compact':
-        return <CompactTemplate sections={visibleSections} />;
-      case 'bold':
-        return <BoldTemplate sections={visibleSections} />;
+        return <ProfessionalTemplate {...commonProps} />;
+      case 'classic':
       default:
-        return <ModernTemplate sections={visibleSections} />;
+        return <ClassicTemplate {...commonProps} />;
     }
   };
 
   return (
-    <>
-      <style>
-        {`
-          .cv-pages-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-          }
+    <div className="preview-page">
+      <div className="preview-toolbar">
+        <button
+          onClick={onOpenTemplateSelector}
+          className="preview-customize-btn"
+        >
+          <Palette className="w-4 h-4 preview-icon-muted" />
+          <span className="text-sm font-medium text-neutral-700">Customise</span>
+        </button>
 
-          .cv-page-wrapper {
-            width: 210mm;
-            height: 297mm;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-          }
+        <div className="preview-tab-container">
+          <button
+            onClick={() => onTabChange('preview')}
+            className={`preview-tab-btn preview-tab-btn--left ${activeTab === 'preview' ? 'preview-tab-btn--active' : 'preview-tab-btn--inactive'}`}
+          >
+            Preview
+          </button>
+          <div className="preview-tab-divider"></div>
+          <button
+            onClick={() => onTabChange('ai-review')}
+            className={`preview-tab-btn preview-tab-btn--right ${activeTab === 'ai-review' ? 'preview-tab-btn--active' : 'preview-tab-btn--inactive'}`}
+          >
+            AI Review
+          </button>
+        </div>
 
-          .cv-page-content {
-            width: 100%;
-            position: relative;
-          }
+        <div className="flex items-center gap-2">
+          <button className="preview-download-btn">
+            Download
+            <ChevronDown className="w-4 h-4" />
+          </button>
 
-          .cv-measurement {
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            width: 210mm;
-            visibility: hidden;
-          }
-
-          .page-number {
-            position: absolute;
-            bottom: 15mm;
-            right: 15mm;
-            font-size: 10px;
-            color: #9ca3af;
-            font-family: system-ui, -apple-system, sans-serif;
-            z-index: 10;
-          }
-
-          @media print {
-            .cv-pages-container {
-              display: block;
-              gap: 0;
-            }
-
-            .cv-page-wrapper {
-              width: 210mm;
-              height: 297mm;
-              page-break-after: always;
-              box-shadow: none;
-              margin: 0;
-              overflow: visible;
-            }
-
-            .cv-page-wrapper:last-child {
-              page-break-after: auto;
-            }
-
-            .page-number {
-              display: none;
-            }
-          }
-        `}
-      </style>
-
-      <div className="cv-measurement" ref={contentRef}>
-        {renderTemplate()}
+          <button className="preview-settings-btn">
+            <Settings className="w-5 h-5 preview-icon-muted" />
+          </button>
+        </div>
       </div>
 
-      <div className="cv-pages-container">
-        {pages.map((pageIndex) => (
-          <div key={pageIndex} className="cv-page-wrapper">
-            <div
-              className="cv-page-content"
-              style={{
-                transform: `translateY(-${pageIndex * 297}mm)`,
-              }}
-            >
-              {renderTemplate()}
-            </div>
-            {pages.length > 1 && (
-              <div className="page-number">
-                Page {pageIndex + 1} of {pages.length}
-              </div>
-            )}
-          </div>
-        ))}
+      <div className={`preview-content ${isMobilePreview ? 'pb-20' : ''}`}>
+        {activeTab === 'ai-review' ? (
+          <AIReviewPanel overallScore={75} />
+        ) : (
+          <PaginatedPreview>
+            {renderTemplate()}
+          </PaginatedPreview>
+        )}
       </div>
-    </>
+
+      {isMobilePreview && (
+        <div className="preview-mobile-actions">
+          <button
+            onClick={onOpenTemplateSelector}
+            className="preview-mobile-customize"
+          >
+            <Palette className="w-4 h-4 preview-icon-muted" />
+            Customise
+          </button>
+          <button className="preview-mobile-download">
+            <Download className="w-4 h-4" />
+            Download
+          </button>
+        </div>
+      )}
+    </div>
   );
-};
+}

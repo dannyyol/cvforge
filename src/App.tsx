@@ -1,162 +1,290 @@
-import React from 'react';
-import type { CVSection, AISuggestion } from './types/cv';
-import { mockSections, mockAISuggestions, mockKeywords } from './data/mockData';
-import { Navbar } from './components/Navbar';
-import { Sidebar } from './components/Sidebar';
-import { EditorPanel } from './components/EditorPanel';
-import { RightPanel } from './components/RightPanel';
-import { PreviewModal } from './components/PreviewModal';
-import { FloatingPreview } from './components/FloatingPreview';
+import { useState, DragEvent, useEffect } from 'react';
+import { Download } from 'lucide-react';
+import CVTitleCard from './components/CVTitleCard';
+import CVScoreBanner from './components/CVScoreBanner';
+import PersonalDetailsForm from './components/forms/PersonalDetailsForm';
+import ProfessionalSummaryForm from './components/forms/ProfessionalSummaryForm';
+import WorkExperienceForm from './components/forms/WorkExperienceForm';
+import EducationForm from './components/forms/EducationForm';
+import SkillsForm from './components/forms/SkillsForm';
+import ProjectsForm from './components/forms/ProjectsForm';
+import CertificationsForm from './components/forms/CertificationsForm';
+import DraggableSection from './components/DraggableSection';
+import CVPreview from './components/preview/CVPreview';
+import CustomizationSidebar from './components/CustomizationSidebar';
+import CustomizationPreview from './components/preview/CustomizationPreview';
+import MobileTabNav from './components/MobileTabNav';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, SectionType, TemplateId } from './types/resume';
+import { sampleCVData } from './data/sampleCVData';
 
 function App() {
-  const [sections, setSections] = React.useState<CVSection[]>(mockSections);
-  const [activeSection, setActiveSection] = React.useState<string | null>('header');
-  const [suggestions, setSuggestions] = React.useState<AISuggestion[]>(mockAISuggestions);
-  const [currentTemplate, setCurrentTemplate] = React.useState('modern');
-  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
-  const [isSaving, setIsSaving] = React.useState(false);
-  const [lastSaved, setLastSaved] = React.useState<string>('');
+  const [resumeId] = useState(sampleCVData.resume.id);
+  const [resumeTitle, setResumeTitle] = useState(sampleCVData.resume.title);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [language] = useState(sampleCVData.resume.language);
+  const [cvScore] = useState(sampleCVData.resume.cv_score);
+  const [personalDetails, setPersonalDetails] = useState<PersonalDetails | null>(sampleCVData.personalDetails);
+  const [professionalSummary, setProfessionalSummary] = useState<ProfessionalSummary | null>(sampleCVData.professionalSummary);
+  const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>(sampleCVData.workExperience);
+  const [educationEntries, setEducationEntries] = useState<EducationEntry[]>(sampleCVData.education);
+  const [skills, setSkills] = useState<SkillEntry[]>(sampleCVData.skills);
+  const [projects, setProjects] = useState<ProjectEntry[]>(sampleCVData.projects);
+  const [certifications, setCertifications] = useState<CertificationEntry[]>(sampleCVData.certifications);
+  const [sections, setSections] = useState<CVSection[]>([
+    { id: 'header', title: 'Personal Details', isOpen: true, order: 0 },
+    { id: 'summary', title: 'Professional Summary', isOpen: true, order: 1 },
+    { id: 'experience', title: 'Work Experience', isOpen: false, order: 2 },
+    { id: 'education', title: 'Education', isOpen: false, order: 3 },
+    { id: 'skills', title: 'Skills', isOpen: false, order: 4 },
+    { id: 'projects', title: 'Projects', isOpen: false, order: 5 },
+    { id: 'certifications', title: 'Certifications', isOpen: false, order: 6 },
+  ]);
+  const [draggedSectionId, setDraggedSectionId] = useState<SectionType | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>('classic');
+  const [accentColor, setAccentColor] = useState('slate');
+  const [isCustomizationSidebarOpen, setIsCustomizationSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'preview' | 'ai-review'>('preview');
+  const [mobileTab, setMobileTab] = useState<'editor' | 'preview' | 'ai-review'>('editor');
+  const [showMobileSettings, setShowMobileSettings] = useState(false);
 
-  const handleSectionClick = (sectionId: string) => {
-    setActiveSection(sectionId);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const templateParam = urlParams.get('template');
+    const previewParam = urlParams.get('preview');
+
+    if (templateParam && previewParam === 'true') {
+      const validTemplates: TemplateId[] = ['classic', 'modern', 'minimalist', 'professional'];
+      if (validTemplates.includes(templateParam as TemplateId)) {
+        setSelectedTemplate(templateParam as TemplateId);
+        setMobileTab('preview');
+      }
+    }
+  }, []);
+
+  const handleTitleChange = (newTitle: string) => {
+    setResumeTitle(newTitle);
+    setLastSaved(new Date().toISOString());
   };
 
-  const handleToggleVisibility = (sectionId: string) => {
-    setSections(
-      sections.map((section) =>
+
+  const handlePersonalDetailsChange = (field: keyof PersonalDetails, value: string) => {
+    setPersonalDetails((prev) => {
+      if (!prev) return prev;
+      return { ...prev, [field]: value };
+    });
+  };
+
+  const handleProfessionalSummaryChange = (content: string) => {
+    setProfessionalSummary((prev) => {
+      if (!prev) return prev;
+      return { ...prev, content };
+    });
+  };
+
+  const toggleSection = (sectionId: SectionType) => {
+    setSections((prev) =>
+      prev.map((section) =>
         section.id === sectionId
-          ? { ...section, visible: !section.visible }
+          ? { ...section, isOpen: !section.isOpen }
           : section
       )
     );
   };
 
-  const handleReorderSections = (reorderedSections: CVSection[]) => {
-    setSections(reorderedSections);
+  const handleDragStart = (sectionId: SectionType) => (e: DragEvent<HTMLDivElement>) => {
+    setDraggedSectionId(sectionId);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleContentChange = (sectionId: string, content: any) => {
-    setSections(
-      sections.map((section) =>
-        section.id === sectionId ? { ...section, content } : section
-      )
-    );
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleAcceptSuggestion = (suggestionId: string) => {
-    setSuggestions(
-      suggestions.map((s) =>
-        s.id === suggestionId ? { ...s, accepted: true } : s
-      )
-    );
+  const handleDrop = (targetSectionId: SectionType) => (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+
+    if (!draggedSectionId || draggedSectionId === targetSectionId) {
+      setDraggedSectionId(null);
+      return;
+    }
+
+    setSections((prev) => {
+      const draggedIndex = prev.findIndex((s) => s.id === draggedSectionId);
+      const targetIndex = prev.findIndex((s) => s.id === targetSectionId);
+
+      const newSections = [...prev];
+      const [draggedSection] = newSections.splice(draggedIndex, 1);
+      newSections.splice(targetIndex, 0, draggedSection);
+
+      return newSections.map((section, index) => ({
+        ...section,
+        order: index,
+      }));
+    });
+
+    setDraggedSectionId(null);
   };
 
-  const handleRejectSuggestion = (suggestionId: string) => {
-    setSuggestions(
-      suggestions.map((s) =>
-        s.id === suggestionId ? { ...s, accepted: false } : s
-      )
-    );
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-
-    try {
-      const now = new Date().toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit'
-      });
-
-      setLastSaved(now);
-    } catch (error) {
-      console.error('Save failed:', error);
-    } finally {
-      setIsSaving(false);
+  const renderSectionContent = (sectionId: SectionType) => {
+    switch (sectionId) {
+      case 'header':
+        return (
+          <PersonalDetailsForm
+            details={personalDetails}
+            onChange={handlePersonalDetailsChange}
+          />
+        );
+      case 'summary':
+        return (
+          <ProfessionalSummaryForm
+            summary={professionalSummary}
+            onChange={handleProfessionalSummaryChange}
+          />
+        );
+      case 'experience':
+        return (
+          <WorkExperienceForm
+            experiences={workExperiences}
+            onChange={setWorkExperiences}
+          />
+        );
+      case 'education':
+        return (
+          <EducationForm
+            entries={educationEntries}
+            onChange={setEducationEntries}
+          />
+        );
+      case 'skills':
+        return (
+          <SkillsForm
+            skills={skills}
+            onChange={setSkills}
+          />
+        );
+      case 'projects':
+        return (
+          <ProjectsForm
+            projects={projects}
+            onChange={setProjects}
+          />
+        );
+      case 'certifications':
+        return (
+          <CertificationsForm
+            certifications={certifications}
+            onChange={setCertifications}
+          />
+        );
+      default:
+        return null;
     }
   };
 
-  const handlePreview = () => {
-    setIsPreviewOpen(true);
-  };
-
-  const handleExportPDF = () => {
-    console.log('Exporting as PDF...');
-  };
-
-  const handleExportDOCX = () => {
-    console.log('Exporting as DOCX...');
-  };
-
-  const handleTemplateChange = (templateId: string) => {
-    setCurrentTemplate(templateId);
-  };
-
-  const activeSecti = sections.find((s) => s.id === activeSection) || null;
-
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [isRightPanelOpen, setIsRightPanelOpen] = React.useState(false);
-  const [showFloatingPreview, setShowFloatingPreview] = React.useState(false);
-
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      <Navbar
-        onSave={handleSave}
-        onPreview={handlePreview}
-        onExportPDF={handleExportPDF}
-        onExportDOCX={handleExportDOCX}
-        isSaving={isSaving}
-        lastSaved={lastSaved}
-        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        onToggleRightPanel={() => setIsRightPanelOpen(!isRightPanelOpen)}
-        onToggleFloatingPreview={() => setShowFloatingPreview(!showFloatingPreview)}
-        showFloatingPreview={showFloatingPreview}
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      <MobileTabNav
+        activeTab={mobileTab}
+        onTabChange={setMobileTab}
+        onSettingsClick={() => setShowMobileSettings(!showMobileSettings)}
+        isCustomizing={isCustomizationSidebarOpen}
+        onBackToEdit={() => setIsCustomizationSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex overflow-hidden relative">
-        <Sidebar
-          sections={sections}
-          activeSection={activeSection}
-          onSectionClick={handleSectionClick}
-          onToggleVisibility={handleToggleVisibility}
-          onReorderSections={handleReorderSections}
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-        />
+      {isCustomizationSidebarOpen ? (
+        <>
+          <div className="w-full lg:w-[500px] flex-shrink-0">
+            <CustomizationSidebar
+              selectedTemplate={selectedTemplate}
+              onSelectTemplate={setSelectedTemplate}
+              accentColor={accentColor}
+              onAccentColorChange={setAccentColor}
+              onClose={() => setIsCustomizationSidebarOpen(false)}
+            />
+          </div>
 
-        <EditorPanel
-          activeSection={activeSecti}
-          onContentChange={handleContentChange}
-        />
+          <div className="hidden lg:block flex-1">
+            <CustomizationPreview
+              personalDetails={personalDetails}
+              professionalSummary={professionalSummary}
+              workExperiences={workExperiences}
+              educationEntries={educationEntries}
+              skills={skills}
+              projects={projects}
+              certifications={certifications}
+              sections={sections}
+              templateId={selectedTemplate}
+              accentColor={accentColor}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className={`w-full lg:w-[45%] overflow-y-auto bg-gray-50 pb-20 lg:pb-0 pt-24 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
+            <div className="p-4 lg:p-6 lg:pr-8 w-full">
+              <CVTitleCard
+                title={resumeTitle}
+                lastSaved={lastSaved}
+                onTitleChange={handleTitleChange}
+              />
 
-        <RightPanel
-          suggestions={suggestions}
-          keywords={mockKeywords}
-          onAcceptSuggestion={handleAcceptSuggestion}
-          onRejectSuggestion={handleRejectSuggestion}
-          currentTemplate={currentTemplate}
-          onTemplateChange={handleTemplateChange}
-          isOpen={isRightPanelOpen}
-          onClose={() => setIsRightPanelOpen(false)}
-          showFloatingPreview={showFloatingPreview}
-          onToggleFloatingPreview={() => setShowFloatingPreview(!showFloatingPreview)}
-          sections={sections}
-        />
-      </div>
+              {showMobileSettings && (
+                <div className="lg:hidden mb-4">
+                  <CVScoreBanner />
+                </div>
+              )}
 
-      <FloatingPreview
-        isOpen={showFloatingPreview}
-        onClose={() => setShowFloatingPreview(false)}
-        sections={sections}
-        template={currentTemplate}
-      />
+              <div className="hidden lg:block">
+                <CVScoreBanner />
+              </div>
 
-      <PreviewModal
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        sections={sections}
-        template={currentTemplate}
-      />
+              <div className="mt-6">
+                {sections.map((section) => (
+                  <DraggableSection
+                    key={section.id}
+                    id={section.id}
+                    title={section.title}
+                    isOpen={section.isOpen}
+                    onToggle={() => toggleSection(section.id)}
+                    onDragStart={handleDragStart(section.id)}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop(section.id)}
+                  >
+                    {renderSectionContent(section.id)}
+                  </DraggableSection>
+                ))}
+              </div>
+
+              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-30">
+                <button className="w-full px-5 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors">
+                  <Download className="w-4 h-4" />
+                  Download CV
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className={`w-full lg:w-[55%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
+            <CVPreview
+              personalDetails={personalDetails}
+              professionalSummary={professionalSummary}
+              workExperiences={workExperiences}
+              educationEntries={educationEntries}
+              skills={skills}
+              projects={projects}
+              certifications={certifications}
+              sections={sections}
+              templateId={selectedTemplate}
+              accentColor={accentColor}
+              activeTab={mobileTab === 'ai-review' ? 'ai-review' : activeTab}
+              onTabChange={setActiveTab}
+              onOpenTemplateSelector={() => setIsCustomizationSidebarOpen(true)}
+              isMobilePreview={mobileTab === 'preview' || mobileTab === 'ai-review'}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }
