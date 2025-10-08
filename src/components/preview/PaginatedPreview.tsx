@@ -199,7 +199,7 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
         {children}
       </div>
 
-      <div ref={containerRef} className="w-full flex flex-col items-center pt-6 pb-6 cv-preview-container">
+      <div ref={containerRef} className="w-full flex flex-col items-center pt-6 pb-6">
         {!ready && (
           <div className="mb-4 text-sm text-gray-500">
             Preparing preview...
@@ -249,7 +249,7 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
               }}
             >
               <div
-                className="page-inner"
+                className="page-inner cv-preview-container"
                 style={{
                   boxSizing: 'border-box',
                   width: `${A4_UK.width}px`,
