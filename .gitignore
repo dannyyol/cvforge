@@ -22,4 +22,4 @@ dist-ssr
 *.sw?
 .env
 README-THUMBNAILS.md
-.scripts/*
+.public/thumbnails/*
