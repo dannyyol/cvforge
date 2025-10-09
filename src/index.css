@@ -159,7 +159,7 @@
   .sidebar-coming-soon { @apply p-4 text-neutral-400 text-sm; }
 
   /* Preview utilities */
-  .preview-page { @apply w-full bg-neutral-100 flex flex-col lg:sticky lg:top-0 h-screen overflow-hidden pt-24 lg:pt-0; }
+  .preview-page { @apply w-full bg-neutral-100 flex flex-col lg:sticky lg:top-0 h-screen overflow-hidden pt-16 lg:pt-0; }
   .preview-toolbar { @apply hidden lg:flex bg-neutral-100 pt-6 pb-4 px-6 items-center justify-between border-b border-neutral-200; }
   .preview-customize-btn { @apply flex items-center gap-2 px-4 py-2 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors; }
   .preview-icon-muted { @apply text-neutral-700; }
