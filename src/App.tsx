@@ -46,6 +46,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<'preview' | 'ai-review'>('preview');
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview' | 'ai-review'>('editor');
   const [showMobileSettings, setShowMobileSettings] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -187,7 +188,7 @@ function App() {
       <MobileTabNav
         activeTab={mobileTab}
         onTabChange={setMobileTab}
-        onSettingsClick={() => setShowMobileSettings(!showMobileSettings)}
+        onSettingsClick={() => setShowMobileMenu(!showMobileMenu)}
         isCustomizing={isCustomizationSidebarOpen}
         onBackToEdit={() => setIsCustomizationSidebarOpen(false)}
       />
@@ -278,6 +279,8 @@ function App() {
               onTabChange={setActiveTab}
               onOpenTemplateSelector={() => setIsCustomizationSidebarOpen(true)}
               isMobilePreview={mobileTab === 'preview' || mobileTab === 'ai-review'}
+              showMobileMenu={showMobileMenu}
+              onMobileMenuToggle={() => setShowMobileMenu(!showMobileMenu)}
             />
           </div>
         </>

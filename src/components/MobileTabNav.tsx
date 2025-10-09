@@ -1,4 +1,4 @@
-import { FileEdit, Eye, Sparkles, Settings, ArrowLeft } from 'lucide-react';
+import { FileEdit, Eye, Sparkles, Settings, ArrowLeft, LayoutGrid } from 'lucide-react';
 
 interface MobileTabNavProps {
   activeTab: 'editor' | 'preview' | 'ai-review';
@@ -63,9 +63,9 @@ export default function MobileTabNav({ activeTab, onTabChange, onSettingsClick, 
         <button
           onClick={onSettingsClick}
           className="mobile-nav-settings-icon"
-          aria-label="Settings"
+          aria-label="Menu"
         >
-          <Settings className="w-5 h-5" />
+          <LayoutGrid className="w-5 h-5" />
         </button>
       </div>
     </div>

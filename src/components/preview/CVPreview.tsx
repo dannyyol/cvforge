@@ -1,4 +1,5 @@
-import { Grid, Grid2X2, Grid2X2Icon, Grid3x3, LayoutGrid, LayoutGridIcon, LucideEggFried, LucideGrape, LucideGrid2X2, LucideGrid3X3, LucideGripHorizontal, LucideGripVertical, LucideLayout, LucideLayoutGrid, LucideLayoutList, LucideLayoutPanelTop, LucideLayoutTemplate, Palette, Settings } from 'lucide-react';
+import { useState } from 'react';
+import { Grid, Grid2X2, Grid2X2Icon, Grid3x3, LayoutGrid, LayoutGridIcon, LucideEggFried, LucideGrape, LucideGrid2X2, LucideGrid3X3, LucideGripHorizontal, LucideGripVertical, LucideLayout, LucideLayoutGrid, LucideLayoutList, LucideLayoutPanelTop, LucideLayoutTemplate, Palette, Settings, X, Briefcase, FileText, Users, GraduationCap, DollarSign, MessageSquare, MoreHorizontal } from 'lucide-react';
 import DownloadDropdown from '../DownloadDropdown';
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId } from '../../types/resume';
 import ClassicTemplate from '../templates/ClassicTemplate';
@@ -23,9 +24,22 @@ interface CVPreviewProps {
   onTabChange: (tab: 'preview' | 'ai-review') => void;
   onOpenTemplateSelector: () => void;
   isMobilePreview?: boolean;
+  showMobileMenu?: boolean;
+  onMobileMenuToggle?: () => void;
 }
 
-export default function CVPreview({ personalDetails, professionalSummary, workExperiences, educationEntries, skills, projects, certifications, sections, templateId, accentColor = 'slate', activeTab, onTabChange, onOpenTemplateSelector, isMobilePreview = false }: CVPreviewProps) {
+export default function CVPreview({ personalDetails, professionalSummary, workExperiences, educationEntries, skills, projects, certifications, sections, templateId, accentColor = 'slate', activeTab, onTabChange, onOpenTemplateSelector, isMobilePreview = false, showMobileMenu = false, onMobileMenuToggle }: CVPreviewProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const isMenuVisible = isMobilePreview ? showMobileMenu : isMenuOpen;
+  const handleMenuToggle = () => {
+    if (isMobilePreview && onMobileMenuToggle) {
+      onMobileMenuToggle();
+    } else {
+      setIsMenuOpen(!isMenuOpen);
+    }
+  };
+
   const commonProps = {
     personalDetails,
     professionalSummary,
@@ -82,19 +96,46 @@ export default function CVPreview({ personalDetails, professionalSummary, workEx
         <div className="flex items-center gap-2">
           <DownloadDropdown className="preview-download-btn" />
 
-          <button className="preview-settings-btn">
+          <button className="preview-settings-btn" onClick={handleMenuToggle}>
             <LucideLayoutGrid className="w-6 h-6 header-icon-muted" />
           </button>
         </div>
       </div>
 
-      <div className={`preview-content ${isMobilePreview ? 'pb-16' : ''}`}>
-        {activeTab === 'ai-review' ? (
-          <AIReviewPanel overallScore={75} />
-        ) : (
-          <PaginatedPreview>
-            {renderTemplate()}
-          </PaginatedPreview>
+      <div className="flex-1 overflow-hidden relative">
+        <div className={`preview-content ${isMobilePreview ? 'pb-16' : ''}`}>
+          {activeTab === 'ai-review' ? (
+            <AIReviewPanel overallScore={75} />
+          ) : (
+            <PaginatedPreview>
+              {renderTemplate()}
+            </PaginatedPreview>
+          )}
+        </div>
+
+        {isMenuVisible && (
+          <div className="absolute top-0 right-0 bottom-0 w-80 bg-white border-l border-neutral-200 flex flex-col shadow-2xl z-10">
+            <div className="flex items-center justify-between p-4 border-b border-neutral-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center relative">
+                  <span className="text-sm font-medium text-neutral-500">👤</span>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-neutral-900">{personalDetails?.fullName || 'Ayobami Omotayo'}</h3>
+                  <p className="text-xs text-neutral-500">write somethig here</p>
+                </div>
+              </div>
+              <button onClick={handleMenuToggle} className="p-1 hover:bg-neutral-100 rounded transition-colors">
+                <X className="w-5 h-5 text-neutral-700" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              <nav className="p-3">
+                <MenuItem icon={<Grid className="w-5 h-5" />} label="Dashboard" />
+              </nav>
+            </div>
+          </div>
         )}
       </div>
 
@@ -111,5 +152,43 @@ export default function CVPreview({ personalDetails, professionalSummary, workEx
         </div>
       )}
     </div>
+  );
+}
+
+interface MenuItemProps {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  hasArrow?: boolean;
+  badge?: string;
+  badgeColor?: 'blue' | 'gray';
+}
+
+function MenuItem({ icon, label, active = false, hasArrow = false, badge, badgeColor = 'gray' }: MenuItemProps) {
+  return (
+    <button
+      className={`w-full flex items-center justify-between px-3 py-3 rounded-lg mb-1 transition-colors ${
+        active ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-50'
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <span className={active ? 'text-neutral-700' : 'text-neutral-400'}>{icon}</span>
+        <span className="text-sm font-medium">{label}</span>
+      </div>
+      <div className="flex items-center gap-2">
+        {badge && (
+          <span
+            className={`text-xs font-bold px-2 py-0.5 rounded ${
+              badgeColor === 'blue'
+                ? 'bg-blue-500 text-white'
+                : 'bg-blue-100 text-blue-600'
+            }`}
+          >
+            {badge}
+          </span>
+        )}
+        {hasArrow && <span className="text-neutral-400">›</span>}
+      </div>
+    </button>
   );
 }
