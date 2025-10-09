@@ -208,18 +208,18 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
 
         {ready && pages.length > 0 && (
           <>
-            <div className="flex items-center gap-2 mb-6 bg-white rounded-lg shadow-md px-2 py-2">
+            <div className="flex items-center gap-1 mb-6 bg-white rounded-lg shadow-md px-1.5 py-1.5">
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage === 0}
-                className="p-2 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 aria-label="Previous page"
               >
-                <ChevronLeft size={18} className="text-gray-700" />
+                <ChevronLeft size={16} className="text-gray-700" />
               </button>
 
-              <div className="px-4 py-1">
-                <span className="text-sm font-medium text-gray-900">
+              <div className="px-3 py-0.5">
+                <span className="text-xs font-medium text-gray-900">
                   Page {currentPage + 1} of {pages.length}
                 </span>
               </div>
@@ -227,10 +227,10 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
               <button
                 onClick={handleNextPage}
                 disabled={currentPage === pages.length - 1}
-                className="p-2 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 aria-label="Next page"
               >
-                <ChevronRight size={18} className="text-gray-700" />
+                <ChevronRight size={16} className="text-gray-700" />
               </button>
             </div>
 

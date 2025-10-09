@@ -1,5 +1,5 @@
 import { useState, DragEvent, useEffect } from 'react';
-import { Download } from 'lucide-react';
+import DownloadDropdown from './components/DownloadDropdown';
 import CVTitleCard from './components/CVTitleCard';
 import CVScoreBanner from './components/CVScoreBanner';
 import PersonalDetailsForm from './components/forms/PersonalDetailsForm';
@@ -257,10 +257,7 @@ function App() {
               </div>
 
               <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-30">
-                <button className="w-full px-5 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors">
-                  <Download className="w-4 h-4" />
-                  {/* Download CV */}
-                </button>
+                <DownloadDropdown variant="icon-only" className="w-full px-5 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors" />
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
-import { Menu, CreditCard as Edit2, ChevronDown, Sparkles, Download, Settings, Palette } from 'lucide-react';
+import { Menu, CreditCard as Edit2, ChevronDown, Sparkles, Settings, Palette } from 'lucide-react';
+import DownloadDropdown from './DownloadDropdown';
 
 interface HeaderProps {
   resumeTitle: string;
@@ -81,10 +82,7 @@ export default function Header({ resumeTitle, language, cvScore, onTitleChange, 
           </button>
         </div>
 
-        <button className="header-download-btn">
-          Download
-          <ChevronDown className="w-4 h-4" />
-        </button>
+        <DownloadDropdown className="header-download-btn" />
 
         <button className="header-settings-btn">
           <Settings className="w-5 h-5 header-icon-muted" />

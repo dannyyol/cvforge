@@ -1,4 +1,5 @@
-import { Palette, ChevronDown, Settings, Download } from 'lucide-react';
+import { Palette, Settings } from 'lucide-react';
+import DownloadDropdown from '../DownloadDropdown';
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId } from '../../types/resume';
 import ClassicTemplate from '../templates/ClassicTemplate';
 import ModernTemplate from '../templates/ModernTemplate';
@@ -79,10 +80,7 @@ export default function CVPreview({ personalDetails, professionalSummary, workEx
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="preview-download-btn">
-            Download
-            <ChevronDown className="w-4 h-4" />
-          </button>
+          <DownloadDropdown className="preview-download-btn" />
 
           <button className="preview-settings-btn">
             <Settings className="w-5 h-5 preview-icon-muted" />
@@ -109,10 +107,7 @@ export default function CVPreview({ personalDetails, professionalSummary, workEx
             <Palette className="w-4 h-4 preview-icon-muted" />
             Customise
           </button>
-          <button className="preview-mobile-download">
-            <Download className="w-4 h-4" />
-            Download
-          </button>
+          <DownloadDropdown variant="mobile" />
         </div>
       )}
     </div>
