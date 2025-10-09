@@ -259,7 +259,7 @@ function App() {
               <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-30">
                 <button className="w-full px-5 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors">
                   <Download className="w-4 h-4" />
-                  Download CV
+                  {/* Download CV */}
                 </button>
               </div>
             </div>

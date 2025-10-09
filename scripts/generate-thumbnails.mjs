@@ -39,7 +39,7 @@ async function generateThumbnails() {
     try {
       console.log(`Generating thumbnail for ${templateId}...`);
 
-      await page.goto(`${devServerUrl}?template=${templateId}&preview=true`, {
+      await page.goto(`${devServerUrl}?template=${templateId}&thumbnail=true`, {
         waitUntil: 'networkidle0',
         timeout: 30000,
       });
