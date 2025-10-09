@@ -1,4 +1,4 @@
-import { Palette, Settings } from 'lucide-react';
+import { Grid, Grid2X2, Grid2X2Icon, Grid3x3, LayoutGrid, LayoutGridIcon, LucideEggFried, LucideGrape, LucideGrid2X2, LucideGrid3X3, LucideGripHorizontal, LucideGripVertical, LucideLayout, LucideLayoutGrid, LucideLayoutList, LucideLayoutPanelTop, LucideLayoutTemplate, Palette, Settings } from 'lucide-react';
 import DownloadDropdown from '../DownloadDropdown';
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId } from '../../types/resume';
 import ClassicTemplate from '../templates/ClassicTemplate';
@@ -83,7 +83,7 @@ export default function CVPreview({ personalDetails, professionalSummary, workEx
           <DownloadDropdown className="preview-download-btn" />
 
           <button className="preview-settings-btn">
-            <Settings className="w-5 h-5 preview-icon-muted" />
+            <LucideLayoutGrid className="w-6 h-6 header-icon-muted" />
           </button>
         </div>
       </div>

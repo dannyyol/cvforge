@@ -1,4 +1,4 @@
-import { Menu, CreditCard as Edit2, ChevronDown, Sparkles, Settings, Palette } from 'lucide-react';
+import { Menu, CreditCard as Edit2, ChevronDown, Sparkles, Grid3x3, Palette, LucideLayoutGrid } from 'lucide-react';
 import DownloadDropdown from './DownloadDropdown';
 
 interface HeaderProps {
@@ -85,7 +85,7 @@ export default function Header({ resumeTitle, language, cvScore, onTitleChange, 
         <DownloadDropdown className="header-download-btn" />
 
         <button className="header-settings-btn">
-          <Settings className="w-5 h-5 header-icon-muted" />
+          <LucideLayoutGrid className="w-6 h-6 header-icon-muted" />
         </button>
       </div>
     </header>
