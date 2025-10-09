@@ -102,8 +102,8 @@ export default function CVPreview({ personalDetails, professionalSummary, workEx
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden relative">
-        <div className={`preview-content ${isMobilePreview ? 'pb-16' : ''}`}>
+      <div className={`flex-1 relative ${activeTab === 'ai-review' ? 'overflow-y-auto' : 'overflow-hidden'}`}>
+        <div className={`${activeTab === 'ai-review' ? '' : 'preview-content'} ${isMobilePreview ? 'pb-16' : ''}`}>
           {activeTab === 'ai-review' ? (
             <AIReviewPanel overallScore={75} />
           ) : (
