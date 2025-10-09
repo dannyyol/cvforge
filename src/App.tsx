@@ -221,7 +221,7 @@ function App() {
         </>
       ) : (
         <>
-          <div className={`w-full lg:w-[45%] overflow-y-auto bg-gray-50 pb-20 lg:pb-0 pt-24 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
+          <div className={`w-full lg:w-[45%] overflow-y-auto bg-gray-50 pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
             <div className="p-4 lg:p-6 lg:pr-8 w-full">
               <CVTitleCard
                 title={resumeTitle}

@@ -4,11 +4,19 @@
 
 @layer components {
   /* Mobile nav utilities */
-  .mobile-nav { @apply lg:hidden fixed top-0 left-0 right-0 bg-white border-b border-neutral-200 z-40; }
+  .mobile-nav { @apply lg:hidden fixed top-0 left-0 right-0 bg-gradient-to-b from-neutral-50 to-white border-b border-neutral-200 z-40; }
+  .mobile-nav-content { @apply flex items-center justify-between px-4 py-3; }
+
+  .mobile-nav-pill-group { @apply inline-flex items-center bg-white rounded-full p-1 shadow-sm border border-neutral-200; }
+  .mobile-nav-pill-btn { @apply px-5 py-2 rounded-full text-sm font-medium transition-all duration-200; }
+  .mobile-nav-pill-btn--active { @apply bg-blue-600 text-white shadow-md; }
+  .mobile-nav-pill-btn--inactive { @apply text-neutral-500 hover:text-neutral-700; }
+
+  .mobile-nav-settings-icon { @apply p-2 text-neutral-600 hover:bg-neutral-100 rounded-full transition-colors; }
+
   .mobile-nav-top { @apply flex items-center justify-end px-4 py-2 border-b border-neutral-100; }
   .mobile-nav-settings-btn { @apply p-2 hover:bg-neutral-50 rounded-lg transition-colors; }
   .mobile-nav-icon-muted { @apply text-neutral-600; }
-
   .mobile-nav-tabs { @apply flex items-center gap-1 px-4 py-2; }
   .mobile-nav-tab-btn { @apply flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors; }
   .mobile-nav-tab-btn--active { @apply bg-primary-50 text-primary-600; }

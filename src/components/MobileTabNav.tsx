@@ -27,51 +27,46 @@ export default function MobileTabNav({ activeTab, onTabChange, onSettingsClick, 
 
   return (
     <div className="mobile-nav">
-      <div className="flex flex-col">
-        <div className="mobile-nav-top">
-          <button
-            onClick={onSettingsClick}
-            className="mobile-nav-settings-btn"
-            aria-label="Settings"
-          >
-            <Settings className="w-5 h-5 mobile-nav-icon-muted" />
-          </button>
-        </div>
-        <div className="mobile-nav-tabs">
+      <div className="mobile-nav-content">
+        <div className="mobile-nav-pill-group">
           <button
             onClick={() => onTabChange('editor')}
-            className={`mobile-nav-tab-btn ${
+            className={`mobile-nav-pill-btn ${
               activeTab === 'editor'
-                ? 'mobile-nav-tab-btn--active'
-                : 'mobile-nav-tab-btn--inactive'
+                ? 'mobile-nav-pill-btn--active'
+                : 'mobile-nav-pill-btn--inactive'
             }`}
           >
-            <FileEdit className="w-4 h-4" />
             Editor
           </button>
           <button
             onClick={() => onTabChange('preview')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`mobile-nav-pill-btn ${
               activeTab === 'preview'
-                ? 'bg-blue-50 text-blue-600'
-                : 'text-gray-600 hover:bg-gray-50'
+                ? 'mobile-nav-pill-btn--active'
+                : 'mobile-nav-pill-btn--inactive'
             }`}
           >
-            <Eye className="w-4 h-4" />
             Preview
           </button>
           <button
             onClick={() => onTabChange('ai-review')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`mobile-nav-pill-btn ${
               activeTab === 'ai-review'
-                ? 'bg-blue-50 text-blue-600'
-                : 'text-gray-600 hover:bg-gray-50'
+                ? 'mobile-nav-pill-btn--active'
+                : 'mobile-nav-pill-btn--inactive'
             }`}
           >
-            <Sparkles className="w-4 h-4" />
             AI Review
           </button>
         </div>
+        <button
+          onClick={onSettingsClick}
+          className="mobile-nav-settings-icon"
+          aria-label="Settings"
+        >
+          <Settings className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );

@@ -90,7 +90,7 @@ export default function CVPreview({ personalDetails, professionalSummary, workEx
         </div>
       </div>
 
-      <div className={`preview-content ${isMobilePreview ? 'pb-20' : ''}`}>
+      <div className={`preview-content ${isMobilePreview ? 'pb-16' : ''}`}>
         {activeTab === 'ai-review' ? (
           <AIReviewPanel overallScore={75} />
         ) : (
