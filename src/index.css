@@ -24,8 +24,8 @@
 
   .mobile-nav-back-container { @apply flex items-center gap-3 px-4 py-3; }
   .mobile-nav-back-btn { @apply flex items-center gap-2 text-neutral-700 hover:text-neutral-900 transition-colors; }
-  .ai-panel { @apply w-full bg-white; }
-  .ai-container { @apply max-w-4xl mx-auto p-6 space-y-6; }
+  .ai-panel { @apply w-full bg-white min-h-screen; }
+  .ai-container { @apply max-w-4xl mx-auto p-8 space-y-6; }
 
   .ai-score-banner { @apply rounded-xl border-2 p-6; }
   .ai-score-banner--good { @apply bg-success-50 border-success-200; }
