@@ -212,4 +212,20 @@
   .header-tab-btn--inactive { @apply text-neutral-600 hover:text-neutral-900; }
   .header-download-btn { @apply px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 flex items-center gap-2; }
   .header-settings-btn { @apply p-2 hover:bg-neutral-100 rounded-lg; }
+
+  /* Animation utilities */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
 }
