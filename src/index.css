@@ -25,7 +25,7 @@
   .mobile-nav-back-container { @apply flex items-center gap-3 px-4 py-3; }
   .mobile-nav-back-btn { @apply flex items-center gap-2 text-neutral-700 hover:text-neutral-900 transition-colors; }
   .ai-panel { @apply w-full bg-white min-h-screen; }
-  .ai-container { @apply max-w-4xl mx-auto p-8 space-y-6; }
+  .ai-container { @apply max-w-4xl mx-auto px-8 pt-3 pb-8 space-y-6; }
 
   .ai-score-banner { @apply rounded-xl border-2 p-6; }
   .ai-score-banner--good { @apply bg-success-50 border-success-200; }
@@ -160,7 +160,7 @@
 
   /* Preview utilities */
   .preview-page { @apply w-full bg-neutral-100 flex flex-col lg:sticky lg:top-0 h-screen overflow-hidden pt-16 lg:pt-0; }
-  .preview-toolbar { @apply hidden lg:flex bg-neutral-100 pt-6 pb-4 px-6 items-center justify-between border-b border-neutral-200; }
+  .preview-toolbar { @apply hidden lg:flex bg-neutral-100 pt-3 pb-3 px-6 items-center justify-between border-b border-neutral-200; }
   .preview-customize-btn { @apply flex items-center gap-2 px-4 py-2 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors; }
   .preview-icon-muted { @apply text-neutral-700; }
   .preview-tab-container { @apply flex items-center bg-white rounded-lg shadow-sm border border-neutral-200; }

@@ -199,7 +199,7 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
         {children}
       </div>
 
-      <div ref={containerRef} className="w-full flex flex-col items-center pt-6 pb-6">
+      <div ref={containerRef} className="w-full flex flex-col items-center pt-3 pb-6">
         {!ready && (
           <div className="mb-4 text-sm text-gray-500">
             Preparing preview...
@@ -208,7 +208,7 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
 
         {ready && pages.length > 0 && (
           <>
-            <div className="flex items-center gap-1 mb-6 bg-white rounded-lg shadow-md px-1.5 py-1.5">
+            <div className="flex items-center gap-1 mb-3 bg-white rounded-lg shadow-md px-1.5 py-1.5">
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage === 0}
