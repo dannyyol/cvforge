@@ -68,44 +68,44 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Start Date
               </label>
               <input
                 type="date"
                 value={project.start_date || ''}
                 onChange={(e) => handleChange(project.id, 'start_date', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 End Date
               </label>
               <input
                 type="date"
                 value={project.end_date || ''}
                 onChange={(e) => handleChange(project.id, 'end_date', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
               />
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Project URL
               </label>
               <input
                 type="url"
                 value={project.url}
                 onChange={(e) => handleChange(project.id, 'url', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
                 placeholder="https://example.com"
               />
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Description
               </label>
               <RichTextEditor

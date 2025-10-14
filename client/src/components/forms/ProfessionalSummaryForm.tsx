@@ -9,7 +9,7 @@ interface ProfessionalSummaryFormProps {
 export default function ProfessionalSummaryForm({ summary, onChange }: ProfessionalSummaryFormProps) {
   return (
     <div>
-        <p className="text-sm text-neutral-600 mb-4">
+        <p className="text-sm text-neutral-500 mb-6 leading-relaxed">
         Write 2-4 short, energetic sentences about how great you are. Mention the role and what you did. What were the big achievements? Describe your motivation and list your skills.
       </p>
 

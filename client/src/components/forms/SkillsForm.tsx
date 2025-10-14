@@ -34,7 +34,7 @@ export default function SkillsForm({ skills, onChange }: SkillsFormProps) {
 
   return (
     <div className="form-container">
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-4">
         {skills.map((skill) => (
           <div key={skill.id} className="flex items-center gap-3">
             <div className="flex-1">

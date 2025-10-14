@@ -185,6 +185,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      {/* Mobile tab nav and customization sidebar logic unchanged */}
       <MobileTabNav
         activeTab={mobileTab}
         onTabChange={setMobileTab}
@@ -222,23 +223,13 @@ function App() {
         </>
       ) : (
         <>
-          <div className={`w-full lg:w-[45%] overflow-y-auto bg-gray-50 pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
+          <div className={`w-full lg:w-[48%] overflow-y-auto bg-gray-50 pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
             <div className="p-4 lg:p-6 lg:pr-8 w-full">
               <CVTitleCard
                 title={resumeTitle}
                 lastSaved={lastSaved}
                 onTitleChange={handleTitleChange}
               />
-
-              {showMobileSettings && (
-                <div className="lg:hidden mb-4">
-                  <CVScoreBanner />
-                </div>
-              )}
-
-              <div className="hidden lg:block">
-                <CVScoreBanner />
-              </div>
 
               <div className="mt-6">
                 {sections.map((section) => (
@@ -263,7 +254,7 @@ function App() {
             </div>
           </div>
 
-          <div className={`w-full lg:w-[55%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
+          <div className={`w-full lg:w-[52%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
             <CVPreview
               personalDetails={personalDetails}
               professionalSummary={professionalSummary}

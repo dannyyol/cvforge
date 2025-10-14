@@ -38,65 +38,65 @@ export default function RichTextEditor({ value, onChange, placeholder, rows = 6 
   };
 
   return (
-    <div className="border border-gray-200 rounded-md overflow-hidden">
-      <div className="flex items-center gap-2 p-2 bg-gray-50 border-b border-gray-200">
+    <div className="border-2 border-neutral-200 overflow-hidden bg-white">
+      <div className="flex items-center gap-2 p-3 bg-neutral-50 border-b-2 border-neutral-200">
         <button
           type="button"
           onClick={() => applyFormat('bold')}
-          className="p-1.5 hover:bg-gray-200 rounded"
+          className="p-2 hover:bg-neutral-200 transition-colors"
           title="Bold"
         >
-          <Bold className="w-4 h-4 text-gray-700" />
+          <Bold className="w-4 h-4 text-neutral-900" />
         </button>
         <button
           type="button"
           onClick={() => applyFormat('italic')}
-          className="p-1.5 hover:bg-gray-200 rounded"
+          className="p-2 hover:bg-neutral-200 transition-colors"
           title="Italic"
         >
-          <Italic className="w-4 h-4 text-gray-700" />
+          <Italic className="w-4 h-4 text-neutral-900" />
         </button>
         <button
           type="button"
           onClick={() => applyFormat('underline')}
-          className="p-1.5 hover:bg-gray-200 rounded"
+          className="p-2 hover:bg-neutral-200 transition-colors"
           title="Underline"
         >
-          <Underline className="w-4 h-4 text-gray-700" />
+          <Underline className="w-4 h-4 text-neutral-900" />
         </button>
         <button
           type="button"
           onClick={() => applyFormat('strikeThrough')}
-          className="p-1.5 hover:bg-gray-200 rounded"
+          className="p-2 hover:bg-neutral-200 transition-colors"
           title="Strikethrough"
         >
-          <Strikethrough className="w-4 h-4 text-gray-700" />
+          <Strikethrough className="w-4 h-4 text-neutral-900" />
         </button>
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+        <div className="w-px h-6 bg-neutral-300 mx-1" />
         <button
           type="button"
           onClick={() => applyFormat('insertUnorderedList')}
-          className="p-1.5 hover:bg-gray-200 rounded"
+          className="p-2 hover:bg-neutral-200 transition-colors"
           title="Bullet List"
         >
-          <List className="w-4 h-4 text-gray-700" />
+          <List className="w-4 h-4 text-neutral-900" />
         </button>
         <button
           type="button"
           onClick={() => applyFormat('insertOrderedList')}
-          className="p-1.5 hover:bg-gray-200 rounded"
+          className="p-2 hover:bg-neutral-200 transition-colors"
           title="Numbered List"
         >
-          <ListOrdered className="w-4 h-4 text-gray-700" />
+          <ListOrdered className="w-4 h-4 text-neutral-900" />
         </button>
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+        <div className="w-px h-6 bg-neutral-300 mx-1" />
         <button
           type="button"
           onClick={insertLink}
-          className="p-1.5 hover:bg-gray-200 rounded"
+          className="p-2 hover:bg-neutral-200 transition-colors"
           title="Link"
         >
-          <Link className="w-4 h-4 text-gray-700" />
+          <Link className="w-4 h-4 text-neutral-900" />
         </button>
       </div>
 
@@ -106,7 +106,7 @@ export default function RichTextEditor({ value, onChange, placeholder, rows = 6 
         onInput={handleInput}
         onPaste={handlePaste}
         dangerouslySetInnerHTML={{ __html: value }}
-        className="w-full px-3 py-3 text-sm focus:outline-none min-h-[120px] max-h-[300px] overflow-y-auto"
+        className="w-full px-4 py-3 text-sm focus:outline-none min-h-[120px] max-h-[300px] overflow-y-auto font-light"
         style={{ minHeight: `${rows * 24}px` }}
         data-placeholder={placeholder}
       />

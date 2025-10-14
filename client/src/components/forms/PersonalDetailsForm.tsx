@@ -8,7 +8,7 @@ interface PersonalDetailsFormProps {
 
 export default function PersonalDetailsForm({ details, onChange }: PersonalDetailsFormProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
         <div>
           <label className="form-label-wide">
             Job Title
@@ -24,32 +24,32 @@ export default function PersonalDetailsForm({ details, onChange }: PersonalDetai
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               First Name
             </label>
             <input
               type="text"
               value={details?.first_name || ''}
               onChange={(e) => onChange('first_name', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="form-input-soft"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               Last Name
             </label>
             <input
               type="text"
               value={details?.last_name || ''}
               onChange={(e) => onChange('last_name', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="form-input-soft"
             />
           </div>
         </div>
 
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="form-label">
             Photo
           </label>
           <div className="form-photo-box">
@@ -62,64 +62,64 @@ export default function PersonalDetailsForm({ details, onChange }: PersonalDetai
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               Email
             </label>
             <input
               type="email"
               value={details?.email || ''}
               onChange={(e) => onChange('email', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="form-input-soft"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               Phone
             </label>
             <input
               type="tel"
               value={details?.phone || ''}
               onChange={(e) => onChange('phone', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="form-input-soft"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="form-label">
             Address
           </label>
           <input
             type="text"
             value={details?.address || ''}
             onChange={(e) => onChange('address', e.target.value)}
-            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="form-input-soft"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               City / State
             </label>
             <input
               type="text"
               value={details?.city_state || ''}
               onChange={(e) => onChange('city_state', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="form-input-soft"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="form-label">
               Country
             </label>
             <input
               type="text"
               value={details?.country || ''}
               onChange={(e) => onChange('country', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="form-input-soft"
             />
           </div>
         </div>

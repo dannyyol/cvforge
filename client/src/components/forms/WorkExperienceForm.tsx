@@ -70,59 +70,59 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Company
               </label>
               <input
                 type="text"
                 value={experience.company}
                 onChange={(e) => handleChange(experience.id, 'company', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
                 placeholder="e.g. Tech Corp"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Location
               </label>
               <input
                 type="text"
                 value={experience.location}
                 onChange={(e) => handleChange(experience.id, 'location', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
                 placeholder="e.g. San Francisco, CA"
               />
             </div>
 
             <div className="flex items-end">
-              <label className="flex items-center space-x-2 cursor-pointer">
+              <label className="flex items-center space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={experience.current}
                   onChange={(e) => handleChange(experience.id, 'current', e.target.checked)}
                   className="form-checkbox"
                 />
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-xs font-semibold text-neutral-900 uppercase tracking-wide">
                   Currently working here
                 </span>
               </label>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Start Date
               </label>
               <input
                 type="date"
                 value={experience.start_date || ''}
                 onChange={(e) => handleChange(experience.id, 'start_date', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 End Date
               </label>
               <input
@@ -135,7 +135,7 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Description
               </label>
               <RichTextEditor

@@ -81,51 +81,51 @@ export default function CertificationsForm({ certifications, onChange }: Certifi
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Issue Date
               </label>
               <input
                 type="date"
                 value={cert.issue_date || ''}
                 onChange={(e) => handleChange(cert.id, 'issue_date', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Expiry Date (Optional)
               </label>
               <input
                 type="date"
                 value={cert.expiry_date || ''}
                 onChange={(e) => handleChange(cert.id, 'expiry_date', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Credential ID
               </label>
               <input
                 type="text"
                 value={cert.credential_id}
                 onChange={(e) => handleChange(cert.id, 'credential_id', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
                 placeholder="Credential ID"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="form-label">
                 Verification URL
               </label>
               <input
                 type="url"
                 value={cert.url}
                 onChange={(e) => handleChange(cert.id, 'url', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-input"
                 placeholder="https://..."
               />
             </div>
