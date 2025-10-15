@@ -118,7 +118,7 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
     const scaleByHeight = containerHeight / A4_UK.height;
 
     const optimalScale = Math.min(scaleByWidth, scaleByHeight, 1);
-    setScale(Math.max(optimalScale, 0.4));
+    setScale(Math.max(optimalScale, 0.55));
   };
 
   useEffect(() => {

@@ -185,7 +185,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
-      {/* Mobile tab nav and customization sidebar logic unchanged */}
       <MobileTabNav
         activeTab={mobileTab}
         onTabChange={setMobileTab}
