@@ -1,24 +1,41 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Target, FileText, Zap, Award, Clock, RefreshCw } from 'lucide-react';
 
+import { api } from '../services/apiClient';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId, Resume } from '../types/resume';
+import { analyzeCV, CVDataPayload } from '../services/analysisService';
+
 interface AIReviewPanelProps {
   overallScore: number;
+  cvData: CVDataPayload;
 }
 
-export default function AIReviewPanel({ overallScore }: AIReviewPanelProps) {
+interface AnalysisResponse {
+  overallScore: number;
+  atsScore: number;
+  insights: string[];
+  recommendations: string[];
+}
+
+export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [visibleSections, setVisibleSections] = useState<number[]>([]);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsLoading(true);
     setVisibleSections([]);
     setShowReview(false);
 
-    setTimeout(() => {
+    try {
+      await analyzeCV(cvData, { mock: true, delayMs: 1200 });
+      // Optionally use returned values to update local UI state
+    } catch {
+      // keep UX smooth even if request fails
+    } finally {
       setIsLoading(false);
       setShowReview(true);
-    }, 1500);
+    }
   };
 
   useEffect(() => {

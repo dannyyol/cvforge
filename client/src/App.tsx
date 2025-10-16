@@ -271,6 +271,12 @@ function App() {
               isMobilePreview={mobileTab === 'preview' || mobileTab === 'ai-review'}
               showMobileMenu={showMobileMenu}
               onMobileMenuToggle={() => setShowMobileMenu(!showMobileMenu)}
+              resumeMeta={{
+                id: resumeId,
+                title: resumeTitle,
+                language,
+                cv_score: cvScore,
+              }}
             />
           </div>
         </>
