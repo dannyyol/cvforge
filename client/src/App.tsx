@@ -253,7 +253,7 @@ function App() {
             </div>
           </div>
 
-          <div className={`w-full lg:w-[52%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
+          <div className={`w-full lg:w-[55%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
             <CVPreview
               personalDetails={personalDetails}
               professionalSummary={professionalSummary}

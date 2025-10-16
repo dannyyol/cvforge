@@ -87,11 +87,11 @@ export default function AIReviewPanel({ overallScore }: AIReviewPanelProps) {
 
         {!isLoading && !showReview && (
           <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
-            <div className="w-[80px] h-[80px] bg-blue-100 rounded-full flex items-center justify-center mb-8">
+            <div className="w-32 h-32 bg-blue-100 rounded-full flex items-center justify-center mb-8">
               <Sparkles className="w-16 h-16 text-blue-600" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Ready to Optimize Your CV?</h3>
-            <p className="text-gray-600 text-sm max-w-2xl mb-8 leading-relaxed">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">Ready to Optimize Your CV?</h3>
+            <p className="text-gray-600 text-lg max-w-2xl mb-8 leading-relaxed">
               Click the button above to get instant AI-powered feedback on your CV, including ATS compatibility,
               content quality, and personalized recommendations.
             </p>
