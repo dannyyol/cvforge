@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Target, FileText, Zap, Award, Clock, RefreshCw } from 'lucide-react';
 
-import { api } from '../services/apiClient';
-import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId, Resume } from '../types/resume';
 import { analyzeCV, CVDataPayload } from '../services/analysisService';
 
 interface AIReviewPanelProps {
