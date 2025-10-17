@@ -8,6 +8,7 @@ import MinimalistTemplate from '../templates/MinimalistTemplate';
 import ProfessionalTemplate from '../templates/ProfessionalTemplate';
 import PaginatedPreview from './PaginatedPreview';
 import AIReviewPanel from '../AIReviewPanel';
+import { sampleCVData } from '../../data/sampleCVData';
 
 interface CVPreviewProps {
   personalDetails: PersonalDetails | null;
@@ -26,6 +27,8 @@ interface CVPreviewProps {
   isMobilePreview?: boolean;
   showMobileMenu?: boolean;
   onMobileMenuToggle?: () => void;
+  // New: optional resume metadata for payload
+  resumeMeta?: Partial<Resume>;
 }
 
 export default function CVPreview({ personalDetails, professionalSummary, workExperiences, educationEntries, skills, projects, certifications, sections, templateId, accentColor = 'slate', activeTab, onTabChange, onOpenTemplateSelector, isMobilePreview = false, showMobileMenu = false, onMobileMenuToggle, resumeMeta }: CVPreviewProps) {
@@ -50,6 +53,21 @@ export default function CVPreview({ personalDetails, professionalSummary, workEx
     certifications,
     sections,
     accentColor,
+  };
+
+  // Build CV payload for AI review from current props
+  const cvData = {
+    resume: resumeMeta ?? { id: personalDetails?.resume_id ?? workExperiences[0]?.resume_id ?? 'unknown' },
+    personalDetails,
+    professionalSummary,
+    education: educationEntries,
+    workExperience: workExperiences,
+    skills,
+    projects,
+    certifications,
+    templateId,
+    accentColor,
+    sections,
   };
 
   const renderTemplate = () => {

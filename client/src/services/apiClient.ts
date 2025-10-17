@@ -26,24 +26,24 @@ const client: AxiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-client.interceptors.request.use((config) => {
-  const auth = getAuthToken();
-  if (auth && config.headers) {
-    config.headers['Authorization'] = `Bearer ${auth}`;
-  }
-  return config;
-});
+// client.interceptors.request.use((config) => {
+//   const auth = getAuthToken();
+//   if (auth && config.headers) {
+//     config.headers['Authorization'] = `Bearer ${auth}`;
+//   }
+//   return config;
+// });
 
-client.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error?.response?.status === 401) {
-      clearAuthToken();
-      // Optional: trigger app-level signout or redirect here
-    }
-    return Promise.reject(error);
-  }
-);
+// client.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error?.response?.status === 401) {
+//       clearAuthToken();
+//       // Optional: trigger app-level signout or redirect here
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 type MockOptions<TRes> = {
   mock?: boolean;
