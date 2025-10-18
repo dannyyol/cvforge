@@ -24,3 +24,7 @@ client/*.sw?
 client/.env
 client/README-THUMBNAILS.md
 client/public/thumbnails
+
+server/.env
+server/logs/*.log
+__pycache__/
