@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from ..schemas.review import CVReviewRequest, CVReviewResponse
 from typing import Any, Dict
 from ...services.cv_review import review_cv, review_cv_payload
+from loguru import logger
 
 router = APIRouter()
 
@@ -17,4 +18,5 @@ def review_resume(payload: Dict[str, Any]):
 
         raise HTTPException(status_code=400, detail="Provide 'sections' or 'resume_text'.")
     except Exception as e:
+        logger.exception("Review failed: {}", e)
         raise HTTPException(status_code=500, detail=f"Review failed: {str(e)}")

@@ -3,6 +3,7 @@ import re
 import json
 from typing import Dict, List, Tuple, Optional
 import requests
+from loguru import logger
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "gemma3:4b")
@@ -113,11 +114,48 @@ def _compose_section_prompt(name: str, content: str) -> str:
 
 def _call_ollama(prompt: str, model: str) -> str:
     url = f"{OLLAMA_URL}/api/generate"
-    payload = {"model": model, "prompt": prompt, "stream": False}
-    resp = requests.post(url, json=payload, timeout=60)
-    resp.raise_for_status()
-    data = resp.json()
-    return data.get("response", "")
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "stream": False,
+        "options": {
+            "temperature": 0.2,
+            "num_predict": int(os.getenv("OLLAMA_NUM_PREDICT", "256")),
+        },
+    }
+    max_attempts = int(os.getenv("OLLAMA_MAX_RETRIES", "2"))
+    connect_timeout = int(os.getenv("OLLAMA_CONNECT_TIMEOUT", "10"))
+    read_timeout = int(os.getenv("OLLAMA_READ_TIMEOUT", "180"))
+    for attempt in range(1, max_attempts + 1):
+        try:
+            resp = requests.post(url, json=payload, timeout=(connect_timeout, read_timeout))
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("response", "")
+        except requests.Timeout as exc:
+            logger.warning("Ollama timeout on attempt {}/{}. Retrying...", attempt, max_attempts)
+            if attempt < max_attempts:
+                import time
+                time.sleep(0.75 * attempt)
+                continue
+            logger.exception("Ollama request timed out: url={} model={} error={}", url, model, str(exc))
+            raise
+        except requests.RequestException as exc:
+            logger.exception(
+                "Ollama request failed: url={} model={} status_code={} error={}",
+                url,
+                model,
+                getattr(getattr(exc, "response", None), "status_code", None),
+                str(exc),
+            )
+            if attempt < max_attempts:
+                import time
+                time.sleep(0.75 * attempt)
+                continue
+            raise
+        except Exception as exc:
+            logger.exception("Unexpected error calling Ollama: url={} model={} error={}", url, model, str(exc))
+            raise
 
 
 # module functions around ATS analysis and payload flow
@@ -228,6 +266,7 @@ def flatten_resume_sections(sections_payload: dict) -> Dict[str, str]:
 
     return result
 
+
 def _compose_ats_prompt(content: str) -> str:
     return (
         "You are an ATS (Applicant Tracking System) compliance evaluator.\n\n"
@@ -274,19 +313,50 @@ def _analyze_ats(resume_text: str, model: str) -> dict:
 def _build_resume_text_from_nested(sections_payload: dict) -> str:
     sections_payload = sections_payload or {}
     flat = flatten_resume_sections(sections_payload)
+    order = ["Summary", "Experience", "Education", "Skills", "Projects", "Certifications"]
+
     lines: List[str] = []
-    for name in sections_payload:
+    # First, add known sections in a stable order
+    for name in order:
         content = flat.get(name, "").strip()
         if content:
             lines.append(f"{name}\n{content}")
+
+    # Then, add any additional sections not covered above
+    for name, content in flat.items():
+        if name not in order and content.strip():
+            lines.append(f"{name}\n{content.strip()}")
+
     return "\n\n".join(lines).strip()
 
 
 def review_cv(resume_text: str, model: Optional[str] = None) -> dict:
     sections = _parse_sections(resume_text or "")
     base = review_cv_from_sections(sections, model=model)
-    ats = _analyze_ats(resume_text or "", (model or DEFAULT_MODEL))
+
+    combined = _analyze_resume_combined(resume_text or "", (model or DEFAULT_MODEL))
+    ats = combined.get("atsCompatibility", {"score": 0.0, "summary": []})
+    content_quality = combined.get("contentQuality", {"score": 0.0, "summary": []})
+    fmt_analysis = combined.get("formattingAnalysis", {"score": 0.0, "summary": []})
+
     base["atsCompatibility"] = ats
+    base["contentQuality"] = content_quality
+    base["formattingAnalysis"] = fmt_analysis
+
+    # Integrate global ATS score into categories and apply heuristic tweaks
+    base_ats = _safe_number((base.get("categories") or {}).get("ATS Compatibility", 0), 0)
+    combined_ats = round(0.6 * _safe_number(ats.get("score", 0), 0) + 0.4 * base_ats, 1)
+    base["categories"]["ATS Compatibility"] = combined_ats
+
+    fmt_delta = _derive_formatting_adjustment(resume_text or "")
+    cq_delta = _derive_content_quality_adjustment(resume_text or "")
+
+    base_fmt = _safe_number(base["categories"].get("Formatting", 0), 0)
+    base_cq = _safe_number(base["categories"].get("Content Quality", 0), 0)
+
+    base["categories"]["Formatting"] = round(min(100.0, max(0.0, base_fmt + fmt_delta)), 1)
+    base["categories"]["Content Quality"] = round(min(100.0, max(0.0, base_cq + cq_delta)), 1)
+
     return base
 
 
@@ -300,27 +370,20 @@ def review_cv_from_sections(sections: Dict[str, str], model: Optional[str] = Non
     if not analyzed:
         analyzed.append(_analyze_section("Summary", "\n".join(sections.values()), model))
 
-    cat_totals = {"ATS Compatibility": 0.0, "Content Quality": 0.0, "Formatting": 0.0}
-    cat_counts = {"ATS Compatibility": 0, "Content Quality": 0, "Formatting": 0}
+    # Build strengths/improvements and section summaries
     strengths: List[str] = []
     improvements: List[str] = []
     final_sections: List[dict] = []
 
     for sec in analyzed:
-        ss = sec.get("section_scores", {})
-        for k in cat_totals.keys():
-            cat_totals[k] += _safe_number(ss.get(k, 0), 0)
-            cat_counts[k] += 1
-
         final_sections.append(
             {"name": sec["name"], "score": _safe_number(sec["score"], 0), "suggestions": sec.get("suggestions", [])}
         )
         strengths.extend(sec.get("strengths", []))
         improvements.extend(sec.get("areas_to_improve", []))
 
-    categories = {
-        k: round(cat_totals[k] / cat_counts[k], 1) if cat_counts[k] > 0 else 0.0 for k in cat_totals.keys()
-    }
+    # Improved categories via separated workflow (weighted per section)
+    categories = _compute_categories(analyzed)
     overall = round(sum(s["score"] for s in final_sections) / len(final_sections), 1) if final_sections else 0.0
 
     return {
@@ -335,41 +398,255 @@ def review_cv_from_sections(sections: Dict[str, str], model: Optional[str] = Non
 def review_cv_payload(payload: dict) -> dict:
     sections_payload = (payload or {}).get("sections") or {}
     model = (payload or {}).get("model") or DEFAULT_MODEL
-    # Build resume text first, then analyze ATS compatibility
     resume_text_full = _build_resume_text_from_nested(sections_payload)
-    ats = _analyze_ats(resume_text_full, model)
-    # Then flatten and aggregate
+
+    combined = _analyze_resume_combined(resume_text_full or "", model)
+    ats = combined.get("atsCompatibility", {"score": 0.0, "summary": []})
+    content_quality = combined.get("contentQuality", {"score": 0.0, "summary": []})
+    fmt_analysis = combined.get("formattingAnalysis", {"score": 0.0, "summary": []})
+
     sections = flatten_resume_sections(sections_payload)
     base = review_cv_from_sections(sections, model=model)
+
     base["atsCompatibility"] = ats
+    base["contentQuality"] = content_quality
+    base["formattingAnalysis"] = fmt_analysis
+
     return base
 
 
-if __name__ == "__main__":
-    sample_resume = """
-    Jane Doe
-    Email: jane.doe@example.com | LinkedIn: linkedin.com/in/janedoe
+# module helpers for improved category scoring
+def _canonical_section_name(name: str) -> str:
+    n = (name or "").lower()
+    if "experience" in n: return "Experience"
+    if "summary" in n or "objective" in n: return "Summary"
+    if "education" in n: return "Education"
+    if "skill" in n: return "Skills"
+    if "project" in n: return "Projects"
+    if "cert" in n or "license" in n: return "Certifications"
+    return (name or "Summary")
 
-    Summary
-    Product-focused software engineer with 6+ years building scalable web apps.
 
-    Experience
-    Senior Software Engineer, Acme Corp (2021–Present)
-    - Led migration to microservices; reduced deployment time by 40%.
-    Software Engineer, Beta Inc (2018–2021)
-    - Built real-time analytics dashboard used by 200+ clients.
+def _weighted_category_score(analyzed_sections: List[dict], key: str, weights_map: Dict[str, float]) -> float:
+    total = 0.0
+    denom = 0.0
+    for sec in analyzed_sections:
+        name = _canonical_section_name(sec.get("name", ""))
+        score_val = _safe_number(sec.get("section_scores", {}).get(key, 0), 0)
+        w = weights_map.get(name, 0.1)
+        if score_val > 0 and w > 0:
+            total += score_val * w
+            denom += w
+    return round(total / denom, 1) if denom > 0 else 0.0
 
-    Education
-    B.S. in Computer Science, University of Somewhere, 2018
 
-    Skills
-    Python, FastAPI, React, TypeScript, AWS, Docker, PostgreSQL, CI/CD
+def _compute_categories(analyzed_sections: List[dict]) -> Dict[str, float]:
+    # Emphasize Experience and Summary for content, and spread formatting across sections
+    weights_content = {
+        "Summary": 0.2, "Experience": 0.4, "Education": 0.15, "Skills": 0.15, "Projects": 0.1, "Certifications": 0.0
+    }
+    weights_formatting = {
+        "Summary": 0.15, "Experience": 0.35, "Education": 0.15, "Skills": 0.15, "Projects": 0.1, "Certifications": 0.1
+    }
+    weights_ats = {
+        "Summary": 0.2, "Experience": 0.4, "Education": 0.1, "Skills": 0.15, "Projects": 0.1, "Certifications": 0.05
+    }
+    return {
+        "ATS Compatibility": _weighted_category_score(analyzed_sections, "ATS Compatibility", weights_ats),
+        "Content Quality": _weighted_category_score(analyzed_sections, "Content Quality", weights_content),
+        "Formatting": _weighted_category_score(analyzed_sections, "Formatting", weights_formatting),
+    }
 
-    Projects
-    Portfolio site, internal release management tool, OSS contributions
 
-    Certifications
-    AWS Certified Developer, Scrum Master
-    """
-    result = review_cv(sample_resume)
-    print(json.dumps(result, indent=2))
+def _derive_formatting_adjustment(text: str) -> float:
+    text = text or ""
+    lines = text.splitlines()
+    if not lines:
+        return 0.0
+    bullet_lines = sum(1 for l in lines if re.match(r"^\s*[-*•·]", l))
+    long_lines = sum(1 for l in lines if len(l) > 120)
+    total_lines = len(lines)
+    bullet_ratio = bullet_lines / max(1, total_lines)
+    long_ratio = long_lines / max(1, total_lines)
+    table_ratio = text.count("|") / max(1, len(text))
+
+    delta = 0.0
+    if bullet_ratio >= 0.3:
+        delta += 3.0
+    elif bullet_ratio >= 0.1:
+        delta += 1.5
+
+    if long_ratio > 0.3:
+        delta -= 5.0
+    elif long_ratio > 0.1:
+        delta -= 2.0
+
+    if table_ratio > 0.02:
+        delta -= 4.0
+
+    return max(-10.0, min(10.0, delta))
+
+
+def _derive_content_quality_adjustment(text: str) -> float:
+    text = text or ""
+    tokens_count = len(re.findall(r"\w+", text))
+    metrics_count = len(re.findall(r"\b\d+(?:\.\d+)?%?\b", text))
+    verbs_count = len(re.findall(
+        r"\b(led|managed|designed|built|implemented|improved|reduced|increased|optimized|developed|launched|delivered)\b",
+        text, flags=re.IGNORECASE
+    ))
+
+    delta = 0.0
+    if metrics_count >= 5:
+        delta += 3.0
+    elif metrics_count >= 2:
+        delta += 1.5
+
+    if verbs_count >= 6:
+        delta += 2.0
+    elif verbs_count >= 3:
+        delta += 1.0
+
+    if tokens_count < 150:
+        delta -= 1.0
+
+    return max(-8.0, min(8.0, delta))
+
+
+# module-level functions (new)
+def _compose_combined_analysis_prompt(content: str) -> str:
+    return (
+        "You are a CV reviewer. In ONE pass, evaluate the resume for:\n"
+        "- ATS Compatibility\n"
+        "- Content Quality\n"
+        "- Formatting\n\n"
+        "Return ONLY valid JSON with exactly this structure:\n"
+        "{\n"
+        '  "atsCompatibility": {\n'
+        '    "score": number,  // 0-100\n'
+        '    "summary": [string]\n'
+        "  },\n"
+        '  "contentQuality": {\n'
+        '    "score": number,  // 0-100\n'
+        '    "summary": [string]\n'
+        "  },\n"
+        '  "formattingAnalysis": {\n'
+        '    "score": number,  // 0-100\n'
+        '    "summary": [string]\n'
+        "  }\n"
+        "}\n\n"
+        "Guidelines:\n"
+        "- ATS: section headings, simple formatting, keyword use, clear titles\n"
+        "- Content: measurable outcomes, specificity, coverage of key sections, action verbs\n"
+        "- Formatting: consistency in headings, bullets, whitespace, punctuation, date ranges\n\n"
+        "Provide concise bullet-style strings for each summary. Do NOT include any text outside the JSON.\n\n"
+        "Resume to analyze:\n"
+        f"\"\"\"\n{content}\n\"\"\"\n"
+    )
+
+def _analyze_resume_combined(resume_text: str, model: str) -> dict:
+    try:
+        response_text = _call_ollama(_compose_combined_analysis_prompt(resume_text), model=model)
+        parsed = _extract_json(response_text) or {}
+        ats = parsed.get("atsCompatibility", {}) or {}
+        cq = parsed.get("contentQuality", {}) or {}
+        fmt = parsed.get("formattingAnalysis", {}) or {}
+        return {
+            "atsCompatibility": {
+                "score": _safe_number(ats.get("score", 0)),
+                "summary": list(map(str, ats.get("summary", []))),
+            },
+            "contentQuality": {
+                "score": _safe_number(cq.get("score", 0)),
+                "summary": list(map(str, cq.get("summary", []))),
+            },
+            "formattingAnalysis": {
+                "score": _safe_number(fmt.get("score", 0)),
+                "summary": list(map(str, fmt.get("summary", []))),
+            },
+        }
+    except Exception as exc:
+        logger.warning("Combined analysis failed; falling back to separate calls: {}", str(exc))
+        return {
+            "atsCompatibility": _analyze_ats(resume_text or "", model),
+            "contentQuality": _analyze_content_quality(resume_text or "", model),
+            "formattingAnalysis": _analyze_formatting(resume_text or "", model),
+        }
+
+
+def _compose_formatting_prompt(content: str) -> str:
+    # New formatting analysis, mirroring atsCompatibility shape
+    print(content, 'content')
+    return (
+        "You are a resume formatting evaluator.\n\n"
+        "Analyze the full resume text and return ONLY valid JSON with this structure:\n"
+        "{\n"
+        '  "formattingAnalysis": {\n'
+        '    "score": number,  // 0-100\n'
+        '    "summary": [string]\n'
+        "  }\n"
+        "}\n\n"
+        "Focus ONLY on formatting-related criteria:\n"
+        "- Consistent section headings and hierarchy\n"
+        "- Bullet usage, line length, and whitespace for readability\n"
+        "- Avoidance of graphics, complex tables, and excessive columns\n"
+        "- Consistent punctuation, numbering, and date ranges\n\n"
+        "Provide the summary as concise bullet-style strings.\n\n"
+        "Resume to analyze:\n"
+        f"\"\"\"\n{content}\n\"\"\"\n"
+    )
+
+
+def _analyze_formatting(resume_text: str, model: str) -> dict:
+    try:
+        response_text = _call_ollama(_compose_formatting_prompt(resume_text), model=model)
+        parsed = _extract_json(response_text) or {}
+        data = parsed.get("formattingAnalysis", parsed) or {}
+        return {
+            "score": _safe_number(data.get("score", 0)),
+            "summary": list(map(str, data.get("summary", []))),
+        }
+    except Exception:
+        return {
+            "score": 0.0,
+            "summary": [],
+        }
+
+
+def _compose_content_quality_prompt(content: str) -> str:
+    # Return contentQuality to match API schema; keep evaluator focus on content details
+    return (
+        "You are a resume content quality evaluator.\n\n"
+        "Analyze the full resume text and return ONLY valid JSON with this structure:\n"
+        "{\n"
+        '  "contentQuality": {\n'
+        '    "score": number,\n'
+        '    "summary": [string]\n'
+        "  }\n"
+        "}\n\n"
+        "Evaluate content quality based on the following indicators:\n"
+        "- Use of measurable outcomes (numbers, metrics, or percentages)\n"
+        "- Specificity of responsibilities and achievements\n"
+        "- Coverage of key sections (Experience, Projects, Skills)\n"
+        "- Use of strong action verbs and concrete deliverables\n\n"
+        "Provide the summary as short bullet-style strings, each stating one observation.\n\n"
+        "Resume to analyze:\n"
+        f"\"\"\"\n{content}\n\"\"\"\n"
+    )
+
+
+def _analyze_content_quality(resume_text: str, model: str) -> dict:
+    try:
+        response_text = _call_ollama(_compose_content_quality_prompt(resume_text), model=model)
+        print(response_text, 'response_text')
+        parsed = _extract_json(response_text) or {}
+        data = parsed.get("contentQuality", parsed) or {}
+        return {
+            "score": _safe_number(data.get("score", 0)),
+            "summary": list(map(str, data.get("summary", []))),
+        }
+    except Exception:
+        return {
+            "score": 0.0,
+            "summary": [],
+        }
