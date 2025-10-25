@@ -163,7 +163,6 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
     setShowReview(false);
 
     try {
-      console.log(cvData);
       await analyzeCV(cvData, { mock: true, delayMs: 1200 });
       // Optionally use returned values to update local UI state
     } catch {

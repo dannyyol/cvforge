@@ -2,30 +2,10 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
-let token: string | null = null;
-
-export const setAuthToken = (newToken: string | null) => {
-  token = newToken;
-  if (newToken) localStorage.setItem('auth_token', newToken);
-  else localStorage.removeItem('auth_token');
-};
-
-export const getAuthToken = () => {
-  if (token) return token;
-  token = localStorage.getItem('auth_token');
-  return token;
-};
-
-export const clearAuthToken = () => {
-  token = null;
-  localStorage.removeItem('auth_token');
-};
-
 const client: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
-
 
 type MockOptions<TRes> = {
   mock?: boolean;

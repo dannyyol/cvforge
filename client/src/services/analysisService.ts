@@ -46,5 +46,5 @@ export async function analyzeCV(
     : undefined;
 
   // Returns the parsed response body (typed) from the client
-  return api.post<CVDataPayload, AnalysisResponse>('/analyze', cvData, undefined);
+  return api.post<CVDataPayload, AnalysisResponse>('/analyze', cvData, undefined, mockOptions);
 }
