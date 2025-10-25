@@ -261,6 +261,7 @@ class ResumeProcessor:
         if awards: result["Awards"] = awards
         if languages: result["Languages"] = languages
         return result
+        
     @staticmethod
     def build_resume_text_from_nested(sections_payload: dict) -> str:
         sections_payload = sections_payload or {}
