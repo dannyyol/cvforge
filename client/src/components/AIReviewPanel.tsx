@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Target, FileText, Zap, Award, Clock, RefreshCw } from 'lucide-react';
+import { Sparkles, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Target, FileText, Zap, RefreshCw } from 'lucide-react';
 
 import { analyzeCV, CVDataPayload } from '../services/analysisService';
 
@@ -20,6 +20,150 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
   const [showReview, setShowReview] = useState(false);
   const [visibleSections, setVisibleSections] = useState<number[]>([]);
 
+  // Mock data based on provided JSON
+  const mockData = {
+    overall_score: 80.9,
+    strengths: [
+      "Awards have a clear timeframe, enhancing clarity.",
+      "Certifications are listed with clear start and end dates (where applicable).",
+      "Chronological order is logical.",
+      "Clearly lists awards with names and awarding organizations.",
+      "Clearly lists degrees with institution and dates.",
+      "Clearly lists publications with titles and links.",
+      "Clearly outlines a progression of roles and responsibilities.",
+      "Clearly states Native English proficiency.",
+      "Clearly states key experience (10+ years)",
+      "Deep expertise in backend technologies (Node.js, Express, PostgreSQL, MongoDB).",
+      "Diverse range of projects demonstrating varied technical skills (Next.js, D3.js, NLP, IoT)."
+    ],
+    areas_to_improve: [
+      "Could benefit from brief descriptions of the technical challenges overcome in each project.",
+      "Could benefit from stating the specific contributions made to each award.",
+      "Could benefit from using a standardized proficiency scale (e.g., CEFR).",
+      "Could elaborate on the types of 'custom software solutions' delivered as a freelancer.",
+      "Dates could be more consistent (e.g., using a standard format like YYYY-MM-DD).",
+      "Dates for the current role are incomplete – 2024-01–Present is not sufficient.",
+      "Doesn't immediately grab the reader's attention.",
+      "Doesn't include publication dates beyond the year.",
+      "Doesn't include the year for the second award.",
+      "Generic phrasing like 'results-driven' and 'passion' are overused.",
+      "Impact descriptions could be more detailed – 'improving performance' is vague."
+    ],
+    sections: [
+      {
+        name: "Summary",
+        score: 75.0,
+        suggestions: [
+          "Add a brief, measurable achievement (e.g., 'Reduced infrastructure costs by X%').",
+          "Replace generic phrases with more specific technologies used (e.g., 'Experience with AWS, Kubernetes, and Terraform').",
+          "Consider starting with a more impactful statement – a key strength or a brief, compelling problem you've solved.",
+          "Tailor the summary to the specific job description."
+        ]
+      },
+      {
+        name: "Experience",
+        score: 85.0,
+        suggestions: [
+          "Provide specific examples of mentoring activities and the positive outcomes.",
+          "Describe the types of startups and the nature of the custom software solutions developed as a freelancer (industry, size, complexity).",
+          "Update the current role's dates to include the full month and year of employment.",
+          "Consider adding a brief sentence summarizing the overall career trajectory and key skills developed."
+        ]
+      },
+      {
+        name: "Education",
+        score: 85.0,
+        suggestions: [
+          "Consider adding GPA if above 3.5.",
+          "Include a brief mention of key coursework relevant to the desired role.",
+          "Add any academic awards or honors received.",
+          "If applicable, include thesis title or dissertation topic.",
+          "Expand on the certificates – briefly explain the skills gained."
+        ]
+      },
+      {
+        name: "Skills",
+        score: 88.0,
+        suggestions: [
+          "Consider categorizing skills (e.g., Frontend, Backend, DevOps, Cloud).",
+          "Add specific examples of projects or accomplishments for each skill to demonstrate practical application.",
+          "Replace vague 'Advanced' with more descriptive terms (e.g., 'Proficient', 'Experienced').",
+          "Expand on Machine Learning - specify types of models or libraries used."
+        ]
+      },
+      {
+        name: "Projects",
+        score: 85.0,
+        suggestions: [
+          "For each project, briefly describe the key challenges faced and the solutions implemented.",
+          "Replace 'improving performance' with specific metrics (e.g., 'reduced page load time by X%', 'increased conversion rate by Y%').",
+          "Consider adding a one-sentence summary of the project's purpose and key features."
+        ]
+      },
+      {
+        name: "Certifications",
+        score: 85.0,
+        suggestions: [
+          "For certifications with 'None' dates, use 'Present' or 'Ongoing' to emphasize continued expertise.",
+          "Consider adding a brief sentence after each certification highlighting how it aligns with the target role's requirements (e.g., 'This certification demonstrates proficiency in designing and deploying scalable solutions on AWS.')",
+          "Prioritize certifications based on the jobs being applied for. If a role heavily emphasizes Google Cloud, highlight the Google Cloud Professional Cloud Architect certification prominently."
+        ]
+      },
+      {
+        name: "Publications",
+        score: 75.0,
+        suggestions: [
+          "Add role information (e.g., 'Author', 'Co-author').",
+          "Specify publication type (e.g., 'Article', 'Conference Paper', 'Chapter').",
+          "Include the full publication year for better context.",
+          "Consider adding abstracts or brief descriptions of the publication's focus.",
+          "Order publications chronologically for a clearer timeline."
+        ]
+      },
+      {
+        name: "Awards",
+        score: 75.0,
+        suggestions: [
+          "Add details about the specific contributions that led to each award (e.g., 'developed 3 key features…').",
+          "Quantify the impact of the awards – e.g., 'increased system performance by X%' or 'contributed to a Y% reduction in support tickets'.",
+          "Ensure all awards include a year of achievement."
+        ]
+      },
+      {
+        name: "Languages",
+        score: 75.0,
+        suggestions: [
+          "Consider using a recognized proficiency scale (CEFR, ACTFL) to quantify the levels of Spanish and French. For example: Spanish - B2, French - A2.",
+          "Expand on the 'Limited Working Proficiency' for French - providing examples of what 'limited' means (e.g., basic conversation, reading simple texts)."
+        ]
+      }
+    ],
+    atsCompatibility: {
+      score: 90.0,
+      summary: [
+        "Clear section headings and chronological order.",
+        "Uses action verbs throughout experience descriptions.",
+        "Includes relevant keywords related to cloud, development, and architecture."
+      ]
+    },
+    contentQuality: {
+      score: 85.0,
+      summary: [
+        "Quantifies achievements with metrics (e.g., 60% performance improvement, 300% downtime reduction).",
+        "Provides specific technologies and tools used in each role.",
+        "Details responsibilities and impact in each experience section."
+      ]
+    },
+    formattingAnalysis: {
+      score: 80.0,
+      summary: [
+        "Consistent use of bullet points for experience and skills.",
+        "Dates are consistently formatted, although some could be more precise.",
+        "Some whitespace could be improved for readability."
+      ]
+    }
+  };
+
   const handleRefresh = async () => {
     setIsLoading(true);
     setVisibleSections([]);
@@ -39,7 +183,7 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
 
   useEffect(() => {
     if (showReview && visibleSections.length === 0) {
-      const sections = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+      const sections = [0, 1, 2, 3, 4, 5, 6];
       sections.forEach((section, index) => {
         setTimeout(() => {
           setVisibleSections(prev => [...prev, section]);
@@ -132,11 +276,11 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
           <div className="space-y-6">
         {visibleSections.includes(0) && (
           <div className="animate-fadeIn">
-            <div className={getBannerVariantClass(overallScore)}>
+            <div className={getBannerVariantClass(mockData.overall_score)}>
               <div className="ai-flex-between">
                 <div className="flex items-start gap-4">
                   <div className="bg-white rounded-full p-3 shadow-sm">
-                    <Sparkles className={`w-8 h-8 ${getScoreColor(overallScore)}`} />
+                    <Sparkles className={`w-8 h-8 ${getScoreColor(mockData.overall_score)}`} />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900 mb-1">CV Score</h2>
@@ -144,14 +288,14 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className={getScoreValueClass(overallScore)}>{overallScore}</div>
+                  <div className={getScoreValueClass(mockData.overall_score)}>{mockData.overall_score}</div>
                   <div className="text-sm text-gray-500 font-medium">/ 100</div>
                 </div>
               </div>
               <div className="ai-score-progress">
                 <div
-                  className={getProgressFillVariantClass(overallScore)}
-                  style={{ width: `${overallScore}%` }}
+                  className={getProgressFillVariantClass(mockData.overall_score)}
+                  style={{ width: `${mockData.overall_score}%` }}
                 ></div>
               </div>
             </div>
@@ -163,19 +307,19 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
             <ScoreCard
               icon={<Target className="w-5 h-5 text-blue-600" />}
               label="ATS Compatibility"
-              score={85}
+              score={mockData.atsCompatibility.score}
               bgColor="bg-blue-50"
             />
             <ScoreCard
               icon={<FileText className="w-5 h-5 text-purple-600" />}
               label="Content Quality"
-              score={72}
+              score={mockData.contentQuality.score}
               bgColor="bg-purple-50"
             />
             <ScoreCard
-              icon={<Award className="w-5 h-5 text-orange-600" />}
+              icon={<FileText className="w-5 h-5 text-orange-600" />}
               label="Formatting"
-              score={90}
+              score={mockData.formattingAnalysis.score}
               bgColor="bg-orange-50"
             />
           </div>
@@ -189,11 +333,9 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
                 <h3 className="ai-title-md">Strengths</h3>
               </div>
               <ul className="space-y-3">
-                <StrengthItem text="Clear and concise professional summary" />
-                <StrengthItem text="Strong action verbs in work experience" />
-                <StrengthItem text="Quantified achievements with metrics" />
-                <StrengthItem text="Clean, professional formatting" />
-                <StrengthItem text="Relevant technical skills well-organized" />
+                {mockData.strengths.slice(0, 10).map((strength, idx) => (
+                  <StrengthItem key={idx} text={strength} />
+                ))}
               </ul>
             </div>
 
@@ -203,11 +345,9 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
                 <h3 className="text-lg font-semibold text-gray-900">Areas to Improve</h3>
               </div>
               <ul className="space-y-3">
-                <WeaknessItem text="Add more industry-specific keywords" />
-                <WeaknessItem text="Include certifications or courses" />
-                <WeaknessItem text="Expand on project outcomes" />
-                <WeaknessItem text="Add LinkedIn profile URL" />
-                <WeaknessItem text="Some bullet points could be more specific" />
+                {mockData.areas_to_improve.slice(0, 10).map((area, idx) => (
+                  <WeaknessItem key={idx} text={area} />
+                ))}
               </ul>
             </div>
           </div>
@@ -220,30 +360,14 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
               <h3 className="ai-title-lg">Section-by-Section Analysis</h3>
             </div>
             <div className="space-y-4">
-              <SectionAnalysis
-                section="Professional Summary"
-                score={78}
-                feedback="Good overview but could include more specific achievements and unique value proposition."
-                suggestions={['Add 1-2 key metrics', 'Highlight your unique selling point', 'Tailor to target role']}
-              />
-              <SectionAnalysis
-                section="Work Experience"
-                score={85}
-                feedback="Strong descriptions with quantified achievements. Excellent use of action verbs."
-                suggestions={['Add more context to recent roles', 'Include team size managed']}
-              />
-              <SectionAnalysis
-                section="Education"
-                score={90}
-                feedback="Well-structured with relevant details. Consider adding relevant coursework for entry-level positions."
-                suggestions={['Add GPA if above 3.5', 'Include honors or awards']}
-              />
-              <SectionAnalysis
-                section="Skills"
-                score={82}
-                feedback="Good variety of technical and soft skills. Consider organizing by proficiency level."
-                suggestions={['Add emerging technologies', 'Include soft skills', 'Group by category']}
-              />
+              {mockData.sections.map((section, idx) => (
+                <SectionAnalysis
+                  key={idx}
+                  section={section.name}
+                  score={section.score}
+                  suggestions={section.suggestions}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -252,14 +376,12 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
           <div className="ai-ats-card animate-fadeIn">
             <div className="flex items-center gap-2 mb-5">
               <Target className="w-5 h-5 text-blue-700" />
-              <h3 className="text-xl font-semibold text-gray-900">ATS Compatibility Score: 85/100</h3>
+              <h3 className="text-xl font-semibold text-gray-900">ATS Compatibility Score: {mockData.atsCompatibility.score}/100</h3>
             </div>
             <div className="space-y-4">
-              <ATSCheckItem status="pass" text="Standard section headings used" />
-              <ATSCheckItem status="pass" text="Simple, ATS-friendly formatting" />
-              <ATSCheckItem status="pass" text="No graphics or complex tables" />
-              <ATSCheckItem status="warning" text="Some industry keywords missing" />
-              <ATSCheckItem status="warning" text="Could benefit from more specific job titles" />
+              {mockData.atsCompatibility.summary.map((item, idx) => (
+                <ATSCheckItem key={idx} status="pass" text={item} />
+              ))}
             </div>
             <div className="mt-4 p-4 bg-white rounded-lg">
               <p className="ai-paragraph leading-relaxed">
@@ -311,58 +433,30 @@ export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelPro
           <div className="bg-white border border-gray-200 rounded-lg p-6 animate-fadeIn">
             <div className="flex items-center gap-2 mb-5">
               <FileText className="w-5 h-5 text-gray-700" />
-              <h3 className="text-xl font-semibold text-gray-900">Formatting & Readability</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ReadabilityMetric label="Reading Level" value="Professional" status="good" />
-              <ReadabilityMetric label="Total Word Count" value="487 words" status="good" />
-              <ReadabilityMetric label="Average Section Length" value="Optimal" status="good" />
-              <ReadabilityMetric label="White Space Usage" value="Excellent" status="good" />
-              <ReadabilityMetric label="Font Consistency" value="Consistent" status="good" />
-              <ReadabilityMetric label="Bullet Point Length" value="Could be shorter" status="warning" />
-            </div>
-          </div>
-        )}
-
-        {visibleSections.includes(7) && (
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6 animate-fadeIn">
-            <div className="flex items-center gap-2 mb-5">
-              <Clock className="w-5 h-5 text-purple-700" />
-              <h3 className="text-xl font-semibold text-gray-900">Priority Action Items</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Content Quality Analysis</h3>
             </div>
             <div className="space-y-3">
-              <ActionItem priority="high" text="Add 3-5 industry-specific keywords to increase ATS score" />
-              <ActionItem priority="high" text="Include LinkedIn profile URL in contact information" />
-              <ActionItem priority="medium" text="Quantify more achievements with specific metrics" />
-              <ActionItem priority="medium" text="Add relevant certifications or recent courses" />
-              <ActionItem priority="low" text="Shorten some bullet points to 1-2 lines" />
-              <ActionItem priority="low" text="Consider adding a portfolio or GitHub link" />
+              {mockData.contentQuality.summary.map((item, idx) => (
+                <div key={idx} className="ai-ats-item">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm text-gray-700">{item}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h4 className="font-semibold text-gray-900 mb-3">Formatting Analysis</h4>
+              <div className="space-y-3">
+                {mockData.formattingAnalysis.summary.map((item, idx) => (
+                  <div key={idx} className="ai-ats-item">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span className="text-sm text-gray-700">{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {visibleSections.includes(8) && (
-          <div className="ai-industry-tips-card animate-fadeIn">
-            <div className="flex items-center gap-2 mb-4">
-              <Award className="w-5 h-5 text-green-700" />
-              <h3 className="text-xl font-semibold text-gray-900">Industry-Specific Tips</h3>
-            </div>
-            <div className="space-y-4">
-              <IndustryTip
-                title="Tech Industry Focus"
-                description="Your CV shows strong technical skills. Consider adding open-source contributions, GitHub profile, and specific technologies used in each project."
-              />
-              <IndustryTip
-                title="Leadership Emphasis"
-                description="Highlight team sizes managed, mentorship activities, and cross-functional collaboration experiences to appeal to senior roles."
-              />
-              <IndustryTip
-                title="Results-Oriented Language"
-                description="Continue using metrics and quantifiable outcomes. Hiring managers in your field respond well to data-driven achievements."
-              />
-            </div>
-          </div>
-        )}
           </div>
         )}
       </div>
@@ -401,7 +495,7 @@ function WeaknessItem({ text }: { text: string }) {
   );
 }
 
-function SectionAnalysis({ section, score, feedback, suggestions }: { section: string; score: number; feedback: string; suggestions: string[] }) {
+function SectionAnalysis({ section, score, suggestions }: { section: string; score: number; suggestions: string[] }) {
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-yellow-600';
@@ -414,7 +508,6 @@ function SectionAnalysis({ section, score, feedback, suggestions }: { section: s
         <h4 className="ai-subtitle">{section}</h4>
         <div className={`text-xl font-bold ${getScoreColor(score)}`}>{score}/100</div>
       </div>
-      <p className="ai-paragraph mb-3">{feedback}</p>
       <div className="ai-suggestions-list">
         <p className="ai-suggestions-title">Suggestions:</p>
         {suggestions.map((suggestion, idx) => (
@@ -472,26 +565,3 @@ function ReadabilityMetric({ label, value, status }: { label: string; value: str
   );
 }
 
-function ActionItem({ priority, text }: { priority: 'high' | 'medium' | 'low'; text: string }) {
-  const config = {
-    high: { className: 'ai-priority-high', label: 'HIGH' },
-    medium: { className: 'ai-priority-medium', label: 'MEDIUM' },
-    low: { className: 'ai-priority-low', label: 'LOW' },
-  };
-
-  return (
-    <div className="ai-action-item">
-      <span className={config[priority].className}>{config[priority].label}</span>
-      <span className="text-sm text-gray-700 flex-1">{text}</span>
-    </div>
-  );
-}
-
-function IndustryTip({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="ai-industry-tip">
-      <h4 className="ai-tip-title">{title}</h4>
-      <p className="ai-tip-description">{description}</p>
-    </div>
-  );
-}

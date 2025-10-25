@@ -222,7 +222,7 @@ function App() {
         </>
       ) : (
         <>
-          <div className={`w-full lg:w-[48%] overflow-y-auto bg-gray-50 pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
+          <div className={`w-full lg:w-[50%] overflow-y-auto bg-gray-50 pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
             <div className="p-4 lg:p-6 lg:pr-8 w-full">
               <CVTitleCard
                 title={resumeTitle}
@@ -253,7 +253,7 @@ function App() {
             </div>
           </div>
 
-          <div className={`w-full lg:w-[55%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
+          <div className={`w-full lg:w-[50%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
             <CVPreview
               personalDetails={personalDetails}
               professionalSummary={professionalSummary}
