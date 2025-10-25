@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from ..schemas.review import CVReviewRequest, CVReviewResponse
 from typing import Any, Dict
 from ...services.cv_review import review_cv_payload
 from loguru import logger
