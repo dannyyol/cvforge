@@ -101,7 +101,7 @@ function CVTitleCard({ title, lastSaved, onTitleChange }: CVTitleCardProps) {
             </div>
           )}
           <p className="title-card-subtext">
-            Last saved: {formatLastSaved(lastSaved)}
+            {/* Last saved: {formatLastSaved(lastSaved)} */}
           </p>
         </div>
       </div>

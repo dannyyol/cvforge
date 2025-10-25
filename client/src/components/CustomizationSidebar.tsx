@@ -89,7 +89,7 @@ export default function CustomizationSidebar({
           className="sidebar-back-btn"
         >
           <ChevronLeft size={20} />
-          <span>Edit</span>
+          <span>Back</span>
         </button>
         <button
           className="sidebar-download-btn"
@@ -119,16 +119,6 @@ export default function CustomizationSidebar({
           <Type size={18} />
           <span>Text</span>
           {activeTab === 'text' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('layout')}
-          className={`sidebar-tab ${activeTab === 'layout' ? 'sidebar-tab--active' : 'sidebar-tab--inactive'}`}
-        >
-          <Layout size={18} />
-          <span>Layout</span>
-          {activeTab === 'layout' && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
           )}
         </button>
