@@ -113,14 +113,6 @@ export default function CVPreview({
             AI Review
           </button>
         </div>
-
-        <div className="flex items-center gap-2">
-          <DownloadDropdown className="preview-download-btn" />
-
-          <button className="preview-settings-btn" onClick={handleMenuToggle}>
-            <LucideLayoutGrid className="w-6 h-6 header-icon-muted" />
-          </button>
-        </div>
       </div>
 
       <div className={`flex-1 relative ${activeTab === 'ai-review' ? 'overflow-y-auto' : 'overflow-hidden'}`}>
