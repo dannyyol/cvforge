@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LucideLayoutGrid, Palette, X,} from 'lucide-react';
+import { LucideLayoutGrid, Palette} from 'lucide-react';
 import DownloadDropdown from '../DownloadDropdown';
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId, Resume } from '../../types/resume';
 import ClassicTemplate from '../templates/ClassicTemplate';
