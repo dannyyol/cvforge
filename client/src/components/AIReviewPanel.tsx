@@ -8,11 +8,24 @@ interface AIReviewPanelProps {
   cvData: CVDataPayload;
 }
 
+const CACHE_KEY = 'cvforge_ai_review';
+
 export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [visibleSections, setVisibleSections] = useState<number[]>([]);
   const [reviewData, setReviewData] = useState<AIReviewResponse | null>(null);
+
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed: AIReviewResponse = JSON.parse(cached);
+        setReviewData(parsed);
+        setShowReview(true);
+      }
+    } catch {}
+  }, []);
 
   const handleRefresh = async () => {
     setIsLoading(true);
@@ -22,8 +35,8 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
     try {
       const data = await submitCVForReview(cvData);
       setReviewData(data);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
     } catch {
-      // keep UX smooth even if request fails
     } finally {
       setIsLoading(false);
       setShowReview(true);

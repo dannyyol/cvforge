@@ -158,7 +158,7 @@ class ResumeProcessor:
         prof = sections_payload.get("professionalSummary") or {}
         summary = prof.get("content") or ""
         # Experience
-        exp_items = sections_payload.get("workExperience") or []
+        exp_items = sections_payload.get("workExperiences") or []
         exp_parts: List[str] = []
         for item in exp_items:
             title = item.get("job_title", "")
@@ -308,6 +308,24 @@ class CVReviewService:
         self.config = config
         self.section_analyzer = SectionAnalyzer(llm_client)
         self.content_analyzer = ContentAnalyzer(llm_client)
+    def _weighted_section_score(self, sections: List[dict]) -> float:
+        weights = {
+            "Summary": 0.10,
+            "Experience": 0.35,
+            "Education": 0.15,
+            "Skills": 0.20,
+            "Projects": 0.10,
+        }
+        default_weight = 0.10
+        total_w = 0.0
+        accum = 0.0
+        for s in sections:
+            name = str(s.get("name", "")).strip()
+            score = TextProcessor.safe_number(s.get("score", 0), 0.0)
+            w = weights.get(name, default_weight)
+            accum += score * w
+            total_w += w
+        return round(accum / total_w, 1) if total_w > 0 else 0.0
     def review_cv_from_sections(self, sections: Dict[str, str], model: Optional[str] = None) -> dict:
         model = model or self.config.default_model
         analyzed: List[dict] = []
@@ -323,7 +341,7 @@ class CVReviewService:
             final_sections.append({"name": sec["name"], "score": TextProcessor.safe_number(sec["score"], 0), "suggestions": sec.get("suggestions", [])})
             strengths.extend(sec.get("strengths", []))
             improvements.extend(sec.get("areas_to_improve", []))
-        overall = round(sum(s["score"] for s in final_sections) / len(final_sections), 1) if final_sections else 0.0
+        overall = self._weighted_section_score(final_sections)
         return {
             "overall_score": overall,
             "strengths": sorted({s.strip() for s in strengths if s.strip()}),
@@ -340,6 +358,23 @@ class CVReviewService:
         fmt_analysis = combined.get("formattingAnalysis", {"score": 0.0, "summary": []})
         sections = ResumeProcessor.flatten_resume_sections(sections_payload)
         base = self.review_cv_from_sections(sections, model=model)
+
+        # Blend section score with dimension scores and apply small penalties for missing key sections
+        section_overall = TextProcessor.safe_number(base.get("overall_score", 0.0), 0.0)
+        ats_score = TextProcessor.safe_number(ats.get("score", 0.0), 0.0)
+        cq_score = TextProcessor.safe_number(content_quality.get("score", 0.0), 0.0)
+        fmt_score = TextProcessor.safe_number(fmt_analysis.get("score", 0.0), 0.0)
+
+        dim_blend = (0.25 * ats_score) + (0.50 * cq_score) + (0.25 * fmt_score)
+        # missing key sections penalties
+        penalty = 0.0
+        if not sections.get("Experience"): penalty += 8.0
+        if not sections.get("Skills"): penalty += 5.0
+        if not sections.get("Education"): penalty += 4.0
+
+        final_overall = max(0.0, min(100.0, round((0.60 * section_overall) + (0.40 * dim_blend) - penalty, 1)))
+
+        base["overall_score"] = final_overall
         base["atsCompatibility"] = ats
         base["contentQuality"] = content_quality
         base["formattingAnalysis"] = fmt_analysis

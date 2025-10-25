@@ -71,6 +71,34 @@ export interface ProjectEntry {
   sort_order: number;
 }
 
+export interface LanguageEntry {
+  id: string;
+  resume_id: string;
+  language: string;
+  proficiency: string;
+  sort_order?: number;
+}
+
+export interface AwardEntry {
+  id: string;
+  resume_id: string;
+  title: string;
+  issuer: string;
+  year: string;
+  description: string;
+  sort_order?: number;
+}
+
+export interface PublicationEntry {
+  id: string;
+  resume_id: string;
+  title: string;
+  publisher: string;
+  year: string;
+  url: string;
+  sort_order?: number;
+}
+
 export interface CertificationEntry {
   id: string;
   resume_id: string;
@@ -83,7 +111,17 @@ export interface CertificationEntry {
   sort_order: number;
 }
 
-export type SectionType = 'header' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications';
+export type SectionType =
+  | 'header'
+  | 'summary'
+  | 'experience'
+  | 'education'
+  | 'skills'
+  | 'projects'
+  | 'certifications'
+  | 'languages'
+  | 'awards'
+  | 'publications';
 
 export interface CVSection {
   id: SectionType;
