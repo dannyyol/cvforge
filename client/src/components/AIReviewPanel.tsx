@@ -8,13 +8,6 @@ interface AIReviewPanelProps {
   cvData: CVDataPayload;
 }
 
-interface AnalysisResponse {
-  overallScore: number;
-  atsScore: number;
-  insights: string[];
-  recommendations: string[];
-}
-
 export default function AIReviewPanel({ overallScore, cvData }: AIReviewPanelProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showReview, setShowReview] = useState(false);
