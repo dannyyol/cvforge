@@ -33,6 +33,7 @@ export interface AnalysisResponse {
   recommendations: string[];
 }
 
+// Use zero-arg resolver to satisfy MockOptions<TRes> type
 export async function analyzeCV(
   cvData: CVDataPayload,
   opts?: { mock?: boolean; delayMs?: number; resolver?: (req: CVDataPayload) => AnalysisResponse }
@@ -41,10 +42,31 @@ export async function analyzeCV(
     ? {
         mock: true,
         delayMs: opts.delayMs ?? 1200,
-        resolver: opts.resolver,
+        resolver: () =>
+          opts?.resolver
+            ? opts.resolver(cvData)
+            : { overallScore: 0, atsScore: 0, insights: [], recommendations: [] },
       }
     : undefined;
 
-  // Returns the parsed response body (typed) from the client
   return api.post<CVDataPayload, AnalysisResponse>('/analyze', cvData, undefined, mockOptions);
+}
+
+// Live AI review response used by AIReviewPanel
+export interface AIReviewResponse {
+  overall_score: number;
+  strengths: string[];
+  areas_to_improve: string[];
+  sections: Array<{
+    name: string;
+    score: number;
+    suggestions: string[];
+  }>;
+  atsCompatibility: { score: number; summary: string[] };
+  contentQuality: { score: number; summary: string[] };
+  formattingAnalysis: { score: number; summary: string[] };
+}
+
+export async function submitCVForReview(cvData: CVDataPayload): Promise<AIReviewResponse> {
+  return api.post<CVDataPayload, AIReviewResponse>('/review', cvData);
 }

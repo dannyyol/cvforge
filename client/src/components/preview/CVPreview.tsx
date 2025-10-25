@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Grid, Grid2X2, Grid2X2Icon, Grid3x3, LayoutGrid, LayoutGridIcon, LucideEggFried, LucideGrape, LucideGrid2X2, LucideGrid3X3, LucideGripHorizontal, LucideGripVertical, LucideLayout, LucideLayoutGrid, LucideLayoutList, LucideLayoutPanelTop, LucideLayoutTemplate, Palette, Settings, X, Briefcase, FileText, Users, GraduationCap, DollarSign, MessageSquare, MoreHorizontal } from 'lucide-react';
+import { Grid, LucideLayoutGrid, Palette, X,} from 'lucide-react';
 import DownloadDropdown from '../DownloadDropdown';
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId, Resume } from '../../types/resume';
 import ClassicTemplate from '../templates/ClassicTemplate';
@@ -8,7 +8,6 @@ import MinimalistTemplate from '../templates/MinimalistTemplate';
 import ProfessionalTemplate from '../templates/ProfessionalTemplate';
 import PaginatedPreview from './PaginatedPreview';
 import AIReviewPanel from '../AIReviewPanel';
-import { sampleCVData } from '../../data/sampleCVData';
 
 interface CVPreviewProps {
   personalDetails: PersonalDetails | null;
@@ -27,11 +26,14 @@ interface CVPreviewProps {
   isMobilePreview?: boolean;
   showMobileMenu?: boolean;
   onMobileMenuToggle?: () => void;
-  // New: optional resume metadata for payload
   resumeMeta?: Partial<Resume>;
 }
 
-export default function CVPreview({ personalDetails, professionalSummary, workExperiences, educationEntries, skills, projects, certifications, sections, templateId, accentColor = 'slate', activeTab, onTabChange, onOpenTemplateSelector, isMobilePreview = false, showMobileMenu = false, onMobileMenuToggle, resumeMeta }: CVPreviewProps) {
+export default function CVPreview({ 
+    personalDetails, professionalSummary, workExperiences, educationEntries, skills, projects, certifications, 
+    sections, templateId, accentColor = 'slate', activeTab, onTabChange, onOpenTemplateSelector, 
+    isMobilePreview = false, showMobileMenu = false, onMobileMenuToggle, resumeMeta 
+  }: CVPreviewProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const isMenuVisible = isMobilePreview ? showMobileMenu : isMenuOpen;
@@ -55,19 +57,20 @@ export default function CVPreview({ personalDetails, professionalSummary, workEx
     accentColor,
   };
 
-  // Build CV payload for AI review from current props
   const cvData = {
     resume: resumeMeta ?? { id: personalDetails?.resume_id ?? workExperiences[0]?.resume_id ?? 'unknown' },
-    personalDetails,
-    professionalSummary,
-    education: educationEntries,
-    workExperience: workExperiences,
-    skills,
-    projects,
-    certifications,
+    sections: {
+      personalDetails,
+      Summary: professionalSummary,
+      Experience: professionalSummary,
+      Education: educationEntries,
+      Skills: skills,
+      Projects: projects,
+      Certifications: certifications,
+    },
     templateId,
     accentColor,
-    sections,
+    sectionStatus: sections,
   };
 
   const renderTemplate = () => {
