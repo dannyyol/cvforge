@@ -112,7 +112,7 @@ def _compose_section_prompt(name: str, content: str) -> str:
     )
 
 
-def _call_ollama(prompt: str, model: str) -> str:
+def _api_call(prompt: str, model: str) -> str:
     url = f"{OLLAMA_URL}/api/generate"
     payload = {
         "model": model,
@@ -123,46 +123,28 @@ def _call_ollama(prompt: str, model: str) -> str:
             "num_predict": int(os.getenv("OLLAMA_NUM_PREDICT", "256")),
         },
     }
-    max_attempts = int(os.getenv("OLLAMA_MAX_RETRIES", "2"))
-    connect_timeout = int(os.getenv("OLLAMA_CONNECT_TIMEOUT", "10"))
-    read_timeout = int(os.getenv("OLLAMA_READ_TIMEOUT", "180"))
-    for attempt in range(1, max_attempts + 1):
-        try:
-            resp = requests.post(url, json=payload, timeout=(connect_timeout, read_timeout))
-            resp.raise_for_status()
-            data = resp.json()
-            return data.get("response", "")
-        except requests.Timeout as exc:
-            logger.warning("Ollama timeout on attempt {}/{}. Retrying...", attempt, max_attempts)
-            if attempt < max_attempts:
-                import time
-                time.sleep(0.75 * attempt)
-                continue
-            logger.exception("Ollama request timed out: url={} model={} error={}", url, model, str(exc))
-            raise
-        except requests.RequestException as exc:
-            logger.exception(
-                "Ollama request failed: url={} model={} status_code={} error={}",
-                url,
-                model,
-                getattr(getattr(exc, "response", None), "status_code", None),
-                str(exc),
-            )
-            if attempt < max_attempts:
-                import time
-                time.sleep(0.75 * attempt)
-                continue
-            raise
-        except Exception as exc:
-            logger.exception("Unexpected error calling Ollama: url={} model={} error={}", url, model, str(exc))
-            raise
+    try:
+        resp = requests.post(url, json=payload)
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("response", "")
+    except requests.RequestException as exc:
+        logger.exception(
+            "Ollama request failed: url={} model={} status_code={} error={}",
+            url,
+            model,
+            getattr(getattr(exc, "response", None), "status_code", None),
+            str(exc),
+        )
+        raise
+    except Exception as exc:
+        logger.exception("Unexpected error calling Ollama: url={} model={} error={}", url, model, str(exc))
+        raise
 
-
-# module functions around ATS analysis and payload flow
 
 def _analyze_section(name: str, content: str, model: str) -> dict:
     try:
-        response_text = _call_ollama(_compose_section_prompt(name, content), model=model)
+        response_text = _api_call(_compose_section_prompt(name, content), model=model)
         parsed = _extract_json(response_text) or {}
     except Exception:
         parsed = {}
@@ -266,50 +248,6 @@ def flatten_resume_sections(sections_payload: dict) -> Dict[str, str]:
 
     return result
 
-
-def _compose_ats_prompt(content: str) -> str:
-    return (
-        "You are an ATS (Applicant Tracking System) compliance evaluator.\n\n"
-        "Analyze the full resume text and return ONLY valid JSON with this structure:\n"
-        "{\n"
-        '  "atsCompatibility": {\n'
-        '    "score": number,  // 0-100\n'
-        '    "summary": [string]\n'
-        "  }\n"
-        "}\n\n"
-        "Focus ONLY on ATS-related criteria:\n"
-        "- Standard section headings\n"
-        "- Simple, ATS-friendly formatting (no graphics or complex tables)\n"
-        "- Use of relevant industry keywords\n"
-        "- Clarity and specificity of job titles\n\n"
-        "Provide the summary as concise bullet-style strings, each describing a specific ATS observation.\n\n"
-        "Example summary:\n"
-        '["Standard section headings used", '
-        '"Simple, ATS-friendly formatting", '
-        '"No graphics or complex tables", '
-        '"Some industry keywords missing", '
-        '"Could benefit from more specific job titles"]\n\n'
-        "Resume to analyze:\n"
-        f"\"\"\"\n{content}\n\"\"\"\n"
-    )
-
-
-def _analyze_ats(resume_text: str, model: str) -> dict:
-    try:
-        response_text = _call_ollama(_compose_ats_prompt(resume_text), model=model)
-        parsed = _extract_json(response_text) or {}
-        data = parsed.get("atsCompatibility", parsed) or {}
-        return {
-            "score": _safe_number(data.get("score", 0)),
-            "summary": list(map(str, data.get("summary", []))),
-        }
-    except Exception:
-        return {
-            "score": 0.0,
-            "summary": [],
-        }
-
-
 def _build_resume_text_from_nested(sections_payload: dict) -> str:
     sections_payload = sections_payload or {}
     flat = flatten_resume_sections(sections_payload)
@@ -343,20 +281,6 @@ def review_cv(resume_text: str, model: Optional[str] = None) -> dict:
     base["contentQuality"] = content_quality
     base["formattingAnalysis"] = fmt_analysis
 
-    # Integrate global ATS score into categories and apply heuristic tweaks
-    base_ats = _safe_number((base.get("categories") or {}).get("ATS Compatibility", 0), 0)
-    combined_ats = round(0.6 * _safe_number(ats.get("score", 0), 0) + 0.4 * base_ats, 1)
-    base["categories"]["ATS Compatibility"] = combined_ats
-
-    fmt_delta = _derive_formatting_adjustment(resume_text or "")
-    cq_delta = _derive_content_quality_adjustment(resume_text or "")
-
-    base_fmt = _safe_number(base["categories"].get("Formatting", 0), 0)
-    base_cq = _safe_number(base["categories"].get("Content Quality", 0), 0)
-
-    base["categories"]["Formatting"] = round(min(100.0, max(0.0, base_fmt + fmt_delta)), 1)
-    base["categories"]["Content Quality"] = round(min(100.0, max(0.0, base_cq + cq_delta)), 1)
-
     return base
 
 
@@ -370,7 +294,6 @@ def review_cv_from_sections(sections: Dict[str, str], model: Optional[str] = Non
     if not analyzed:
         analyzed.append(_analyze_section("Summary", "\n".join(sections.values()), model))
 
-    # Build strengths/improvements and section summaries
     strengths: List[str] = []
     improvements: List[str] = []
     final_sections: List[dict] = []
@@ -382,7 +305,6 @@ def review_cv_from_sections(sections: Dict[str, str], model: Optional[str] = Non
         strengths.extend(sec.get("strengths", []))
         improvements.extend(sec.get("areas_to_improve", []))
 
-    # Improved categories via separated workflow (weighted per section)
     categories = _compute_categories(analyzed)
     overall = round(sum(s["score"] for s in final_sections) / len(final_sections), 1) if final_sections else 0.0
 
@@ -546,7 +468,7 @@ def _compose_combined_analysis_prompt(content: str) -> str:
 
 def _analyze_resume_combined(resume_text: str, model: str) -> dict:
     try:
-        response_text = _call_ollama(_compose_combined_analysis_prompt(resume_text), model=model)
+        response_text = _api_call(_compose_combined_analysis_prompt(resume_text), model=model)
         parsed = _extract_json(response_text) or {}
         ats = parsed.get("atsCompatibility", {}) or {}
         cq = parsed.get("contentQuality", {}) or {}
@@ -567,86 +489,3 @@ def _analyze_resume_combined(resume_text: str, model: str) -> dict:
         }
     except Exception as exc:
         logger.warning("Combined analysis failed; falling back to separate calls: {}", str(exc))
-        return {
-            "atsCompatibility": _analyze_ats(resume_text or "", model),
-            "contentQuality": _analyze_content_quality(resume_text or "", model),
-            "formattingAnalysis": _analyze_formatting(resume_text or "", model),
-        }
-
-
-def _compose_formatting_prompt(content: str) -> str:
-    # New formatting analysis, mirroring atsCompatibility shape
-    print(content, 'content')
-    return (
-        "You are a resume formatting evaluator.\n\n"
-        "Analyze the full resume text and return ONLY valid JSON with this structure:\n"
-        "{\n"
-        '  "formattingAnalysis": {\n'
-        '    "score": number,  // 0-100\n'
-        '    "summary": [string]\n'
-        "  }\n"
-        "}\n\n"
-        "Focus ONLY on formatting-related criteria:\n"
-        "- Consistent section headings and hierarchy\n"
-        "- Bullet usage, line length, and whitespace for readability\n"
-        "- Avoidance of graphics, complex tables, and excessive columns\n"
-        "- Consistent punctuation, numbering, and date ranges\n\n"
-        "Provide the summary as concise bullet-style strings.\n\n"
-        "Resume to analyze:\n"
-        f"\"\"\"\n{content}\n\"\"\"\n"
-    )
-
-
-def _analyze_formatting(resume_text: str, model: str) -> dict:
-    try:
-        response_text = _call_ollama(_compose_formatting_prompt(resume_text), model=model)
-        parsed = _extract_json(response_text) or {}
-        data = parsed.get("formattingAnalysis", parsed) or {}
-        return {
-            "score": _safe_number(data.get("score", 0)),
-            "summary": list(map(str, data.get("summary", []))),
-        }
-    except Exception:
-        return {
-            "score": 0.0,
-            "summary": [],
-        }
-
-
-def _compose_content_quality_prompt(content: str) -> str:
-    # Return contentQuality to match API schema; keep evaluator focus on content details
-    return (
-        "You are a resume content quality evaluator.\n\n"
-        "Analyze the full resume text and return ONLY valid JSON with this structure:\n"
-        "{\n"
-        '  "contentQuality": {\n'
-        '    "score": number,\n'
-        '    "summary": [string]\n'
-        "  }\n"
-        "}\n\n"
-        "Evaluate content quality based on the following indicators:\n"
-        "- Use of measurable outcomes (numbers, metrics, or percentages)\n"
-        "- Specificity of responsibilities and achievements\n"
-        "- Coverage of key sections (Experience, Projects, Skills)\n"
-        "- Use of strong action verbs and concrete deliverables\n\n"
-        "Provide the summary as short bullet-style strings, each stating one observation.\n\n"
-        "Resume to analyze:\n"
-        f"\"\"\"\n{content}\n\"\"\"\n"
-    )
-
-
-def _analyze_content_quality(resume_text: str, model: str) -> dict:
-    try:
-        response_text = _call_ollama(_compose_content_quality_prompt(resume_text), model=model)
-        print(response_text, 'response_text')
-        parsed = _extract_json(response_text) or {}
-        data = parsed.get("contentQuality", parsed) or {}
-        return {
-            "score": _safe_number(data.get("score", 0)),
-            "summary": list(map(str, data.get("summary", []))),
-        }
-    except Exception:
-        return {
-            "score": 0.0,
-            "summary": [],
-        }
