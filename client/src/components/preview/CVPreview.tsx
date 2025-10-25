@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Grid, LucideLayoutGrid, Palette, X,} from 'lucide-react';
+import { LucideLayoutGrid, Palette, X,} from 'lucide-react';
 import DownloadDropdown from '../DownloadDropdown';
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId, Resume } from '../../types/resume';
 import ClassicTemplate from '../templates/ClassicTemplate';
@@ -133,31 +133,6 @@ export default function CVPreview({
             </PaginatedPreview>
           )}
         </div>
-
-        {isMenuVisible && (
-          <div className="absolute top-0 right-0 bottom-0 w-80 bg-white border-l border-neutral-200 flex flex-col shadow-2xl z-10">
-            <div className="flex items-center justify-between p-4 border-b border-neutral-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center relative">
-                  <span className="text-sm font-medium text-neutral-500">👤</span>
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-neutral-900">{personalDetails?.fullName || 'Ayobami Omotayo'}</h3>
-                  <p className="text-xs text-neutral-500">write somethig here</p>
-                </div>
-              </div>
-              <button onClick={handleMenuToggle} className="p-1 hover:bg-neutral-100 rounded transition-colors">
-                <X className="w-5 h-5 text-neutral-700" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto">
-              <nav className="p-3">
-                <MenuItem icon={<Grid className="w-5 h-5" />} label="Dashboard" />
-              </nav>
-            </div>
-          </div>
-        )}
       </div>
 
       {isMobilePreview && (
