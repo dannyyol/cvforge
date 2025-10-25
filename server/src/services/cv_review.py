@@ -49,46 +49,6 @@ def _safe_number(value, default: float = 0.0) -> float:
         return default
 
 
-def _normalize_whitespace(text: str) -> str:
-    return re.sub(r"[ \t]+", " ", text.replace("\r\n", "\n")).strip()
-
-
-def _section_patterns() -> List[Tuple[str, str]]:
-    return [
-        ("Summary", r"(?im)^\s*(summary|objective|professional summary)\s*:?\s*$"),
-        ("Experience", r"(?im)^\s*(experience|work experience|employment history|professional experience)\s*:?\s*$"),
-        ("Education", r"(?im)^\s*(education|academic background)\s*:?\s*$"),
-        ("Skills", r"(?im)^\s*(skills|technical skills|skills & competencies|core competencies)\s*:?\s*$"),
-        ("Projects", r"(?im)^\s*(projects|key projects|selected projects)\s*:?\s*$"),
-        ("Certifications", r"(?im)^\s*(certifications|licenses|certificates)\s*:?\s*$"),
-    ]
-
-
-def _parse_sections(resume_text: str) -> Dict[str, str]:
-    text = _normalize_whitespace(resume_text)
-    indices: List[Tuple[int, str]] = []
-    for canon, pattern in _section_patterns():
-        for m in re.finditer(pattern, text):
-            indices.append((m.start(), canon))
-    indices.sort(key=lambda x: x[0])
-
-    if not indices:
-        return {"Summary": text}
-
-    sections: Dict[str, str] = {}
-    for i, (start_idx, name) in enumerate(indices):
-        end_idx = indices[i + 1][0] if i + 1 < len(indices) else len(text)
-        chunk = text[start_idx:end_idx]
-        chunk = re.sub(r"(?im)^\s*.+?\n", "", chunk, count=1).strip()
-        if chunk:
-            if name in sections:
-                sections[name] += "\n\n" + chunk
-            else:
-                sections[name] = chunk
-
-    return sections or {"Summary": text}
-
-
 def _compose_section_prompt(name: str, content: str) -> str:
     return (
         "You are a CV reviewer. Analyze the resume section below.\n"
@@ -238,6 +198,44 @@ def flatten_resume_sections(sections_payload: dict) -> Dict[str, str]:
         cert_parts.append(_join_nonempty([line, tail]).strip())
     certifications = "\n\n".join([p for p in cert_parts if p])
 
+    # Languages
+    lang_items = sections_payload.get("languages") or []
+    lang_parts: List[str] = []
+    for item in lang_items:
+        language = item.get("language", "")
+        proficiency = item.get("proficiency", "")
+        entry = " — ".join([p for p in [language, proficiency] if p]).strip()
+        if entry:
+            lang_parts.append(entry)
+    languages = ", ".join([p for p in lang_parts if p])
+
+    # Awards
+    award_items = sections_payload.get("awards") or []
+    award_parts: List[str] = []
+    for item in award_items:
+        title = item.get("title", "")
+        issuer = item.get("issuer", "")
+        year = item.get("year", "")
+        description = item.get("description", "")
+        line = " — ".join([p for p in [title, issuer] if p])
+        tail = " ".join([p for p in [year, description] if p])
+        award_parts.append(_join_nonempty([line, tail]).strip())
+    awards = "\n\n".join([p for p in award_parts if p])
+
+    # Publications
+    pub_items = sections_payload.get("publications") or []
+    pub_parts: List[str] = []
+    for item in pub_items:
+        title = item.get("title", "")
+        publisher = item.get("publisher", "")
+        year = item.get("year", "")
+        raw_url = item.get("url", "")
+        url = str(raw_url).replace("`", "").strip()
+        line = " — ".join([p for p in [title, publisher] if p])
+        tail = " ".join([p for p in [f"({year})".strip('()'), url] if p])
+        pub_parts.append(_join_nonempty([line, tail]).strip())
+    publications = "\n\n".join([p for p in pub_parts if p])
+
     result: Dict[str, str] = {}
     if summary: result["Summary"] = summary
     if experience: result["Experience"] = experience
@@ -245,49 +243,33 @@ def flatten_resume_sections(sections_payload: dict) -> Dict[str, str]:
     if skills: result["Skills"] = skills
     if projects: result["Projects"] = projects
     if certifications: result["Certifications"] = certifications
+    if publications: result["Publications"] = publications
+    if awards: result["Awards"] = awards
+    if languages: result["Languages"] = languages
 
     return result
 
 def _build_resume_text_from_nested(sections_payload: dict) -> str:
     sections_payload = sections_payload or {}
     flat = flatten_resume_sections(sections_payload)
-    order = ["Summary", "Experience", "Education", "Skills", "Projects", "Certifications"]
+    order = ["Summary", "Experience", "Education", "Skills", "Projects", "Certifications", "Publications", "Awards", "Languages"]
 
     lines: List[str] = []
-    # First, add known sections in a stable order
     for name in order:
         content = flat.get(name, "").strip()
         if content:
             lines.append(f"{name}\n{content}")
 
-    # Then, add any additional sections not covered above
     for name, content in flat.items():
         if name not in order and content.strip():
             lines.append(f"{name}\n{content.strip()}")
 
     return "\n\n".join(lines).strip()
 
-
-def review_cv(resume_text: str, model: Optional[str] = None) -> dict:
-    sections = _parse_sections(resume_text or "")
-    base = review_cv_from_sections(sections, model=model)
-
-    combined = _analyze_resume_combined(resume_text or "", (model or DEFAULT_MODEL))
-    ats = combined.get("atsCompatibility", {"score": 0.0, "summary": []})
-    content_quality = combined.get("contentQuality", {"score": 0.0, "summary": []})
-    fmt_analysis = combined.get("formattingAnalysis", {"score": 0.0, "summary": []})
-
-    base["atsCompatibility"] = ats
-    base["contentQuality"] = content_quality
-    base["formattingAnalysis"] = fmt_analysis
-
-    return base
-
-
 def review_cv_from_sections(sections: Dict[str, str], model: Optional[str] = None) -> dict:
     model = model or DEFAULT_MODEL
     analyzed: List[dict] = []
-    for name in sections: #["Summary", "Experience", "Education", "Skills", "Projects", "Certifications"]:
+    for name in sections:
         if name in sections and sections[name].strip():
             analyzed.append(_analyze_section(name, sections[name], model))
 
@@ -305,12 +287,10 @@ def review_cv_from_sections(sections: Dict[str, str], model: Optional[str] = Non
         strengths.extend(sec.get("strengths", []))
         improvements.extend(sec.get("areas_to_improve", []))
 
-    categories = _compute_categories(analyzed)
     overall = round(sum(s["score"] for s in final_sections) / len(final_sections), 1) if final_sections else 0.0
 
     return {
         "overall_score": overall,
-        "categories": categories,
         "strengths": sorted({s.strip() for s in strengths if s.strip()}),
         "areas_to_improve": sorted({a.strip() for a in improvements if a.strip()}),
         "sections": final_sections,
@@ -322,7 +302,7 @@ def review_cv_payload(payload: dict) -> dict:
     model = (payload or {}).get("model") or DEFAULT_MODEL
     resume_text_full = _build_resume_text_from_nested(sections_payload)
 
-    combined = _analyze_resume_combined(resume_text_full or "", model)
+    combined = _analyze_resume_content(resume_text_full or "", model)
     ats = combined.get("atsCompatibility", {"score": 0.0, "summary": []})
     content_quality = combined.get("contentQuality", {"score": 0.0, "summary": []})
     fmt_analysis = combined.get("formattingAnalysis", {"score": 0.0, "summary": []})
@@ -336,107 +316,7 @@ def review_cv_payload(payload: dict) -> dict:
 
     return base
 
-
-# module helpers for improved category scoring
-def _canonical_section_name(name: str) -> str:
-    n = (name or "").lower()
-    if "experience" in n: return "Experience"
-    if "summary" in n or "objective" in n: return "Summary"
-    if "education" in n: return "Education"
-    if "skill" in n: return "Skills"
-    if "project" in n: return "Projects"
-    if "cert" in n or "license" in n: return "Certifications"
-    return (name or "Summary")
-
-
-def _weighted_category_score(analyzed_sections: List[dict], key: str, weights_map: Dict[str, float]) -> float:
-    total = 0.0
-    denom = 0.0
-    for sec in analyzed_sections:
-        name = _canonical_section_name(sec.get("name", ""))
-        score_val = _safe_number(sec.get("section_scores", {}).get(key, 0), 0)
-        w = weights_map.get(name, 0.1)
-        if score_val > 0 and w > 0:
-            total += score_val * w
-            denom += w
-    return round(total / denom, 1) if denom > 0 else 0.0
-
-
-def _compute_categories(analyzed_sections: List[dict]) -> Dict[str, float]:
-    # Emphasize Experience and Summary for content, and spread formatting across sections
-    weights_content = {
-        "Summary": 0.2, "Experience": 0.4, "Education": 0.15, "Skills": 0.15, "Projects": 0.1, "Certifications": 0.0
-    }
-    weights_formatting = {
-        "Summary": 0.15, "Experience": 0.35, "Education": 0.15, "Skills": 0.15, "Projects": 0.1, "Certifications": 0.1
-    }
-    weights_ats = {
-        "Summary": 0.2, "Experience": 0.4, "Education": 0.1, "Skills": 0.15, "Projects": 0.1, "Certifications": 0.05
-    }
-    return {
-        "ATS Compatibility": _weighted_category_score(analyzed_sections, "ATS Compatibility", weights_ats),
-        "Content Quality": _weighted_category_score(analyzed_sections, "Content Quality", weights_content),
-        "Formatting": _weighted_category_score(analyzed_sections, "Formatting", weights_formatting),
-    }
-
-
-def _derive_formatting_adjustment(text: str) -> float:
-    text = text or ""
-    lines = text.splitlines()
-    if not lines:
-        return 0.0
-    bullet_lines = sum(1 for l in lines if re.match(r"^\s*[-*•·]", l))
-    long_lines = sum(1 for l in lines if len(l) > 120)
-    total_lines = len(lines)
-    bullet_ratio = bullet_lines / max(1, total_lines)
-    long_ratio = long_lines / max(1, total_lines)
-    table_ratio = text.count("|") / max(1, len(text))
-
-    delta = 0.0
-    if bullet_ratio >= 0.3:
-        delta += 3.0
-    elif bullet_ratio >= 0.1:
-        delta += 1.5
-
-    if long_ratio > 0.3:
-        delta -= 5.0
-    elif long_ratio > 0.1:
-        delta -= 2.0
-
-    if table_ratio > 0.02:
-        delta -= 4.0
-
-    return max(-10.0, min(10.0, delta))
-
-
-def _derive_content_quality_adjustment(text: str) -> float:
-    text = text or ""
-    tokens_count = len(re.findall(r"\w+", text))
-    metrics_count = len(re.findall(r"\b\d+(?:\.\d+)?%?\b", text))
-    verbs_count = len(re.findall(
-        r"\b(led|managed|designed|built|implemented|improved|reduced|increased|optimized|developed|launched|delivered)\b",
-        text, flags=re.IGNORECASE
-    ))
-
-    delta = 0.0
-    if metrics_count >= 5:
-        delta += 3.0
-    elif metrics_count >= 2:
-        delta += 1.5
-
-    if verbs_count >= 6:
-        delta += 2.0
-    elif verbs_count >= 3:
-        delta += 1.0
-
-    if tokens_count < 150:
-        delta -= 1.0
-
-    return max(-8.0, min(8.0, delta))
-
-
-# module-level functions (new)
-def _compose_combined_analysis_prompt(content: str) -> str:
+def _compose_content_analysis_prompt(content: str) -> str:
     return (
         "You are a CV reviewer. In ONE pass, evaluate the resume for:\n"
         "- ATS Compatibility\n"
@@ -466,9 +346,9 @@ def _compose_combined_analysis_prompt(content: str) -> str:
         f"\"\"\"\n{content}\n\"\"\"\n"
     )
 
-def _analyze_resume_combined(resume_text: str, model: str) -> dict:
+def _analyze_resume_content(resume_text: str, model: str) -> dict:
     try:
-        response_text = _api_call(_compose_combined_analysis_prompt(resume_text), model=model)
+        response_text = _api_call(_compose_content_analysis_prompt(resume_text), model=model)
         parsed = _extract_json(response_text) or {}
         ats = parsed.get("atsCompatibility", {}) or {}
         cq = parsed.get("contentQuality", {}) or {}
