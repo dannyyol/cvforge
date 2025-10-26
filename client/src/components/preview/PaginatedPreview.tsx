@@ -1,179 +1,183 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-const A4_UK = {
-  width: 794,
-  height: 1123,
-  margin: 40,
-};
+import { A4_DIMENSIONS, SECTION_MARGIN_TOP, performPagination, type PageContent } from '../../utils/paginationUtils';
 
 interface PaginatedPreviewProps {
   children: React.ReactNode;
+  onPaginate?: (data: {
+    pages: Array<{
+      index: number;
+      
+      sections: Array<{ sectionId: string; startBlockIndex: number; endBlockIndex: number }>;
+      textContent: string[];
+    }>;
+  }) => void;
 }
 
-interface PageContent {
+interface ReactPageContent {
   elements: React.ReactNode[];
 }
 
-export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
-  const [pages, setPages] = useState<PageContent[]>([]);
+export default function PaginatedPreview({ children, onPaginate }: PaginatedPreviewProps) {
+  const [pages, setPages] = useState<ReactPageContent[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const measureRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const [scale, setScale] = useState(1);
+  const [bottomMargin, setBottomMargin] = useState(48);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const pageInnerHeight = A4_UK.height - 2 * A4_UK.margin;
+  const pageInnerWidth = A4_DIMENSIONS.width - (2 * A4_DIMENSIONS.margin);
 
-  const measureAndPaginate = () => {
+
+  const performPaginationLocal = () => {
     if (!measureRef.current) return;
 
-    const sectionElements = Array.from(
-      measureRef.current.querySelectorAll('[data-cv-section]')
-    ) as HTMLElement[];
+    const { pages: paginatedPages } = performPagination(measureRef.current);
 
-    if (sectionElements.length === 0) {
+    if (paginatedPages.length === 0) {
       setPages([]);
       setReady(true);
+      if (onPaginate) onPaginate({ pages: [] });
       return;
     }
 
-    const SECTION_MARGIN_BOTTOM = 32;
+    // Convert from shared PageContent to ReactPageContent
+    const newPages: ReactPageContent[] = [];
+    const pagesJson: Array<{
+      index: number;
+      sections: Array<{ sectionId: string; startBlockIndex: number; endBlockIndex: number }>;
+      textContent: string[];
+    }> = [];
 
-    const sectionData = sectionElements.map((element) => {
-      const rect = element.getBoundingClientRect();
-      const style = window.getComputedStyle(element);
-      const marginTop = parseFloat(style.marginTop || '0');
-      const marginBottom = parseFloat(style.marginBottom || '0');
-      const totalHeight = rect.height + marginTop + marginBottom + SECTION_MARGIN_BOTTOM;
+    let blockIndex = 0;
 
-      return {
-        element: element.cloneNode(true) as HTMLElement,
-        height: totalHeight,
-        id: element.getAttribute('data-section-id') || '',
-      };
-    });
+    for (let pageIndex = 0; pageIndex < paginatedPages.length; pageIndex++) {
+      const page = paginatedPages[pageIndex];
+      const currentPageSections: Map<string, { start: number; end: number }> = new Map();
+      
+      const reactElements: React.ReactNode[] = page.elements.map((element, elementIndex) => {
+        // Extract section ID from the HTML to track sections
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = element.html;
+        const sectionElement = tempDiv.querySelector('[data-section-id]');
+        const sectionId = sectionElement?.getAttribute('data-section-id') || 'unknown';
 
-    const newPages: PageContent[] = [];
-    let currentPageElements: React.ReactNode[] = [];
-    let currentPageHeight = 0;
-
-    for (let i = 0; i < sectionData.length; i++) {
-      const section = sectionData[i];
-      const isLastSection = i === sectionData.length - 1;
-      const sectionHeightToUse = isLastSection ? section.height - SECTION_MARGIN_BOTTOM : section.height;
-
-      if (currentPageHeight + sectionHeightToUse <= pageInnerHeight) {
-        currentPageElements.push(
-          <div
-            key={`page-section-${i}`}
-            data-section-id={section.id}
-            className={isLastSection && currentPageElements.length > 0 ? '' : 'mb-8'}
-            dangerouslySetInnerHTML={{ __html: section.element.innerHTML }}
-          />
-        );
-        currentPageHeight += sectionHeightToUse;
-      } else {
-        if (currentPageElements.length > 0) {
-          newPages.push({ elements: [...currentPageElements] });
+        if (currentPageSections.has(sectionId)) {
+          const range = currentPageSections.get(sectionId)!;
+          range.end = blockIndex;
+        } else {
+          currentPageSections.set(sectionId, { start: blockIndex, end: blockIndex });
         }
 
-        currentPageElements = [
-          <div
-            key={`page-section-${i}`}
-            data-section-id={section.id}
-            className="mb-8"
-            dangerouslySetInnerHTML={{ __html: section.element.innerHTML }}
-          />
-        ];
-        currentPageHeight = section.height;
-      }
-    }
+        blockIndex++;
 
-    if (currentPageElements.length > 0) {
-      newPages.push({ elements: [...currentPageElements] });
+        return (
+          <div
+            key={`block-${pageIndex}-${elementIndex}`}
+            style={{ marginTop: element.marginTop }}
+            dangerouslySetInnerHTML={{ __html: element.html }}
+          />
+        );
+      });
+
+      newPages.push({ elements: reactElements });
+
+      const sectionsArray = Array.from(currentPageSections.entries()).map(([sectionId, range]) => ({
+        sectionId,
+        startBlockIndex: range.start,
+        endBlockIndex: range.end,
+      }));
+
+      pagesJson.push({
+        index: pageIndex,
+        sections: sectionsArray,
+        textContent: [],
+      });
     }
 
     setPages(newPages);
     setReady(true);
+
+    if (onPaginate) {
+      onPaginate({ pages: pagesJson });
+    }
   };
 
   useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      setTimeout(() => {
-        measureAndPaginate();
-      }, 100);
-    });
+    const timer = setTimeout(() => {
+      performPaginationLocal();
+    }, 150);
 
-    return () => cancelAnimationFrame(raf);
+    return () => clearTimeout(timer);
   }, [children]);
 
-  const calculateScale = () => {
+  const calculateScaleAndMargin = () => {
     if (!containerRef.current) return;
 
+    const screenHeight = window.innerHeight;
+    
+    let margin: number;
+    let availableHeight: number;
+    
+    if (screenHeight < 768) {
+      availableHeight = screenHeight * 0.85;
+      margin = 60;
+    } else if (screenHeight < 1024) {
+      availableHeight = screenHeight * 0.82;
+      margin = 80;
+    } else if (screenHeight < 1440) {
+      availableHeight = screenHeight * 0.80;
+      margin = 100;
+    } else {
+      availableHeight = screenHeight * 0.78;
+      margin = 120;
+    }
+
     const containerWidth = containerRef.current.clientWidth;
-    const containerHeight = window.innerHeight - 200;
+    const scaleByWidth = (containerWidth * 0.95) / A4_DIMENSIONS.width;
+    const scaleByHeight = availableHeight / A4_DIMENSIONS.height;
 
-    const scaleByWidth = (containerWidth - 80) / A4_UK.width;
-    const scaleByHeight = containerHeight / A4_UK.height;
-
-    const optimalScale = Math.min(scaleByWidth, scaleByHeight, 1);
-    setScale(Math.max(optimalScale, 0.4));
+    const baseScale = Math.min(scaleByWidth, scaleByHeight);
+    
+    setScale(Math.max(baseScale, 0.5));
+    setBottomMargin(margin);
   };
 
   useEffect(() => {
-    calculateScale();
+    calculateScaleAndMargin();
   }, [ready, pages.length]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    let ro: ResizeObserver | null = null;
+
+    const handleResize = () => {
+      setReady(false);
+      setTimeout(() => {
+        performPaginationLocal();
+        calculateScaleAndMargin();
+      }, 150);
+    };
+
+    let resizeObserver: ResizeObserver | null = null;
 
     try {
-      ro = new ResizeObserver(() => {
-        setReady(false);
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            measureAndPaginate();
-            calculateScale();
-          }, 100);
-        });
-      });
-
+      resizeObserver = new ResizeObserver(handleResize);
       if (measureRef.current) {
-        ro.observe(measureRef.current);
+        resizeObserver.observe(measureRef.current);
       }
-
-      const onResize = () => {
-        setReady(false);
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            measureAndPaginate();
-            calculateScale();
-          }, 100);
-        });
-      };
-
-      window.addEventListener('resize', onResize);
-
-      return () => {
-        window.removeEventListener('resize', onResize);
-        if (ro && measureRef.current) ro.unobserve(measureRef.current);
-        ro?.disconnect();
-      };
     } catch (err) {
-      const onResize = () => {
-        setReady(false);
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            measureAndPaginate();
-            calculateScale();
-          }, 100);
-        });
-      };
-      window.addEventListener('resize', onResize);
-      return () => window.removeEventListener('resize', onResize);
+      console.warn('ResizeObserver not available');
     }
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+    };
   }, []);
 
   const handlePrevPage = () => {
@@ -186,20 +190,28 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
 
   return (
     <>
+      {/* Hidden measurement container */}
       <div
         aria-hidden="true"
         ref={measureRef}
         className="invisible fixed left-0 top-0 pointer-events-none"
         style={{
+          position: 'fixed',
           transform: 'translateY(-10000px)',
-          width: `${A4_UK.width - 2 * A4_UK.margin}px`,
+          width: `${pageInnerWidth}px`,
           padding: 0,
+          margin: 0,
         }}
       >
         {children}
       </div>
 
-      <div ref={containerRef} className="w-full flex flex-col items-center pt-3 pb-6">
+      {/* Main preview container */}
+      <div 
+        ref={containerRef} 
+        className="w-full flex flex-col items-center pt-4"
+        style={{ paddingBottom: `${bottomMargin}px` }}
+      >
         {!ready && (
           <div className="mb-4 text-sm text-gray-500">
             Preparing preview...
@@ -208,7 +220,8 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
 
         {ready && pages.length > 0 && (
           <>
-            <div className="flex items-center gap-1 mb-3 bg-white rounded-lg shadow-md px-1.5 py-1.5">
+            {/* Navigation controls */}
+            <div className="flex items-center gap-1 mb-4 bg-white rounded-lg shadow-md px-1.5 py-1.5">
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage === 0}
@@ -236,26 +249,32 @@ export default function PaginatedPreview({ children }: PaginatedPreviewProps) {
 
             <div
               key={`page-${currentPage}`}
-              className="page bg-white mb-6"
+              className="page bg-white"
               style={{
-                width: `${A4_UK.width}px`,
-                height: `${A4_UK.height}px`,
+                width: `${A4_DIMENSIONS.width}px`,
+                height: `${A4_DIMENSIONS.height}px`,
                 boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
                 borderRadius: 6,
                 overflow: 'hidden',
                 transform: `scale(${scale})`,
                 transformOrigin: 'top center',
                 transition: 'transform 0.2s ease-in-out',
+                marginBottom: `${bottomMargin * 0.3}px`,
               }}
             >
               <div
                 className="page-inner cv-preview-container"
                 style={{
                   boxSizing: 'border-box',
-                  width: `${A4_UK.width}px`,
-                  height: `${A4_UK.height}px`,
-                  padding: `${A4_UK.margin}px`,
+                  width: `${A4_DIMENSIONS.width}px`,
+                  height: `${A4_DIMENSIONS.height}px`,
+                  paddingTop: `${A4_DIMENSIONS.margin}px`,
+                  paddingBottom: `${A4_DIMENSIONS.margin}px`,
+                  paddingLeft: `${A4_DIMENSIONS.margin}px`,
+                  paddingRight: `${A4_DIMENSIONS.margin}px`,
                   overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}
               >
                 {pages[currentPage]?.elements}
