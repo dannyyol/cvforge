@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronLeft, Grid, Type, Layout } from 'lucide-react';
 import { TemplateId } from '../types/resume';
+import DownloadDropdown from './DownloadDropdown';
 
 interface CustomizationSidebarProps {
   selectedTemplate: TemplateId;
@@ -91,14 +92,7 @@ export default function CustomizationSidebar({
           <ChevronLeft size={20} />
           <span>Back</span>
         </button>
-        <button
-          className="sidebar-download-btn"
-        >
-          Download
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+        <DownloadDropdown variant="default" className="sidebar-download-btn" />
       </div>
 
       <div className="sidebar-tabs">
