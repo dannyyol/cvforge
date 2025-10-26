@@ -98,20 +98,30 @@ export default function CVPreview({
           <span className="text-sm font-medium text-neutral-700">Customise</span>
         </button>
 
-        <div className="preview-tab-container">
+        <div className="flex items-center bg-gray-200 rounded-lg p-1">
           <button
             onClick={() => onTabChange('preview')}
-            className={`preview-tab-btn preview-tab-btn--left ${activeTab === 'preview' ? 'preview-tab-btn--active' : 'preview-tab-btn--inactive'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+              activeTab === 'preview'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
             Preview
           </button>
-          <div className="preview-tab-divider"></div>
           <button
             onClick={() => onTabChange('ai-review')}
-            className={`preview-tab-btn preview-tab-btn--right ${activeTab === 'ai-review' ? 'preview-tab-btn--active' : 'preview-tab-btn--inactive'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+              activeTab === 'ai-review'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
             AI Review
           </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <DownloadDropdown className="preview-download-btn" />
         </div>
       </div>
 
