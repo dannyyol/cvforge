@@ -9,9 +9,11 @@ interface ProfessionalSummaryFormProps {
 export default function ProfessionalSummaryForm({ summary, onChange }: ProfessionalSummaryFormProps) {
   return (
     <div>
-        <p className="text-sm text-neutral-500 mb-6 leading-relaxed">
-        Write 2-4 short, energetic sentences about how great you are. Mention the role and what you did. What were the big achievements? Describe your motivation and list your skills.
-      </p>
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg">
+        <p className="text-sm text-slate-700 leading-relaxed">
+          Write 2-4 short, energetic sentences about how great you are. Mention the role and what you did. What were the big achievements? Describe your motivation and list your skills.
+        </p>
+      </div>
 
       <RichTextEditor
         value={summary?.content || ''}
