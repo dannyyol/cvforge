@@ -118,7 +118,7 @@ export default function DownloadDropdown({ variant = 'default', className = '' }
         disabled={isDownloading}
         className={`${className} ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        {isDownloading ? 'Generating...' : 'Downoad'}
+        {isDownloading ? 'Generating...' : 'Download'}
         <ChevronDown className="w-4 h-4" />
       </button>
 
