@@ -92,7 +92,7 @@ export default function CustomizationSidebar({
           <ChevronLeft size={20} />
           <span>Back</span>
         </button>
-        <DownloadDropdown variant="default" className="sidebar-download-btn" />
+        <DownloadDropdown variant="default" className="preview-download-btn" />
       </div>
 
       <div className="sidebar-tabs">
