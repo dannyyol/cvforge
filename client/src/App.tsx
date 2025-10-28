@@ -1,7 +1,6 @@
 import { useState, DragEvent, useEffect } from 'react';
 import DownloadDropdown from './components/DownloadDropdown';
 import CVTitleCard from './components/CVTitleCard';
-import CVScoreBanner from './components/CVScoreBanner';
 import PersonalDetailsForm from './components/forms/PersonalDetailsForm';
 import ProfessionalSummaryForm from './components/forms/ProfessionalSummaryForm';
 import WorkExperienceForm from './components/forms/WorkExperienceForm';
@@ -45,7 +44,6 @@ function App() {
   const [isCustomizationSidebarOpen, setIsCustomizationSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'preview' | 'ai-review'>('preview');
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview' | 'ai-review'>('editor');
-  const [showMobileSettings, setShowMobileSettings] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   useEffect(() => {
@@ -66,6 +64,7 @@ function App() {
     setResumeTitle(newTitle);
     setLastSaved(new Date().toISOString());
   };
+
 
 
   const handlePersonalDetailsChange = (field: keyof PersonalDetails, value: string) => {
@@ -222,37 +221,60 @@ function App() {
         </>
       ) : (
         <>
-          <div className={`w-full lg:w-[50%] overflow-y-auto bg-gray-50 pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
-            <div className="p-4 lg:p-6 lg:pr-8 w-full">
-              <CVTitleCard
-                title={resumeTitle}
-                lastSaved={lastSaved}
-                onTitleChange={handleTitleChange}
-              />
+          {/* Left Panel - Editor Section */}
+          <div className={`w-full lg:w-[50%] overflow-y-auto custom-scrollbar pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}
+               style={{
+                 background: 'linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)'
+               }}>
+            <div className="p-4 lg:p-8 lg:pr-10 w-full">
+              <div className="animate-slideInLeft">
+                <CVTitleCard
+                  title={resumeTitle}
+                  lastSaved={lastSaved}
+                  onTitleChange={handleTitleChange}
+                />
+              </div>
 
-              <div className="mt-6">
-                {sections.map((section) => (
-                  <DraggableSection
-                    key={section.id}
-                    id={section.id}
-                    title={section.title}
-                    isOpen={section.isOpen}
-                    onToggle={() => toggleSection(section.id)}
-                    onDragStart={handleDragStart(section.id)}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop(section.id)}
+              <div className="mt-8 space-y-6">
+                {sections.map((section, index) => (
+                  <div 
+                    key={section.id} 
+                    className="animate-fadeIn"
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    {renderSectionContent(section.id)}
-                  </DraggableSection>
+                    <DraggableSection
+                      id={section.id}
+                      title={section.title}
+                      isOpen={section.isOpen}
+                      onToggle={() => toggleSection(section.id)}
+                      onDragStart={handleDragStart(section.id)}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop(section.id)}
+                    >
+                      {renderSectionContent(section.id)}
+                    </DraggableSection>
+                  </div>
                 ))}
               </div>
 
-              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-30">
-                <DownloadDropdown variant="icon-only" className="w-full px-5 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors" />
+              {/* Mobile Download Button */}
+              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 p-4 z-30"
+                   style={{
+                     backdropFilter: 'blur(10px)',
+                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 250, 250, 0.95) 100%)'
+                   }}>
+                <DownloadDropdown 
+                  variant="icon-only" 
+                  className="w-full px-5 py-3 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-md"
+                  style={{
+                    background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)'
+                  }}
+                />
               </div>
             </div>
           </div>
 
+          {/* Right Panel - Preview Section */}
           <div className={`w-full lg:w-[50%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
             <CVPreview
               personalDetails={personalDetails}
