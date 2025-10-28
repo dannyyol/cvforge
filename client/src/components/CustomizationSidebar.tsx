@@ -39,22 +39,18 @@ const templates = [
   {
     id: 'classic' as TemplateId,
     name: 'Classic',
-    formats: ['PDF', 'DOCX'],
   },
   {
     id: 'modern' as TemplateId,
     name: 'Modern',
-    formats: ['PDF', 'DOCX'],
   },
   {
     id: 'minimalist' as TemplateId,
     name: 'Minimalist',
-    formats: ['PDF', 'DOCX'],
   },
   {
     id: 'professional' as TemplateId,
     name: 'Professional',
-    formats: ['PDF', 'DOCX'],
   },
 ];
 
@@ -83,176 +79,226 @@ export default function CustomizationSidebar({
   };
 
   return (
-    <div className="sidebar-panel">
-      <div className="sidebar-header">
+    <div className="w-full h-screen bg-gray-50 flex flex-col border-r border-gray-200">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
         <button
           onClick={onClose}
-          className="sidebar-back-btn"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ChevronLeft size={20} />
-          <span>Back</span>
+          <span className="font-medium">Back</span>
         </button>
         <DownloadDropdown variant="default" className="preview-download-btn" />
       </div>
 
-      <div className="sidebar-tabs">
+      {/* Simplified Tab Navigation */}
+      <div className="flex bg-white border-b border-gray-200">
         <button
           onClick={() => setActiveTab('templates')}
-          className={`sidebar-tab ${activeTab === 'templates' ? 'sidebar-tab--active' : 'sidebar-tab--inactive'}`}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative ${
+            activeTab === 'templates' 
+              ? 'text-blue-600 bg-blue-50' 
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+          }`}
         >
           <Grid size={18} />
           <span>Templates</span>
           {activeTab === 'templates' && (
-            <div className="sidebar-tab-indicator"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
           )}
         </button>
         <button
           onClick={() => setActiveTab('text')}
-          className={`sidebar-tab ${activeTab === 'text' ? 'sidebar-tab--active' : 'sidebar-tab--inactive'}`}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative ${
+            activeTab === 'text' 
+              ? 'text-blue-600 bg-blue-50' 
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+          }`}
         >
           <Type size={18} />
           <span>Text</span>
           {activeTab === 'text' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
           )}
         </button>
       </div>
 
-      <div className="sidebar-content">
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto">
         {activeTab === 'templates' && (
-          <div className="p-4">
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="sidebar-section-title">
-                  Accent Colour
-                </h3>
+          <div className="p-6 space-y-8 animate-fade-in">
+            {/* Color Palette Section */}
+            <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Theme Color
+                  </h3>
+                  {isColorSupported && (
+                    <p className="text-sm text-gray-600 mt-1 transition-all duration-300">
+                      Selected: <span className="font-medium capitalize">{accentColors.find(c => c.id === accentColor)?.name || 'None'}</span>
+                    </p>
+                  )}
+                </div>
                 {!isColorSupported && (
-                  <span className="sidebar-not-available">
-                    Not available
+                  <span className="text-sm text-gray-500 italic animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                    Not available for this template
                   </span>
                 )}
               </div>
+              
               {showColorWarning && (
-                <div className="sidebar-warning">
+                <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 animate-slide-down">
                   This template doesn't support color customization
                 </div>
               )}
-              <div className={`sidebar-color-grid ${!isColorSupported ? 'opacity-40' : ''}`}>
-                {accentColors.map((colorOption) => (
+              
+              {/* Selected Color Preview */}
+              {isColorSupported && (
+                <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 animate-fade-in hover:shadow-md transition-all duration-300" style={{ animationDelay: '0.3s' }}>
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-8 h-8 rounded-full border-2 border-white shadow-lg ring-2 ring-gray-300 transition-all duration-300 hover:scale-110"
+                      style={{ backgroundColor: accentColors.find(c => c.id === accentColor)?.color }}
+                    ></div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Current Theme Color</p>
+                      <p className="text-xs text-gray-500">{accentColors.find(c => c.id === accentColor)?.name}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className={`grid grid-cols-6 gap-2 ${!isColorSupported ? 'opacity-40' : ''}`}>
+                {accentColors.map((colorOption, index) => (
                   <button
                     key={colorOption.id}
                     onClick={() => handleColorClick(colorOption.id)}
                     disabled={!isColorSupported}
-                    className={`sidebar-color-swatch ${
+                    className={`relative w-12 h-12 rounded-lg transition-all duration-300 flex items-center justify-center group animate-scale-in ${
                       accentColor === colorOption.id && isColorSupported
-                        ? 'sidebar-color-swatch--selected'
-                        : 'sidebar-color-swatch--hover'
+                        ? 'ring-2 ring-blue-500 ring-offset-2 shadow-lg transform scale-105'
+                        : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-1 hover:scale-110 shadow-sm hover:shadow-md'
                     } ${!isColorSupported ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                    style={{ backgroundColor: colorOption.color }}
+                    style={{ 
+                      backgroundColor: colorOption.color,
+                      animationDelay: `${0.4 + index * 0.05}s`
+                    }}
                     title={isColorSupported ? colorOption.name : 'Not supported by this template'}
                   >
                     {accentColor === colorOption.id && isColorSupported && (
-                      <svg
-                        className="w-4 h-4 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                      <>
+                        <div className="absolute inset-0 flex items-center justify-center animate-bounce-in">
+                          <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center transition-all duration-200">
+                            <svg
+                              className="w-4 h-4 text-gray-800 animate-check-mark"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={3}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      </>
                     )}
+                    
+                    {/* Tooltip on hover */}
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-10 group-hover:translate-y-1">
+                      {colorOption.name}
+                    </div>
                   </button>
                 ))}
               </div>
+              
+              {/* Color categories for better organization */}
+              <div className="mt-4 text-xs text-gray-500 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+                <p>Choose from our curated color palette to personalize your CV</p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {templates.map((template) => (
-                <div
-                  key={template.id}
-                  onClick={() => onSelectTemplate(template.id)}
-                  className={`sidebar-template-card ${
-                    selectedTemplate === template.id
-                      ? 'sidebar-template-card--selected'
-                      : 'sidebar-template-card--hover'
-                  }`}
-                >
-                  <div className="sidebar-template-preview">
-                    <div className="sidebar-template-preview-title">
-                      <div className="font-bold mb-0.5">JOHN DOE</div>
-                      <div className="sidebar-template-preview-subtitle">Software Developer</div>
-                    </div>
-                    <div className="sidebar-template-divider"></div>
-                    <div className="space-y-1.5">
-                      <div>
-                        <div className="sidebar-template-section-title">EMPLOYMENT HISTORY</div>
-                        <div className="sidebar-template-text space-y-0.5">
-                          <div>Software Developer, Company</div>
-                          <div className="sidebar-template-muted">2020 - Present</div>
+            {/* Templates Section */}
+            <div className="border-t border-gray-200 pt-6 animate-slide-up" style={{ animationDelay: '0.5s' }}>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+                Choose Template
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                {templates.map((template, index) => (
+                  <div
+                    key={template.id}
+                    onClick={() => onSelectTemplate(template.id)}
+                    className={`relative cursor-pointer rounded-xl overflow-hidden transition-all duration-300 animate-scale-in hover:transform hover:-translate-y-1 ${
+                      selectedTemplate === template.id
+                        ? 'ring-2 ring-blue-500 shadow-lg scale-105'
+                        : 'hover:ring-2 hover:ring-gray-300 shadow-sm hover:shadow-xl'
+                    }`}
+                    style={{ animationDelay: `${0.7 + index * 0.1}s` }}
+                  >
+                    <div className="bg-white aspect-[8.5/11] p-4 flex flex-col text-left transition-all duration-200">
+                      <div className="text-[8px] leading-tight mb-2">
+                        <div className="font-bold mb-1">JOHN DOE</div>
+                        <div className="text-gray-600">Software Developer</div>
+                      </div>
+                      <div className="border-t border-gray-300 my-2"></div>
+                      <div className="space-y-2">
+                        <div>
+                          <div className="text-[7px] font-semibold mb-1">EMPLOYMENT HISTORY</div>
+                          <div className="text-[6px] text-gray-700 space-y-1">
+                            <div>Software Developer, Company</div>
+                            <div className="text-gray-500">2020 - Present</div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[7px] font-semibold mb-1">EDUCATION</div>
+                          <div className="text-[6px] text-gray-700">
+                            <div>Bachelor's Degree</div>
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <div className="text-[6px] font-semibold mb-0.5">EDUCATION</div>
-                        <div className="text-[5px] text-gray-700">
-                          <div>Bachelor's Degree</div>
-                        </div>
-                      </div>
                     </div>
-                  </div>
 
-                  {selectedTemplate === template.id && (
-                    <div className="sidebar-template-badge">
-                      <svg
-                        className="w-3 h-3"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                  )}
-
-                  <div className="sidebar-template-footer">
-                    <div className="sidebar-template-footer-title">
-                      {template.name}
-                    </div>
-                    <div className="flex gap-1">
-                      {template.formats.map((format) => (
-                        <span
-                          key={format}
-                          className={`sidebar-format-label ${format === 'PDF' ? 'sidebar-format-pdf' : 'sidebar-format-docx'}`}
+                    {selectedTemplate === template.id && (
+                      <div className="absolute top-3 right-3 bg-blue-500 text-white rounded-full p-1 animate-bounce-in">
+                        <svg
+                          className="w-3 h-3 animate-check-mark"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
                         >
-                          {format}
-                        </span>
-                      ))}
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
+                    )}
+
+                    <div className="bg-gray-800 px-3 py-2 transition-all duration-200 hover:bg-gray-700">
+                      <div className="text-white text-[12px] font-medium">
+                        {template.name}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
 
         {activeTab === 'text' && (
-          <div className="sidebar-coming-soon">
-            <p>Text customization options coming soon...</p>
-          </div>
-        )}
-
-        {activeTab === 'layout' && (
-          <div className="p-4 text-gray-400 text-sm">
-            <p>Layout customization options coming soon...</p>
+          <div className="p-6 text-center">
+            <div className="text-gray-500">
+              <Type size={48} className="mx-auto mb-4 opacity-50" />
+              <p className="text-lg">Text customization will added later...</p>
+            </div>
           </div>
         )}
       </div>
