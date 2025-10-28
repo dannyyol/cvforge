@@ -28,27 +28,34 @@ export default function DraggableSection({
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4 transition-shadow hover:shadow-md"
+      className="bg-white rounded-xl shadow-sm border border-neutral-200 transition-all duration-300 hover:shadow-lg hover:border-neutral-300"
+      style={{
+        background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)'
+      }}
     >
       <div
-        className="flex items-center gap-2 p-4 cursor-pointer select-none"
+        className="flex items-center gap-3 p-6 cursor-pointer select-none group"
         onClick={onToggle}
       >
         <div
-          className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
+          className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 transition-colors duration-200 p-1 rounded-md hover:bg-neutral-100"
           onClick={(e) => e.stopPropagation()}
         >
-          <GripVertical size={20} />
+          <GripVertical size={18} />
         </div>
 
-        <div className="flex-1 flex items-center gap-2">
-          {isOpen ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <div className="flex-1 flex items-center gap-3">
+          <div className="text-neutral-600 group-hover:text-primary-600 transition-colors duration-200">
+            {isOpen ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+          </div>
+          <h3 className="text-lg font-semibold text-neutral-800 group-hover:text-neutral-900 transition-colors duration-200">
+            {title}
+          </h3>
         </div>
       </div>
 
       {isOpen && (
-        <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+        <div className="px-6 pb-6 border-t border-neutral-200 pt-6 animate-fadeIn">
           {children}
         </div>
       )}
