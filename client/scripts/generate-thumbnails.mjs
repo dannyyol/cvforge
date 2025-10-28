@@ -10,8 +10,6 @@ const templates = ['classic', 'modern', 'minimalist', 'professional'];
 
 const VIEWPORT_WIDTH = 800;
 const VIEWPORT_HEIGHT = 1000;
-const THUMBNAIL_WIDTH = 400;
-const THUMBNAIL_HEIGHT = 500;
 
 async function generateThumbnails() {
   console.log('Starting thumbnail generation...');
