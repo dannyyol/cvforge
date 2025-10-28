@@ -8,7 +8,7 @@ interface PersonalDetailsFormProps {
 
 export default function PersonalDetailsForm({ details, onChange }: PersonalDetailsFormProps) {
   return (
-    <div className="space-y-8">
+    <div className="form-container">
         <div>
           <label className="form-label-wide">
             Job Title
@@ -22,13 +22,14 @@ export default function PersonalDetailsForm({ details, onChange }: PersonalDetai
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="form-grid-2">
           <div>
             <label className="form-label">
               First Name
             </label>
             <input
               type="text"
+              placeholder="Enter your first name"
               value={details?.first_name || ''}
               onChange={(e) => onChange('first_name', e.target.value)}
               className="form-input-soft"
@@ -41,6 +42,7 @@ export default function PersonalDetailsForm({ details, onChange }: PersonalDetai
             </label>
             <input
               type="text"
+              placeholder="Enter your last name"
               value={details?.last_name || ''}
               onChange={(e) => onChange('last_name', e.target.value)}
               className="form-input-soft"
@@ -48,25 +50,14 @@ export default function PersonalDetailsForm({ details, onChange }: PersonalDetai
           </div>
         </div>
 
-        <div className="relative">
-          <label className="form-label">
-            Photo
-          </label>
-          <div className="form-photo-box">
-            <Lock className="w-6 h-6 text-neutral-400" />
-          </div>
-          <p className="form-helper-text">
-            This template doesn't support photo upload
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="form-grid-2">
           <div>
             <label className="form-label">
               Email
             </label>
             <input
               type="email"
+              placeholder="your.email@example.com"
               value={details?.email || ''}
               onChange={(e) => onChange('email', e.target.value)}
               className="form-input-soft"
@@ -79,6 +70,7 @@ export default function PersonalDetailsForm({ details, onChange }: PersonalDetai
             </label>
             <input
               type="tel"
+              placeholder="+1 (555) 123-4567"
               value={details?.phone || ''}
               onChange={(e) => onChange('phone', e.target.value)}
               className="form-input-soft"
@@ -92,6 +84,7 @@ export default function PersonalDetailsForm({ details, onChange }: PersonalDetai
           </label>
           <input
             type="text"
+            placeholder="City, State, Country"
             value={details?.address || ''}
             onChange={(e) => onChange('address', e.target.value)}
             className="form-input-soft"
@@ -123,11 +116,6 @@ export default function PersonalDetailsForm({ details, onChange }: PersonalDetai
             />
           </div>
         </div>
-
-      <button className="form-link">
-        Add more details
-        <span className="ml-1">↓</span>
-      </button>
     </div>
   );
 }
