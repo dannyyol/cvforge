@@ -64,7 +64,7 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
                 type="text"
                 value={experience.job_title}
                 onChange={(e) => handleChange(experience.id, 'job_title', e.target.value)}
-                className="form-input"
+                className="form-input-soft"
                 placeholder="e.g. Senior Software Engineer"
               />
             </div>
@@ -77,7 +77,7 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
                 type="text"
                 value={experience.company}
                 onChange={(e) => handleChange(experience.id, 'company', e.target.value)}
-                className="form-input"
+                className="form-input-soft"
                 placeholder="e.g. Tech Corp"
               />
             </div>
@@ -90,20 +90,20 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
                 type="text"
                 value={experience.location}
                 onChange={(e) => handleChange(experience.id, 'location', e.target.value)}
-                className="form-input"
+                className="form-input-soft"
                 placeholder="e.g. San Francisco, CA"
               />
             </div>
 
             <div className="flex items-end">
-              <label className="flex items-center space-x-3 cursor-pointer">
+              <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-neutral-50 transition-colors duration-200">
                 <input
                   type="checkbox"
                   checked={experience.current}
                   onChange={(e) => handleChange(experience.id, 'current', e.target.checked)}
                   className="form-checkbox"
                 />
-                <span className="text-xs font-semibold text-neutral-900 uppercase tracking-wide">
+                <span className="form-label mb-0">
                   Currently working here
                 </span>
               </label>
@@ -117,7 +117,7 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
                 type="date"
                 value={experience.start_date || ''}
                 onChange={(e) => handleChange(experience.id, 'start_date', e.target.value)}
-                className="form-input"
+                className="form-input-soft"
               />
             </div>
 
@@ -130,11 +130,11 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
                 value={experience.end_date || ''}
                 onChange={(e) => handleChange(experience.id, 'end_date', e.target.value)}
                 disabled={experience.current}
-                className="form-input form-disabled"
+                className="form-input-soft form-disabled"
               />
             </div>
 
-            <div className="col-span-2">
+            <div className="md:col-span-2">
               <label className="form-label">
                 Description
               </label>
