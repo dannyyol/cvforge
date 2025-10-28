@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Download, ChevronDown, FileText } from 'lucide-react';
+import { Download, ChevronDown, FileText, File, FileType } from 'lucide-react';
 import { generateCVPDF } from '../services/pdfService';
 
 interface DownloadDropdownProps {
@@ -52,22 +52,22 @@ export default function DownloadDropdown({ variant = 'default', className = '' }
         </button>
 
         {isOpen && (
-          <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+          <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999]">
             <button
               onClick={() => handleDownload('pdf')}
               disabled={isDownloading}
               className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FileText className="w-4 h-4" />
-              Download as PDF
+              <File className="w-4 h-4" />
+              PDF
             </button>
             <button
               onClick={() => handleDownload('doc')}
               disabled={isDownloading}
               className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FileText className="w-4 h-4" />
-              Download as DOC
+              <FileType className="w-4 h-4" />
+              DOC
             </button>
           </div>
         )}
@@ -84,26 +84,26 @@ export default function DownloadDropdown({ variant = 'default', className = '' }
           className={`preview-mobile-download ${className} ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <Download className="w-4 h-4" />
-          {isDownloading ? 'Generating...' : 'Download'}
+          {isDownloading ? 'Generating...' : 'Export'}
         </button>
 
         {isOpen && (
-          <div className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 min-w-[160px]">
+          <div className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999] min-w-[160px]">
             <button
               onClick={() => handleDownload('pdf')}
               disabled={isDownloading}
               className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FileText className="w-4 h-4" />
-              Download as PDF
+              <File className="w-4 h-4" />
+              PDF
             </button>
             <button
               onClick={() => handleDownload('doc')}
               disabled={isDownloading}
               className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FileText className="w-4 h-4" />
-              Download as DOC
+              <FileType className="w-4 h-4" />
+              DOC
             </button>
           </div>
         )}
@@ -118,27 +118,28 @@ export default function DownloadDropdown({ variant = 'default', className = '' }
         disabled={isDownloading}
         className={`${className} ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        {isDownloading ? 'Generating...' : 'Download'}
+        <Download className="w-4 h-4" />
+        {isDownloading ? 'Generating...' : 'Export'}
         <ChevronDown className="w-4 h-4" />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 min-w-[180px]">
+        <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999] min-w-[180px]">
           <button
             onClick={() => handleDownload('pdf')}
             disabled={isDownloading}
             className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <FileText className="w-4 h-4" />
-            Download as PDF
+            <File className="w-4 h-4" />
+            PDF
           </button>
           <button
             onClick={() => handleDownload('doc')}
             disabled={isDownloading}
             className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <FileText className="w-4 h-4" />
-            Download as DOC
+            <FileType className="w-4 h-4" />
+            DOC
           </button>
         </div>
       )}

@@ -24,6 +24,7 @@ client/*.sw?
 client/.env
 client/README-THUMBNAILS.md
 client/public/thumbnails
+client/public/images
 
 server/.env
 server/logs/*.log
