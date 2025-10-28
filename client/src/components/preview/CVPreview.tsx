@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LucideLayoutGrid, Palette} from 'lucide-react';
+import { LucideLayoutGrid, Palette, Settings} from 'lucide-react';
 import DownloadDropdown from '../DownloadDropdown';
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId, Resume } from '../../types/resume';
 import ClassicTemplate from '../templates/ClassicTemplate';
@@ -94,8 +94,8 @@ export default function CVPreview({
           onClick={onOpenTemplateSelector}
           className="preview-customize-btn"
         >
-          <Palette className="w-4 h-4 preview-icon-muted" />
-          <span className="text-sm font-medium text-neutral-700">Customise</span>
+          <Settings className="w-4 h-4 preview-icon-muted" />
+          <span className="text-sm font-medium text-neutral-700">Edit More</span>
         </button>
 
         <div className="flex items-center bg-gray-200 rounded-lg p-1">
@@ -107,7 +107,7 @@ export default function CVPreview({
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Preview
+            CV Output
           </button>
           <button
             onClick={() => onTabChange('ai-review')}
@@ -117,7 +117,7 @@ export default function CVPreview({
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            AI Review
+            AI Analysis
           </button>
         </div>
         <div className="flex items-center gap-2">
@@ -143,8 +143,8 @@ export default function CVPreview({
             onClick={onOpenTemplateSelector}
             className="preview-mobile-customize"
           >
-            <Palette className="w-4 h-4 preview-icon-muted" />
-            Customise
+            <Settings className="w-4 h-4 preview-icon-muted" />
+            Edit More
           </button>
           <DownloadDropdown variant="mobile" />
         </div>
