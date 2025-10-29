@@ -132,7 +132,7 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
       const scaleByWidth = (containerWidth * widthMultiplier) / A4_DIMENSIONS.width;
       const scaleByHeight = availableHeight / A4_DIMENSIONS.height;
       
-      // Prioritize width scaling for customization, but ensure it doesn't exceed reasonable bounds
+      // Prioritize width scaling for customization
       const baseScale = Math.max(scaleByWidth, Math.min(scaleByWidth, scaleByHeight * 1.2));
       setScale(Math.max(baseScale, 0.8)); // Higher minimum scale for customization
     } else {
