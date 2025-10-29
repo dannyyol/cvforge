@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { A4_DIMENSIONS, SECTION_MARGIN_TOP, performPagination, type PageContent } from '../../utils/paginationUtils';
+import { A4_DIMENSIONS, performPagination } from '../../utils/paginationUtils';
 
 interface PaginatedPreviewProps {
   children: React.ReactNode;
@@ -12,13 +12,14 @@ interface PaginatedPreviewProps {
       textContent: string[];
     }>;
   }) => void;
+  scaleMode?: 'fit' | 'fill'; // 'fit' for normal scaling, 'fill' for maximized scaling
 }
 
 interface ReactPageContent {
   elements: React.ReactNode[];
 }
 
-export default function PaginatedPreview({ children, onPaginate }: PaginatedPreviewProps) {
+export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fit' }: PaginatedPreviewProps) {
   const [pages, setPages] = useState<ReactPageContent[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const measureRef = useRef<HTMLDivElement>(null);
@@ -116,31 +117,46 @@ export default function PaginatedPreview({ children, onPaginate }: PaginatedPrev
     if (!containerRef.current) return;
 
     const screenHeight = window.innerHeight;
+    const containerWidth = containerRef.current.clientWidth;
     
     let margin: number;
     let availableHeight: number;
+    let widthMultiplier: number;
     
-    if (screenHeight < 768) {
-      availableHeight = screenHeight * 0.85;
-      margin = 60;
-    } else if (screenHeight < 1024) {
-      availableHeight = screenHeight * 0.82;
-      margin = 80;
-    } else if (screenHeight < 1440) {
-      availableHeight = screenHeight * 0.80;
-      margin = 100;
+    if (scaleMode === 'fill') {
+      // For customization component - maximize the scale to fill space
+      availableHeight = screenHeight * 0.95; // Use more of the available height
+      margin = 20; // Smaller margins
+      widthMultiplier = 0.99; // Use almost the entire container width
+      
+      const scaleByWidth = (containerWidth * widthMultiplier) / A4_DIMENSIONS.width;
+      const scaleByHeight = availableHeight / A4_DIMENSIONS.height;
+      
+      // Prioritize width scaling for customization, but ensure it doesn't exceed reasonable bounds
+      const baseScale = Math.max(scaleByWidth, Math.min(scaleByWidth, scaleByHeight * 1.2));
+      setScale(Math.max(baseScale, 0.8)); // Higher minimum scale for customization
     } else {
-      availableHeight = screenHeight * 0.78;
-      margin = 120;
+      // Original scaling logic for main preview
+      if (screenHeight < 768) {
+        availableHeight = screenHeight * 0.85;
+        margin = 60;
+      } else if (screenHeight < 1024) {
+        availableHeight = screenHeight * 0.82;
+        margin = 80;
+      } else if (screenHeight < 1440) {
+        availableHeight = screenHeight * 0.80;
+        margin = 100;
+      } else {
+        availableHeight = screenHeight * 0.78;
+        margin = 120;
+      }
+      widthMultiplier = 0.95;
+      
+      const scaleByWidth = (containerWidth * widthMultiplier) / A4_DIMENSIONS.width;
+      const scaleByHeight = availableHeight / A4_DIMENSIONS.height;
+      const baseScale = Math.min(scaleByWidth, scaleByHeight);
+      setScale(Math.max(baseScale, 0.5));
     }
-
-    const containerWidth = containerRef.current.clientWidth;
-    const scaleByWidth = (containerWidth * 0.95) / A4_DIMENSIONS.width;
-    const scaleByHeight = availableHeight / A4_DIMENSIONS.height;
-
-    const baseScale = Math.min(scaleByWidth, scaleByHeight);
-    
-    setScale(Math.max(baseScale, 0.5));
     setBottomMargin(margin);
   };
 

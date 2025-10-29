@@ -57,9 +57,9 @@ export default function CustomizationPreview({
   };
 
   return (
-    <div className="w-full h-screen bg-neutral-100 flex flex-col items-center overflow-hidden">
-      <div className="flex-1 flex flex-col items-center overflow-hidden w-full">
-        <PaginatedPreview>
+    <div className="w-full h-screen bg-neutral-100 flex flex-col items-center overflow-y-auto custom-scrollbar">
+      <div className="flex-1 flex flex-col items-center w-full min-h-full">
+        <PaginatedPreview scaleMode="fill">
           {renderTemplate()}
         </PaginatedPreview>
       </div>

@@ -194,16 +194,6 @@ function App() {
 
       {isCustomizationSidebarOpen ? (
         <>
-          <div className="w-full lg:w-[500px] flex-shrink-0">
-            <CustomizationSidebar
-              selectedTemplate={selectedTemplate}
-              onSelectTemplate={setSelectedTemplate}
-              accentColor={accentColor}
-              onAccentColorChange={setAccentColor}
-              onClose={() => setIsCustomizationSidebarOpen(false)}
-            />
-          </div>
-
           <div className="hidden lg:block flex-1">
             <CustomizationPreview
               personalDetails={personalDetails}
@@ -218,16 +208,54 @@ function App() {
               accentColor={accentColor}
             />
           </div>
+
+          <div className="w-full lg:w-[500px] flex-shrink-0">
+            <CustomizationSidebar
+              selectedTemplate={selectedTemplate}
+              onSelectTemplate={setSelectedTemplate}
+              accentColor={accentColor}
+              onAccentColorChange={setAccentColor}
+              onClose={() => setIsCustomizationSidebarOpen(false)}
+            />
+          </div>
         </>
       ) : (
         <>
-          {/* Left Panel - Editor Section */}
+          {/* Left Panel - Preview Section */}
+          <div className={`w-full lg:w-[50%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
+            <CVPreview
+              personalDetails={personalDetails}
+              professionalSummary={professionalSummary}
+              workExperiences={workExperiences}
+              educationEntries={educationEntries}
+              skills={skills}
+              projects={projects}
+              certifications={certifications}
+              sections={sections}
+              templateId={selectedTemplate}
+              accentColor={accentColor}
+              activeTab={mobileTab === 'ai-review' ? 'ai-review' : activeTab}
+              onTabChange={setActiveTab}
+              onOpenTemplateSelector={() => setIsCustomizationSidebarOpen(true)}
+              isMobilePreview={mobileTab === 'preview' || mobileTab === 'ai-review'}
+              showMobileMenu={showMobileMenu}
+              onMobileMenuToggle={() => setShowMobileMenu(!showMobileMenu)}
+              resumeMeta={{
+                id: resumeId,
+                title: resumeTitle,
+                language,
+                cv_score: cvScore,
+              }}
+            />
+          </div>
+
+          {/* Right Panel - Editor Section */}
           <div className={`w-full lg:w-[50%] overflow-y-auto custom-scrollbar pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}
                style={{
                  background: 'linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)'
                }}>
-            <div className="p-4 lg:p-8 lg:pr-10 w-full">
-              <div className="animate-slideInLeft">
+            <div className="p-4 lg:p-8 lg:pl-10 w-full">
+              <div className="animate-slideInRight">
                 <CVTitleCard
                   title={resumeTitle}
                   lastSaved={lastSaved}
@@ -272,34 +300,6 @@ function App() {
                 />
               </div>
             </div>
-          </div>
-
-          {/* Right Panel - Preview Section */}
-          <div className={`w-full lg:w-[50%] ${(mobileTab === 'preview' || mobileTab === 'ai-review') ? 'block' : 'hidden lg:block'}`}>
-            <CVPreview
-              personalDetails={personalDetails}
-              professionalSummary={professionalSummary}
-              workExperiences={workExperiences}
-              educationEntries={educationEntries}
-              skills={skills}
-              projects={projects}
-              certifications={certifications}
-              sections={sections}
-              templateId={selectedTemplate}
-              accentColor={accentColor}
-              activeTab={mobileTab === 'ai-review' ? 'ai-review' : activeTab}
-              onTabChange={setActiveTab}
-              onOpenTemplateSelector={() => setIsCustomizationSidebarOpen(true)}
-              isMobilePreview={mobileTab === 'preview' || mobileTab === 'ai-review'}
-              showMobileMenu={showMobileMenu}
-              onMobileMenuToggle={() => setShowMobileMenu(!showMobileMenu)}
-              resumeMeta={{
-                id: resumeId,
-                title: resumeTitle,
-                language,
-                cv_score: cvScore,
-              }}
-            />
           </div>
         </>
       )}
