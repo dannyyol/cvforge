@@ -1,5 +1,5 @@
 ---
-name: ❓ Question
+name: Question
 about: Ask a question about CVForge
 title: '[QUESTION] '
 labels: ['question']
