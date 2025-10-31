@@ -6,7 +6,7 @@ labels: ['question']
 assignees: ''
 ---
 
-## ❓ Question
+## Question
 What would you like to know about CVForge?
 
 ## 📋 Context
