@@ -107,7 +107,6 @@ Transform CVForge into a comprehensive, AI-powered career toolkit that combines 
 - Regular contributor recognition
 - Clear contribution guidelines
 - Responsive issue management
-- Community events and showcases
 
 ### Sustainability
 - Transparent development process
