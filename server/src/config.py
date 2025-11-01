@@ -12,16 +12,16 @@ ENV_FILE = BASE_DIR / ".env"
 print(ENV_FILE)
 
 class AppSettings(BaseSettings):
-    APP_NAME: str = "CVForge API"
-    APP_VERSION: str = "0.1.0"
-    API_PREFIX: str = "/api"
+    APP_NAME: str
+    APP_VERSION: str
+    API_PREFIX: str
 
-    HOST: str = "127.0.0.1"
-    PORT: int = 8000
+    HOST: str
+    PORT: int
 
-    DEBUG: bool = True
+    DEBUG: bool
 
-    CORS_ALLOWED_ORIGINS: List[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    CORS_ALLOWED_ORIGINS: List[str]
 
     @field_validator("CORS_ALLOWED_ORIGINS", mode="before")
     def _split_csv(cls, v):

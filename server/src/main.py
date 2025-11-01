@@ -1,13 +1,11 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from pathlib import Path
 
 from src.config import get_settings
 from src.api import create_api_router
-
-import time
 
 logger.add(
     Path(__file__).resolve().parents[1] / "logs" / "app.log",
@@ -49,14 +47,6 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-
-@app.middleware("http")
-async def timing_middleware(request: Request, call_next):
-    start = time.perf_counter()
-    response = await call_next(request)
-    duration_ms = (time.perf_counter() - start) * 1000
-    logger.info("HTTP {} {} -> {} in {:.2f} ms", request.method, request.url.path, response.status_code, duration_ms)
-    return response
 
 if __name__ == "__main__":
     import uvicorn
