@@ -1,7 +1,7 @@
-# CVForge Development Roadmap
+# CVforge Development Roadmap
 
 ## Vision
-Transform CVForge into a comprehensive, AI-powered career toolkit that combines professional CV creation with intelligent cover letter generation, while maintaining our commitment to privacy and open-source principles.
+Transform CVforge into a comprehensive, AI-powered career toolkit that combines professional CV creation with intelligent cover letter generation, while maintaining our commitment to privacy and open-source principles.
 
 ## Current Status (v0.1.0)
 ✅ **Completed Features:**
