@@ -19,7 +19,7 @@ Transform CVForge into a comprehensive, AI-powered career toolkit that combines 
 #### 1.1 Text Formatting System
 - **Status:** In Development
 - **Priority:** High
-- **Description:** Rich text editing, typography controls, formatting toolbar
+- **Description:** Font size control, section spacing
 - **Impact:** Essential for professional CV creation
 
 #### 1.2 Additional CV Templates
