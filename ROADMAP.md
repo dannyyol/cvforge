@@ -103,11 +103,6 @@ Transform CVforge into a comprehensive, AI-powered career toolkit that combines 
 
 ## Open Source Strategy
 
-### Community Building
-- Regular contributor recognition
-- Clear contribution guidelines
-- Responsive issue management
-
 ### Sustainability
 - Transparent development process
 - Long-term maintenance commitment
@@ -122,4 +117,4 @@ Transform CVforge into a comprehensive, AI-powered career toolkit that combines 
 
 ---
 
-For questions about the roadmap or to suggest changes, please open an issue or start a discussion.
+For questions about the roadmap or to suggest changes, please open an issue.
