@@ -1,13 +1,10 @@
 import { useState } from 'react';
-import { LucideLayoutGrid, Palette, Settings} from 'lucide-react';
+import { Settings} from 'lucide-react';
 import DownloadDropdown from '../DownloadDropdown';
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId, Resume } from '../../types/resume';
-import ClassicTemplate from '../templates/ClassicTemplate';
-import ModernTemplate from '../templates/ModernTemplate';
-import MinimalistTemplate from '../templates/MinimalistTemplate';
-import ProfessionalTemplate from '../templates/ProfessionalTemplate';
 import PaginatedPreview from './PaginatedPreview';
 import AIReviewPanel from '../AIReviewPanel';
+import { getTemplateComponent } from '../templates/registry';
 
 interface CVPreviewProps {
   personalDetails: PersonalDetails | null;
@@ -74,17 +71,8 @@ export default function CVPreview({
   };
 
   const renderTemplate = () => {
-    switch (templateId) {
-      case 'modern':
-        return <ModernTemplate {...commonProps} />;
-      case 'minimalist':
-        return <MinimalistTemplate {...commonProps} />;
-      case 'professional':
-        return <ProfessionalTemplate {...commonProps} />;
-      case 'classic':
-      default:
-        return <ClassicTemplate {...commonProps} />;
-    }
+    const TemplateComponent = getTemplateComponent(templateId);
+    return <TemplateComponent {...commonProps} />;
   };
 
   return (

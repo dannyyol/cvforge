@@ -1,38 +1,13 @@
 import { Check, X } from 'lucide-react';
 import { CVTemplate, TemplateId } from '../types/resume';
 
+import { getTemplatesList } from './templates/registry';
+
 interface TemplateSelectorProps {
   selectedTemplate: TemplateId;
   onSelectTemplate: (templateId: TemplateId) => void;
   onClose: () => void;
 }
-
-const templates: CVTemplate[] = [
-  {
-    id: 'classic',
-    name: 'Classic',
-    description: 'Traditional and professional layout',
-    thumbnail: '/thumbnails/classic.png',
-  },
-  {
-    id: 'modern',
-    name: 'Modern',
-    description: 'Clean and contemporary design',
-    thumbnail: '/thumbnails/modern.png',
-  },
-  {
-    id: 'minimalist',
-    name: 'Minimalist',
-    description: 'Simple and elegant style',
-    thumbnail: '/thumbnails/minimalist.png',
-  },
-  {
-    id: 'professional',
-    name: 'Professional',
-    description: 'Bold and executive appearance',
-    thumbnail: '/thumbnails/professional.png',
-  },
-];
 
 export default function TemplateSelector({
   selectedTemplate,
