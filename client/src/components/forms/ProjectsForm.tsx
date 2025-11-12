@@ -1,6 +1,7 @@
 import { ProjectEntry } from '../../types/resume';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import RichTextEditor from './RichTextEditor';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface ProjectsFormProps {
   projects: ProjectEntry[];
@@ -32,6 +33,14 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
         project.id === id ? { ...project, [field]: value } : project
       )
     );
+  };
+
+  const quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link'],
+    ],
   };
 
   return (
@@ -108,11 +117,13 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
               <label className="form-label">
                 Description
               </label>
-              <RichTextEditor
+              <ReactQuill
                 value={project.description}
-                onChange={(value) => handleChange(project.id, 'description', value)}
+                onChange={(content) => handleChange(project.id, 'description', content)}
                 placeholder="Describe the project, your role, and key achievements..."
-                rows={4}
+                modules={quillModules}
+                theme="snow"
+                style={{ minHeight: 96 }}
               />
             </div>
           </div>

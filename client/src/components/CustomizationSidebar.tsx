@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { ChevronLeft, Grid, Type, Layout } from 'lucide-react';
-import { TemplateId } from '../types/resume';
+import type { TemplateId } from './templates/registry';
 import DownloadDropdown from './DownloadDropdown';
+import { getTemplatesList, TEMPLATE_REGISTRY } from './templates/registry';
 
 interface CustomizationSidebarProps {
   selectedTemplate: TemplateId;
   onSelectTemplate: (templateId: TemplateId) => void;
-  accentColor: string;
-  onAccentColorChange: (color: string) => void;
+  accentColor: { id: string; color: string };
+  onAccentColorChange: (colorId: string, color: string) => void;
   onClose: () => void;
 }
 
@@ -35,25 +36,6 @@ const accentColors = [
   { id: 'rose', color: '#f43f5e', name: 'Rose' },
 ];
 
-const templates = [
-  {
-    id: 'classic' as TemplateId,
-    name: 'Classic',
-  },
-  {
-    id: 'modern' as TemplateId,
-    name: 'Modern',
-  },
-  {
-    id: 'minimalist' as TemplateId,
-    name: 'Minimalist',
-  },
-  {
-    id: 'professional' as TemplateId,
-    name: 'Professional',
-  },
-];
-
 type TabType = 'templates' | 'text' | 'layout';
 
 export default function CustomizationSidebar({
@@ -66,17 +48,17 @@ export default function CustomizationSidebar({
   const [activeTab, setActiveTab] = useState<TabType>('templates');
   const [showColorWarning, setShowColorWarning] = useState(false);
 
-  const templatesWithColors: TemplateId[] = ['modern', 'professional'];
-  const isColorSupported = templatesWithColors.includes(selectedTemplate);
+  const templatesList = getTemplatesList();
+  const isColorSupported = !!TEMPLATE_REGISTRY[selectedTemplate]?.supportsAccent;
 
-  const handleColorClick = (colorId: string) => {
+  const handleColorClick = (colorId: string, color: string) => {
     if (!isColorSupported) {
       setShowColorWarning(true);
       setTimeout(() => setShowColorWarning(false), 3000);
       return;
     }
-    onAccentColorChange(colorId);
-  };
+    onAccentColorChange(colorId, color);
+  }
 
   return (
     <div className="w-full h-screen bg-gray-50 flex flex-col border-r border-gray-200">
@@ -137,7 +119,7 @@ export default function CustomizationSidebar({
                   </h3>
                   {isColorSupported && (
                     <p className="text-sm text-gray-600 mt-1 transition-all duration-300">
-                      Selected: <span className="font-medium capitalize">{accentColors.find(c => c.id === accentColor)?.name || 'None'}</span>
+                      Selected: <span className="font-medium capitalize">{accentColors.find(c => c.id === accentColor.id)?.name || 'None'}</span>
                     </p>
                   )}
                 </div>
@@ -160,11 +142,11 @@ export default function CustomizationSidebar({
                   <div className="flex items-center gap-3">
                     <div 
                       className="w-8 h-8 rounded-full border-2 border-white shadow-lg ring-2 ring-gray-300 transition-all duration-300 hover:scale-110"
-                      style={{ backgroundColor: accentColors.find(c => c.id === accentColor)?.color }}
+                      style={{ backgroundColor: accentColors.find(c => c.id === accentColor.id)?.color }}
                     ></div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">Current Theme Color</p>
-                      <p className="text-xs text-gray-500">{accentColors.find(c => c.id === accentColor)?.name}</p>
+                      <p className="text-xs text-gray-500">{accentColors.find(c => c.id === accentColor.id)?.name}</p>
                     </div>
                   </div>
                 </div>
@@ -174,10 +156,10 @@ export default function CustomizationSidebar({
                 {accentColors.map((colorOption, index) => (
                   <button
                     key={colorOption.id}
-                    onClick={() => handleColorClick(colorOption.id)}
+                    onClick={() => handleColorClick(colorOption.id, colorOption.color)}
                     disabled={!isColorSupported}
                     className={`relative w-12 h-12 rounded-lg transition-all duration-300 flex items-center justify-center group animate-scale-in ${
-                      accentColor === colorOption.id && isColorSupported
+                      accentColor.id === colorOption.id && isColorSupported
                         ? 'ring-2 ring-blue-500 ring-offset-2 shadow-lg transform scale-105'
                         : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-1 hover:scale-110 shadow-sm hover:shadow-md'
                     } ${!isColorSupported ? 'cursor-not-allowed' : 'cursor-pointer'}`}
@@ -187,7 +169,7 @@ export default function CustomizationSidebar({
                     }}
                     title={isColorSupported ? colorOption.name : 'Not supported by this template'}
                   >
-                    {accentColor === colorOption.id && isColorSupported && (
+                    {accentColor.id === colorOption.id && isColorSupported && (
                       <>
                         <div className="absolute inset-0 flex items-center justify-center animate-bounce-in">
                           <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center transition-all duration-200">
@@ -229,7 +211,7 @@ export default function CustomizationSidebar({
                 Choose Template
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                {templates.map((template, index) => (
+                {templatesList.map((template, index) => (
                   <div
                     key={template.id}
                     onClick={() => onSelectTemplate(template.id)}

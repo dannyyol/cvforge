@@ -54,9 +54,9 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
     }
   }, [showReview]);
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 80) return 'text-green-600 dark:text-green-400';
+    if (score >= 60) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const getBannerVariantClass = (score: number) => {
@@ -84,7 +84,7 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-gray-900">AI Review</h2>
+            <h2 className="ai-title-lg">AI Review</h2>
           </div>
           <button
             onClick={handleRefresh}
@@ -102,22 +102,22 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
               <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
               <Sparkles className="w-8 h-8 text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
             </div>
-            <p className="mt-6 text-lg font-medium text-gray-700">Analyzing your CV with AI...</p>
-            <p className="mt-2 text-sm text-gray-500">This will only take a moment</p>
+            <p className="mt-6 text-lg font-medium text-gray-700 dark:text-neutral-300">Analyzing your CV with AI...</p>
+            <p className="mt-2 text-sm text-gray-500 dark:text-neutral-400">This will only take a moment</p>
           </div>
         )}
 
         {!isLoading && !showReview && (
           <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
-            <div className="w-32 h-32 bg-blue-100 rounded-full flex items-center justify-center mb-8">
+            <div className="w-32 h-32 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-8">
               <Sparkles className="w-16 h-16 text-blue-600" />
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">Ready to Optimize Your CV?</h3>
-            <p className="text-gray-600 text-lg max-w-2xl mb-8 leading-relaxed">
+            <h3 className="ai-title-lg mb-4">Ready to Optimize Your CV?</h3>
+            <p className="text-gray-600 dark:text-neutral-400 text-lg max-w-2xl mb-8 leading-relaxed">
               Click the button above to get instant AI-powered feedback on your CV, including ATS compatibility,
               content quality, and personalized recommendations.
             </p>
-            <div className="flex gap-8 text-base text-gray-600">
+            <div className="flex gap-8 text-base text-gray-600 dark:text-neutral-400">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
                 <span className='text-sm'>ATS Analysis</span>
@@ -141,17 +141,17 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
             <div className={getBannerVariantClass(reviewData?.overall_score)}>
               <div className="ai-flex-between">
                 <div className="flex items-start gap-4">
-                  <div className="bg-white rounded-full p-3 shadow-sm">
+                  <div className="bg-white dark:bg-slate-800 border border-neutral-200 dark:border-neutral-700 rounded-full p-3 shadow-sm">
                     <Sparkles className={`w-8 h-8 ${getScoreColor(reviewData?.overall_score)}`} />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-1">CV Score</h2>
-                    <p className="text-sm text-gray-600">Based on industry standards and best practices</p>
+                    <h2 className="ai-title-lg mb-1">CV Score</h2>
+                    <p className="text-sm text-gray-600 dark:text-neutral-400">Based on industry standards and best practices</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className={getScoreValueClass(reviewData?.overall_score)}>{reviewData?.overall_score}</div>
-                  <div className="text-sm text-gray-500 font-medium">/ 100</div>
+                  <div className="text-sm text-gray-500 dark:text-neutral-400 font-medium">/ 100</div>
                 </div>
               </div>
               <div className="ai-score-progress">
@@ -189,7 +189,7 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
 
         {visibleSections.includes(2) && (
           <div className="ai-grid-2 animate-fadeIn">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-5">
+            <div className="bg-green-50 dark:bg-green-900/15 border border-green-200 dark:border-green-800 rounded-lg p-5">
               <div className="ai-mini-header">
                 <CheckCircle className="w-5 h-5 text-green-600" />
                 <h3 className="ai-title-md">Strengths</h3>
@@ -201,10 +201,10 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
               </ul>
             </div>
 
-            <div className="bg-red-50 border border-red-200 rounded-lg p-5">
+            <div className="bg-red-50 dark:bg-red-900/15 border border-red-200 dark:border-red-800 rounded-lg p-5">
               <div className="flex items-center gap-2 mb-4">
                 <AlertCircle className="w-5 h-5 text-red-600" />
-                <h3 className="text-lg font-semibold text-gray-900">Areas to Improve</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Areas to Improve</h3>
               </div>
               <ul className="space-y-3">
                 {reviewData?.areas_to_improve.slice(0, 10).map((area, idx) => (
@@ -218,7 +218,7 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
         {visibleSections.includes(3) && (
           <div className="ai-card animate-fadeIn">
             <div className="ai-section-header">
-              <FileText className="w-5 h-5 text-gray-700" />
+              <FileText className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
               <h3 className="ai-title-lg">Section-by-Section Analysis</h3>
             </div>
             <div className="space-y-4">
@@ -238,14 +238,14 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
           <div className="ai-ats-card animate-fadeIn">
             <div className="flex items-center gap-2 mb-5">
               <Target className="w-5 h-5 text-blue-700" />
-              <h3 className="text-xl font-semibold text-gray-900">ATS Compatibility Score: {reviewData?.atsCompatibility.score}/100</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100">ATS Compatibility Score: {reviewData?.atsCompatibility.score}/100</h3>
             </div>
             <div className="space-y-4">
               {reviewData?.atsCompatibility.summary.map((item, idx) => (
                 <ATSCheckItem key={idx} status="pass" text={item} />
               ))}
             </div>
-            <div className="mt-4 p-4 bg-white rounded-lg">
+            <div className="mt-4 ai-card-md">
               <p className="ai-paragraph leading-relaxed">
                 <strong>What is ATS?</strong> Applicant Tracking Systems scan resumes before humans see them.
                 A score of 85+ means your CV will likely pass most ATS filters.
@@ -255,26 +255,26 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
         )}
 
         {visibleSections.includes(6) && (
-          <div className="bg-white border border-gray-200 rounded-lg p-6 animate-fadeIn">
+          <div className="ai-card animate-fadeIn">
             <div className="flex items-center gap-2 mb-5">
-              <FileText className="w-5 h-5 text-gray-700" />
-              <h3 className="text-xl font-semibold text-gray-900">Content Quality Analysis</h3>
+              <FileText className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100">Content Quality Analysis</h3>
             </div>
             <div className="space-y-3">
               {reviewData?.contentQuality?.summary?.map((item, idx) => (
                 <div key={idx} className="ai-ats-item">
                   <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm text-gray-700">{item}</span>
+                  <span className="text-sm text-gray-700 dark:text-neutral-300">{item}</span>
                 </div>
               ))}
             </div>
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <h4 className="font-semibold text-gray-900 mb-3">Formatting Analysis</h4>
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-neutral-700">
+              <h4 className="font-semibold text-gray-900 dark:text-slate-100 mb-3">Formatting Analysis</h4>
               <div className="space-y-3">
                 {reviewData?.formattingAnalysis?.summary?.map((item, idx) => (
                   <div key={idx} className="ai-ats-item">
                     <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span className="text-sm text-gray-700">{item}</span>
+                    <span className="text-sm text-gray-700 dark:text-neutral-300">{item}</span>
                   </div>
                 ))}
               </div>
@@ -290,14 +290,23 @@ export default function AIReviewPanel({ cvData }: AIReviewPanelProps) {
 }
 
 function ScoreCard({ icon, label, score, bgColor }: { icon: React.ReactNode; label: string; score: number; bgColor: string }) {
+  const darkBg =
+    bgColor.includes('blue')
+      ? 'dark:bg-blue-900/20'
+      : bgColor.includes('purple')
+      ? 'dark:bg-purple-900/20'
+      : bgColor.includes('orange')
+      ? 'dark:bg-orange-900/20'
+      : 'dark:bg-slate-800';
+
   return (
-    <div className={`ai-card-md ${bgColor}`}>
+    <div className={`ai-card-md ${bgColor} ${darkBg} dark:border-neutral-700`}>
       <div className="ai-mini-header">
         {icon}
-        <span className="text-sm font-medium text-gray-700">{label}</span>
+        <span className="text-sm font-medium text-gray-700 dark:text-neutral-300">{label}</span>
       </div>
-      <div className="text-3xl font-bold text-gray-900">{score}</div>
-      <div className="text-xs text-gray-500 mt-1">/ 100</div>
+      <div className="text-3xl font-bold text-gray-900 dark:text-slate-100">{score}</div>
+      <div className="text-xs text-gray-500 dark:text-neutral-400 mt-1">/ 100</div>
     </div>
   );
 }
@@ -348,9 +357,9 @@ function SectionAnalysis({ section, score, suggestions }: { section: string; sco
 
 function ATSCheckItem({ status, text }: { status: 'pass' | 'warning' | 'fail'; text: string }) {
   const config = {
-    pass: { icon: <CheckCircle className="w-5 h-5 text-green-600" />, color: 'text-gray-700' },
-    warning: { icon: <AlertCircle className="w-5 h-5 text-yellow-600" />, color: 'text-gray-700' },
-    fail: { icon: <AlertCircle className="w-5 h-5 text-red-600" />, color: 'text-gray-700' },
+    pass: { icon: <CheckCircle className="w-5 h-5 text-green-600" />, color: 'text-gray-700 dark:text-neutral-300' },
+    warning: { icon: <AlertCircle className="w-5 h-5 text-yellow-600" />, color: 'text-gray-700 dark:text-neutral-300' },
+    fail: { icon: <AlertCircle className="w-5 h-5 text-red-600" />, color: 'text-gray-700 dark:text-neutral-300' },
   };
 
   return (
@@ -384,7 +393,7 @@ function ReadabilityMetric({ label, value, status }: { label: string; value: str
 
   return (
     <div className="ai-readability-metric">
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+      <span className="text-sm font-medium text-gray-700 dark:text-neutral-300">{label}</span>
       <span className={`text-sm font-semibold ${statusClass}`}>{value}</span>
     </div>
   );

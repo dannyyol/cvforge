@@ -1,13 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
 import { Download, ChevronDown, FileText, File, FileType } from 'lucide-react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { generateCVPDF } from '../services/pdfService';
+import { getPdfTemplateComponent } from './templates/pdf/registry';
+import { TemplateId } from './templates/registry';
 
 interface DownloadDropdownProps {
   variant?: 'default' | 'mobile' | 'icon-only';
   className?: string;
+  // Optional: fallback if no url provided
+  pdfDocument?: React.ReactElement;
+  // NEW: direct download URL for the generated PDF blob
+  downloadUrl?: string;
 }
 
-export default function DownloadDropdown({ variant = 'default', className = '' }: DownloadDropdownProps) {
+export default function DownloadDropdown({ variant = 'default', className = '', pdfDocument, downloadUrl }: DownloadDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -18,20 +25,38 @@ export default function DownloadDropdown({ variant = 'default', className = '' }
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const triggerUrlDownload = (url?: string) => {
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'resume.pdf';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const handleDownload = async (format: 'pdf' | 'doc') => {
     if (format === 'pdf') {
-      setIsDownloading(true);
-      try {
-        await generateCVPDF('cv.pdf');
-      } catch (error) {
-        console.error('Failed to generate PDF:', error);
-      } finally {
-        setIsDownloading(false);
+      if (downloadUrl) {
+        triggerUrlDownload(downloadUrl);
+      } else if (pdfDocument) {
+        // If no url but a document is provided, let the user click the PDFDownloadLink below
+        // We won't trigger here; keep menu open for the link.
+      } else {
+        // Fallback: legacy service
+        setIsDownloading(true);
+        try {
+          await generateCVPDF('cv.pdf');
+        } catch (error) {
+          console.error('Failed to generate PDF:', error);
+        } finally {
+          setIsDownloading(false);
+        }
       }
     } else {
       console.log('DOC export not implemented yet');
@@ -53,14 +78,38 @@ export default function DownloadDropdown({ variant = 'default', className = '' }
 
         {isOpen && (
           <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999]">
-            <button
-              onClick={() => handleDownload('pdf')}
-              disabled={isDownloading}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <File className="w-4 h-4" />
-              PDF
-            </button>
+            {downloadUrl ? (
+              <button
+                onClick={() => handleDownload('pdf')}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+              >
+                <File className="w-4 h-4" />
+                PDF
+              </button>
+            ) : pdfDocument ? (
+              <PDFDownloadLink
+                document={pdfDocument}
+                fileName="resume.pdf"
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                {({ loading }) => (
+                  <>
+                    <File className="w-4 h-4" />
+                    {loading ? 'Preparing PDF...' : 'PDF'}
+                  </>
+                )}
+              </PDFDownloadLink>
+            ) : (
+              <button
+                onClick={() => handleDownload('pdf')}
+                disabled={isDownloading}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <File className="w-4 h-4" />
+                PDF
+              </button>
+            )}
             <button
               onClick={() => handleDownload('doc')}
               disabled={isDownloading}
@@ -89,14 +138,38 @@ export default function DownloadDropdown({ variant = 'default', className = '' }
 
         {isOpen && (
           <div className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999] min-w-[160px]">
-            <button
-              onClick={() => handleDownload('pdf')}
-              disabled={isDownloading}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <File className="w-4 h-4" />
-              PDF
-            </button>
+            {downloadUrl ? (
+              <button
+                onClick={() => handleDownload('pdf')}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+              >
+                <File className="w-4 h-4" />
+                PDF
+              </button>
+            ) : pdfDocument ? (
+              <PDFDownloadLink
+                document={pdfDocument}
+                fileName="resume.pdf"
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                {({ loading }) => (
+                  <>
+                    <File className="w-4 h-4" />
+                    {loading ? 'Preparing PDF...' : 'PDF'}
+                  </>
+                )}
+              </PDFDownloadLink>
+            ) : (
+              <button
+                onClick={() => handleDownload('pdf')}
+                disabled={isDownloading}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <File className="w-4 h-4" />
+                PDF
+              </button>
+            )}
             <button
               onClick={() => handleDownload('doc')}
               disabled={isDownloading}
@@ -125,14 +198,38 @@ export default function DownloadDropdown({ variant = 'default', className = '' }
 
       {isOpen && (
         <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999] min-w-[180px]">
-          <button
-            onClick={() => handleDownload('pdf')}
-            disabled={isDownloading}
-            className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <File className="w-4 h-4" />
-            PDF
-          </button>
+          {downloadUrl ? (
+            <button
+              onClick={() => handleDownload('pdf')}
+              className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+            >
+              <File className="w-4 h-4" />
+              PDF
+            </button>
+          ) : pdfDocument ? (
+            <PDFDownloadLink
+              document={pdfDocument}
+              fileName="resume.pdf"
+              className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              {({ loading }) => (
+                <>
+                  <File className="w-4 h-4" />
+                  {loading ? 'Preparing PDF...' : 'PDF'}
+                </>
+              )}
+            </PDFDownloadLink>
+          ) : (
+            <button
+              onClick={() => handleDownload('pdf')}
+              disabled={isDownloading}
+              className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <File className="w-4 h-4" />
+              PDF
+            </button>
+          )}
           <button
             onClick={() => handleDownload('doc')}
             disabled={isDownloading}

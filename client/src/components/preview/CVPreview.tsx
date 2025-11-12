@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Settings} from 'lucide-react';
+import { Settings, Download as DownloadIcon, Sun, Moon } from 'lucide-react';
 import DownloadDropdown from '../DownloadDropdown';
-import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId, Resume } from '../../types/resume';
-import PaginatedPreview from './PaginatedPreview';
+import RenderPreview from './RenderPreview';
+import { useTheme } from '../../theme/ThemeProvider';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, Resume } from '../../types/resume';
 import AIReviewPanel from '../AIReviewPanel';
-import { getTemplateComponent } from '../templates/registry';
+import { getTemplateComponent, TemplateId } from '../templates/registry';
 
 interface CVPreviewProps {
   personalDetails: PersonalDetails | null;
@@ -32,9 +33,13 @@ export default function CVPreview({
     isMobilePreview = false, showMobileMenu = false, onMobileMenuToggle, resumeMeta 
   }: CVPreviewProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+
+  // NEW: hold the generated PDF blob URL from RenderPreview
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const isMenuVisible = isMobilePreview ? showMobileMenu : isMenuOpen;
-  const handleMenuToggle = () => {
+  const toggleMenu = () => {
     if (isMobilePreview && onMobileMenuToggle) {
       onMobileMenuToggle();
     } else {
@@ -83,16 +88,36 @@ export default function CVPreview({
           className="preview-customize-btn"
         >
           <Settings className="w-4 h-4 preview-icon-muted" />
-          <span className="text-sm font-medium text-neutral-700">Edit More</span>
+          <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Edit More</span>
         </button>
 
-        <div className="flex items-center bg-gray-200 rounded-lg p-1">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="inline-flex items-center justify-center h-10 w-10 bg-transparent hover:bg-transparent text-neutral-600 dark:text-slate-200 hover:text-neutral-900 dark:hover:text-slate-100 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`${theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}`}
+            aria-pressed={theme === 'dark'}
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
+          </button>
+          {/* Pass the URL down to the dropdown; templateId optional now */}
+          <DownloadDropdown className="preview-download-btn" downloadUrl={pdfUrl ?? undefined} />
+        </div>
+      </div>
+
+      <div className='m-2 flex justify-center self-center'>
+        <div className="flex items-center bg-gray-200 dark:bg-slate-800 rounded-lg p-1">
           <button
             onClick={() => onTabChange('preview')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
               activeTab === 'preview'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-gray-900 shadow-sm dark:bg-slate-700 dark:text-slate-100'
+                : 'text-gray-600 hover:text-gray-900 dark:text-slate-300 dark:hover:text-slate-100'
             }`}
           >
             CV Output
@@ -101,26 +126,36 @@ export default function CVPreview({
             onClick={() => onTabChange('ai-review')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
               activeTab === 'ai-review'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-gray-900 shadow-sm dark:bg-slate-700 dark:text-slate-100'
+                : 'text-gray-600 hover:text-gray-900 dark:text-slate-300 dark:hover:text-slate-100'
             }`}
           >
             AI Analysis
           </button>
         </div>
-        <div className="flex items-center gap-2">
-          <DownloadDropdown className="preview-download-btn" />
-        </div>
       </div>
 
       <div className={`flex-1 relative ${activeTab === 'ai-review' ? 'overflow-y-auto' : 'overflow-hidden'}`}>
-        <div className={`${activeTab === 'ai-review' ? '' : 'preview-content'} ${isMobilePreview ? 'pb-16' : ''}`}>
+        <div className={`${activeTab === 'ai-review' ? 'ai-panel' : 'preview-content'} ${isMobilePreview ? 'pb-16' : ''}`}>
           {activeTab === 'ai-review' ? (
-            <AIReviewPanel overallScore={75} cvData={cvData} />
+            <div className="ai-container">
+              <AIReviewPanel overallScore={75} cvData={cvData} />
+            </div>
           ) : (
-            <PaginatedPreview>
-              {renderTemplate()}
-            </PaginatedPreview>
+            <RenderPreview
+              personalDetails={personalDetails}
+              professionalSummary={professionalSummary}
+              workExperiences={workExperiences}
+              educationEntries={educationEntries}
+              skills={skills}
+              projects={projects}
+              certifications={certifications}
+              sections={sections}
+              accentColor={accentColor}
+              templateId={templateId}
+              // NEW: capture the blob URL
+              onPdfReady={setPdfUrl}
+            />
           )}
         </div>
       </div>
@@ -134,7 +169,8 @@ export default function CVPreview({
             <Settings className="w-4 h-4 preview-icon-muted" />
             Edit More
           </button>
-          <DownloadDropdown variant="mobile" />
+          {/* Provide url for mobile dropdown too */}
+          <DownloadDropdown variant="mobile" downloadUrl={pdfUrl ?? undefined} />
         </div>
       )}
     </div>

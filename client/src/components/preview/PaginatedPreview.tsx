@@ -76,6 +76,7 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
         return (
           <div
             key={`block-${pageIndex}-${elementIndex}`}
+            className="cv-block"
             style={{ marginTop: element.marginTop }}
             dangerouslySetInnerHTML={{ __html: element.html }}
           />
@@ -237,7 +238,7 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
         {ready && pages.length > 0 && (
           <>
             {/* Navigation controls */}
-            <div className="flex items-center gap-1 mb-4 bg-white rounded-lg shadow-md px-1.5 py-1.5">
+            <div className="flex items-center gap-1 mb-4 bg-white rounded-lg shadow-md px-1.5 py-1.5 cv-print-hide">
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage === 0}
@@ -265,7 +266,7 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
 
             <div
               key={`page-${currentPage}`}
-              className="page bg-white"
+              className="page bg-white cv-page"
               style={{
                 width: `${A4_DIMENSIONS.width}px`,
                 height: `${A4_DIMENSIONS.height}px`,

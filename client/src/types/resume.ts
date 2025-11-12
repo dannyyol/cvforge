@@ -129,12 +129,3 @@ export interface CVSection {
   isOpen: boolean;
   order: number;
 }
-
-export type TemplateId = 'classic' | 'modern' | 'minimalist' | 'professional';
-
-export interface CVTemplate {
-  id: TemplateId;
-  name: string;
-  description: string;
-  thumbnail: string;
-}

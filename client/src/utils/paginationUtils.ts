@@ -67,11 +67,7 @@ export const extractContentBlocks = (measureRef: HTMLElement): ContentBlock[] =>
         continue;
       }
 
-      // Preserve containers with background classes or header section
-      const className = child.getAttribute('class') || '';
-      const isBackgroundContainer = className.includes('bg-');
-
-      if (isBackgroundContainer || sectionId === 'header') {
+      if (sectionId === 'header') {
         blocks.push({
           html: child.outerHTML,
           height: measureHeight(child),

@@ -3,6 +3,7 @@ import colors from 'tailwindcss/colors';
 import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
@@ -13,6 +14,7 @@ export default {
       },
       colors: {
         // Custom Primary Brand Colors
+   
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',

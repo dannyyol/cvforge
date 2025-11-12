@@ -1,8 +1,9 @@
-import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId } from '../../types/resume';
-import ClassicTemplate from '../templates/ClassicTemplate';
-import ModernTemplate from '../templates/ModernTemplate';
-import MinimalistTemplate from '../templates/MinimalistTemplate';
-import ProfessionalTemplate from '../templates/ProfessionalTemplate';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection } from '../../types/resume';
+import { TemplateId } from '../templates/registry';
+import Classic from '../templates/classic/Classic';
+import Modern from '../templates/modern/Modern';
+import Minimalist from '../templates/minimalist/Minimalist';
+import Professional from '../templates/professional/Professional';
 import PaginatedPreview from './PaginatedPreview';
 
 interface CustomizationPreviewProps {
@@ -45,14 +46,14 @@ export default function CustomizationPreview({
   const renderTemplate = () => {
     switch (templateId) {
       case 'modern':
-        return <ModernTemplate {...commonProps} />;
+        return <Modern {...commonProps} />;
       case 'minimalist':
-        return <MinimalistTemplate {...commonProps} />;
+        return <Minimalist {...commonProps} />;
       case 'professional':
-        return <ProfessionalTemplate {...commonProps} />;
+        return <Professional {...commonProps} />;
       case 'classic':
       default:
-        return <ClassicTemplate {...commonProps} />;
+        return <Classic {...commonProps} />;
     }
   };
 

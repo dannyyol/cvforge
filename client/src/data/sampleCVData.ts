@@ -57,7 +57,9 @@ export const sampleProfessionalSummary: ProfessionalSummary = {
   id: '1',
   resume_id: '1',
   content:
-    'Experienced software engineer with 8+ years of expertise in full-stack development, cloud architecture, and team leadership. Proven track record of delivering scalable solutions and driving technical innovation in fast-paced environments. Passionate about clean code, mentoring junior developers, and staying current with emerging technologies.',
+    'Experienced software engineer with 8+ years of expertise in full-stack development, cloud architecture, and team leadership. Proven track record of delivering scalable solutions and driving technical innovation in fast-paced environments. Passionate about clean code, mentoring junior developers, and staying current with emerging technologies.\
+Experienced software engineer with 8+ years of expertise in full-stack development, cloud architecture, and team leadership. Proven track record of delivering scalable solutions and driving technical innovation in fast-paced environments. Passionate about clean code, mentoring junior developers, and staying current with emerging technologies.\
+Experienced software engineer with 8+ years of expertise in full-stack development, cloud architecture,'
 };
 
 export const sampleEducation: EducationEntry[] = [

@@ -1,7 +1,6 @@
+// module: templates registry
 import React from 'react';
 import {
-  CVTemplate,
-  TemplateId,
   PersonalDetails,
   ProfessionalSummary,
   WorkExperience,
@@ -12,10 +11,10 @@ import {
   CVSection,
 } from '../../types/resume';
 
-import ClassicTemplate from './ClassicTemplate';
-import ModernTemplate from './ModernTemplate';
-import MinimalistTemplate from './MinimalistTemplate';
-import ProfessionalTemplate from './ProfessionalTemplate';
+import Classic from './classic/Classic';
+import Modern from './modern/Modern';
+import Minimalist from './minimalist/Minimalist';
+import Professional from './professional/Professional';
 
 export interface TemplateProps {
   personalDetails: PersonalDetails | null;
@@ -29,38 +28,44 @@ export interface TemplateProps {
   accentColor?: string;
 }
 
-export interface TemplateDefinition extends CVTemplate {
+export interface TemplateDefinition {
+  name: string;
+  description: string;
+  thumbnail: string;
   component: React.ComponentType<TemplateProps>;
+  supportsAccent: boolean;
 }
+
+export type TemplateId = 'classic' | 'modern' | 'minimalist' | 'professional';
 
 export const TEMPLATE_REGISTRY: Record<TemplateId, TemplateDefinition> = {
   classic: {
-    id: 'classic',
     name: 'Classic',
     description: 'Traditional and professional layout',
     thumbnail: '/thumbnails/classic.png',
-    component: ClassicTemplate,
+    component: Classic,
+    supportsAccent: false,
   },
   modern: {
-    id: 'modern',
     name: 'Modern',
     description: 'Clean and contemporary design',
     thumbnail: '/thumbnails/modern.png',
-    component: ModernTemplate,
+    component: Modern,
+    supportsAccent: true,
   },
   minimalist: {
-    id: 'minimalist',
     name: 'Minimalist',
     description: 'Simple and elegant style',
     thumbnail: '/thumbnails/minimalist.png',
-    component: MinimalistTemplate,
+    component: Minimalist,
+    supportsAccent: false,
   },
   professional: {
-    id: 'professional',
     name: 'Professional',
     description: 'Bold and executive appearance',
     thumbnail: '/thumbnails/professional.png',
-    component: ProfessionalTemplate,
+    component: Professional,
+    supportsAccent: true,
   },
 };
 
@@ -69,11 +74,11 @@ export function getTemplateComponent(id: TemplateId): React.ComponentType<Templa
   return def.component;
 }
 
-export function getTemplatesList(): CVTemplate[] {
-  return Object.values(TEMPLATE_REGISTRY).map(({ id, name, description, thumbnail }) => ({
-    id,
-    name,
-    description,
-    thumbnail,
+export function getTemplatesList() {
+  return Object.entries(TEMPLATE_REGISTRY).map(([id, def]) => ({
+    id: id as TemplateId,
+    name: def.name,
+    description: def.description,
+    thumbnail: def.thumbnail,
   }));
 }

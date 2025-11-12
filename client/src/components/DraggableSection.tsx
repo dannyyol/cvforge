@@ -28,34 +28,31 @@ export default function DraggableSection({
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
-      className="bg-white rounded-xl shadow-sm border border-neutral-200 transition-all duration-300 hover:shadow-lg hover:border-neutral-300"
-      style={{
-        background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)'
-      }}
+      className="draggable-card"
     >
       <div
-        className="flex items-center gap-3 p-6 cursor-pointer select-none group"
+        className="draggable-header group"
         onClick={onToggle}
       >
         <div
-          className="cursor-grab active:cursor-grabbing text-neutral-400 hover:text-neutral-600 transition-colors duration-200 p-1 rounded-md hover:bg-neutral-100"
+          className="draggable-grip"
           onClick={(e) => e.stopPropagation()}
         >
           <GripVertical size={18} />
         </div>
 
         <div className="flex-1 flex items-center gap-3">
-          <div className="text-neutral-600 group-hover:text-primary-600 transition-colors duration-200">
+          <div className="draggable-toggle-icon group-hover:text-primary-600">
             {isOpen ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
           </div>
-          <h3 className="text-lg font-semibold text-neutral-800 group-hover:text-neutral-900 transition-colors duration-200">
+          <h3 className="draggable-title group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
             {title}
           </h3>
         </div>
       </div>
 
       {isOpen && (
-        <div className="px-6 pb-6 border-t border-neutral-200 pt-6 animate-fadeIn">
+        <div className="draggable-content">
           {children}
         </div>
       )}

@@ -1,6 +1,6 @@
-import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId } from '../../../types/resume';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection } from '../../../types/resume';
 import { sampleCVData } from '../../../data/sampleCVData';
-import { getTemplateComponent } from '../registry';
+import { getTemplateComponent, TemplateId } from '../registry';
 
 const A4_UK = {
   width: 794,

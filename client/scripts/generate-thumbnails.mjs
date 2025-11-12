@@ -6,11 +6,17 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const templates = ['classic', 'modern', 'minimalist', 'professional'];
-
 const VIEWPORT_WIDTH = 800;
 const VIEWPORT_HEIGHT = 1000;
 
+async function getTemplatesFromRegistry(page) {
+  const templateIds = await page.evaluate(async () => {
+    const mod = await import('/src/components/templates/registry.ts');
+    const list = mod.getTemplatesList();
+    return list.map(t => t.id);
+  });
+  return templateIds;
+}
 async function generateThumbnails() {
   console.log('Starting thumbnail generation...');
 
@@ -32,6 +38,14 @@ async function generateThumbnails() {
   }
 
   const devServerUrl = process.env.DEV_SERVER_URL || 'http://localhost:5173';
+
+  // Warm up the dev server so dynamic import works
+  await page.goto(`${devServerUrl}`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 30000,
+  });
+
+  const templates = await getTemplatesFromRegistry(page);
 
   for (const templateId of templates) {
     try {

@@ -46,15 +46,13 @@ export default function Homepage() {
                 </label>
               </div>
             </div>
-            {/* Right: dashboard mock */}
             <div className="relative">
-              {/* Right: CV image (hidden below lg for responsiveness) */}
               <div className="relative h-full hidden lg:block">
-                <div className="w-full h-full">
+                <div className="w-[420px] xl:w-[520px] 2xl:w-[600px] h-auto mx-auto">
                   <img
                     src="/images/cv-template.jpeg"
                     alt="CV preview"
-                    className="w-full h-full object-contain"
+                    className="w-full h-auto object-contain"
                   />
                 </div>
               </div>
