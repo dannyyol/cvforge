@@ -221,35 +221,35 @@
   .sidebar-coming-soon { @apply p-4 text-neutral-400 text-sm; }
 
   /* New Customization Sidebar Utilities */
-  .customization-sidebar { @apply w-full h-screen bg-gray-50 flex flex-col border-r border-gray-200; }
-  .customization-header { @apply flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200; }
-  .customization-back-btn { @apply flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors; }
-  .customization-tab-nav { @apply flex bg-white border-b border-gray-200; }
+  .customization-sidebar { @apply w-full h-screen bg-gray-50 flex flex-col border-r border-gray-200 dark:bg-slate-900 dark:border-slate-800; }
+  .customization-header { @apply flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 dark:bg-slate-900 dark:border-slate-800; }
+  .customization-back-btn { @apply flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors dark:text-slate-300 dark:hover:text-slate-100; }
+  .customization-tab-nav { @apply flex bg-white border-b border-gray-200 dark:bg-slate-900 dark:border-slate-800; }
   .customization-tab { @apply flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative; }
-  .customization-tab--active { @apply text-blue-600 bg-blue-50; }
-  .customization-tab--inactive { @apply text-gray-600 hover:text-gray-900 hover:bg-gray-50; }
-  .customization-tab-indicator { @apply absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600; }
-  .customization-content { @apply flex-1 overflow-y-auto; }
+  .customization-tab--active { @apply text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-slate-800; }
+  .customization-tab--inactive { @apply text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-slate-300 dark:hover:text-slate-100 dark:hover:bg-slate-800; }
+  .customization-tab-indicator { @apply absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-500; }
+  .customization-content { @apply flex-1 overflow-y-auto dark:bg-slate-900; }
   .customization-section { @apply p-6 space-y-8; }
-  .customization-section-title { @apply text-lg font-semibold text-gray-900 mb-4; }
+  .customization-section-title { @apply text-lg font-semibold text-gray-900 mb-4 dark:text-slate-100; }
   .customization-template-grid { @apply grid grid-cols-2 gap-4; }
   .customization-template-card { @apply relative cursor-pointer rounded-xl overflow-hidden transition-all duration-200; }
   .customization-template-card--selected { @apply ring-2 ring-blue-500 shadow-lg; }
   .customization-template-card--unselected { @apply hover:ring-2 hover:ring-gray-300 shadow-sm hover:shadow-md; }
-  .customization-template-preview { @apply bg-white aspect-[8.5/11] p-4 flex flex-col text-left; }
+  .customization-template-preview { @apply bg-white aspect-[8.5/11] p-4 flex flex-col text-left dark:bg-slate-800 dark:text-slate-100; }
   .customization-template-badge { @apply absolute top-3 right-3 bg-blue-500 text-white rounded-full p-1; }
-  .customization-template-footer { @apply bg-gray-800 px-3 py-2; }
+  .customization-template-footer { @apply bg-gray-800 px-3 py-2 dark:bg-slate-700; }
   .customization-template-name { @apply text-white text-[12px] font-medium; }
-  .customization-color-section { @apply border-t border-gray-200 pt-6; }
+  .customization-color-section { @apply border-t border-gray-200 pt-6 dark:border-slate-700; }
   .customization-color-grid { @apply grid grid-cols-7 gap-3; }
-  .customization-color-swatch { @apply w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center; }
-  .customization-color-swatch--selected { @apply border-gray-800 shadow-lg scale-110; }
-  .customization-color-swatch--unselected { @apply border-gray-300 hover:border-gray-400 hover:scale-105; }
-  .customization-warning { @apply mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800; }
-  .customization-coming-soon { @apply p-6 text-center; }
+  .customization-color-swatch { @apply w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center dark:border-slate-600; }
+  .customization-color-swatch--selected { @apply border-gray-800 shadow-lg scale-110 dark:border-slate-300; }
+  .customization-color-swatch--unselected { @apply border-gray-300 hover:border-gray-400 hover:scale-105 dark:border-slate-700 dark:hover:border-slate-500; }
+  .customization-warning { @apply mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 dark:bg-amber-900/20 dark:border-amber-800/50 dark:text-amber-300; }
+  .customization-coming-soon { @apply p-6 text-center dark:text-slate-300; }
   .customization-coming-soon-icon { @apply mx-auto mb-4 opacity-50; }
-  .customization-coming-soon-title { @apply text-lg; }
-  .customization-coming-soon-subtitle { @apply text-sm mt-2; }
+  .customization-coming-soon-title { @apply text-lg dark:text-slate-100; }
+  .customization-coming-soon-subtitle { @apply text-sm mt-2 dark:text-slate-300; }
 
   /* Preview utilities */
   .preview-page { 
