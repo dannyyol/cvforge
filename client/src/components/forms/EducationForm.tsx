@@ -29,6 +29,10 @@ export default function EducationForm({ entries, onChange }: EducationFormProps)
   };
 
   const handleChange = (id: string, field: keyof EducationEntry, value: string) => {
+    const existing = entries.find((entry) => entry.id === id);
+    if (!existing) return;
+    if ((existing as any)[field] === value) return;
+
     onChange(
       entries.map((entry) =>
         entry.id === id ? { ...entry, [field]: value } : entry
@@ -108,7 +112,7 @@ export default function EducationForm({ entries, onChange }: EducationFormProps)
                 Start Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={entry.start_date || ''}
                 onChange={(e) => handleChange(entry.id, 'start_date', e.target.value)}
                 className="form-input"
@@ -120,7 +124,7 @@ export default function EducationForm({ entries, onChange }: EducationFormProps)
                 End Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={entry.end_date || ''}
                 onChange={(e) => handleChange(entry.id, 'end_date', e.target.value)}
                 className="form-input"

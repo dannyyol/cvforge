@@ -27,6 +27,10 @@ export default function CertificationsForm({ certifications, onChange }: Certifi
   };
 
   const handleChange = (id: string, field: keyof CertificationEntry, value: string) => {
+    const existing = certifications.find((cert) => cert.id === id);
+    if (!existing) return;
+    if ((existing as any)[field] === value) return;
+
     onChange(
       certifications.map((cert) =>
         cert.id === id ? { ...cert, [field]: value } : cert
@@ -85,7 +89,7 @@ export default function CertificationsForm({ certifications, onChange }: Certifi
                 Issue Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={cert.issue_date || ''}
                 onChange={(e) => handleChange(cert.id, 'issue_date', e.target.value)}
                 className="form-input"
@@ -97,7 +101,7 @@ export default function CertificationsForm({ certifications, onChange }: Certifi
                 Expiry Date (Optional)
               </label>
               <input
-                type="date"
+                type="month"
                 value={cert.expiry_date || ''}
                 onChange={(e) => handleChange(cert.id, 'expiry_date', e.target.value)}
                 className="form-input"

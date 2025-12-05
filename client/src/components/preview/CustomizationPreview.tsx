@@ -5,7 +5,6 @@ import Modern from '../templates/modern/Modern';
 import Minimalist from '../templates/minimalist/Minimalist';
 import Professional from '../templates/professional/Professional';
 import PaginatedPreview from './PaginatedPreview';
-import RenderPreview from './RenderPreview';
 
 interface CustomizationPreviewProps {
   personalDetails: PersonalDetails | null;
@@ -59,20 +58,11 @@ export default function CustomizationPreview({
   };
 
   return (
-    <div className="w-full h-screen bg-neutral-100 dark:bg-slate-900 dark:text-slate-100 flex flex-col items-center overflow-y-auto custom-scrollbar">
+    <div className="w-full h-screen bg-neutral-100 dark:bg-slate-900 flex flex-col items-center overflow-y-auto custom-scrollbar">
       <div className="flex-1 flex flex-col items-center w-full min-h-full">
-        <RenderPreview
-          personalDetails={personalDetails}
-          professionalSummary={professionalSummary}
-          workExperiences={workExperiences}
-          educationEntries={educationEntries}
-          skills={skills}
-          projects={projects}
-          certifications={certifications}
-          sections={sections}
-          accentColor={accentColor}
-          templateId={templateId}
-        />
+        <PaginatedPreview scaleMode="fill" templateId={templateId}>
+          {renderTemplate()}
+        </PaginatedPreview>
       </div>
     </div>
   );

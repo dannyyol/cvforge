@@ -1,5 +1,4 @@
 import { PersonalDetails } from '../../types/resume';
-import { Lock } from 'lucide-react';
 
 interface PersonalDetailsFormProps {
   details: PersonalDetails | null;

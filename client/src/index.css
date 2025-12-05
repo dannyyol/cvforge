@@ -253,10 +253,10 @@
 
   /* Preview utilities */
   .preview-page { 
-    @apply w-full flex flex-col lg:sticky lg:top-0 h-screen overflow-hidden pt-16 lg:pt-0 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-slate-900 dark:to-slate-800;
+    @apply w-full flex flex-col lg:sticky lg:top-0 h-screen overflow-hidden pt-16 lg:pt-0;
   }
   .preview-toolbar { 
-    @apply hidden lg:flex pt-4 pb-4 px-6 items-center justify-between border-b border-neutral-200 dark:border-slate-700 relative z-50 bg-gradient-to-br from-white to-neutral-50 dark:from-slate-900 dark:to-slate-800;
+    @apply hidden lg:flex pt-4 pb-4 px-6 items-center justify-between border-b border-neutral-200 dark:border-slate-700 relative z-50 bg-gradient-to-br from-gray-50 to-slate-100 dark:from-slate-900 dark:to-slate-900;
     backdrop-filter: blur(10px);
   }
   .preview-customize-btn { 
@@ -277,6 +277,44 @@
   .preview-tab-divider { @apply w-px h-6 bg-neutral-200; }
   .preview-download-btn { 
     @apply px-5 py-3 text-white text-sm font-medium rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 hover:-translate-y-px;
+  }
+  .preview-theme-toggle {
+    @apply inline-flex items-center justify-center h-10 w-10 rounded-full border border-neutral-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-neutral-600 dark:text-slate-200 shadow-sm transition-all duration-200 hover:bg-neutral-50 dark:hover:bg-slate-700 hover:text-neutral-900 dark:hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40;
+    position: relative;
+    background: linear-gradient(145deg, #ffffff, #f4f4f7);
+    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.07), inset -3px -3px 6px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .preview-theme-toggle::before {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border-radius: 9999px;
+    box-shadow: inset 8px 8px 16px rgba(0,0,0,0.08), inset -8px -8px 16px rgba(255,255,255,0.9);
+    transition: box-shadow 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+  }
+  .preview-theme-toggle[aria-pressed="true"] {
+    /* @apply ring-2 ring-primary-400 border-primary-400 dark:border-blue-400; */
+    box-shadow: inset 6px 6px 12px rgba(0,0,0,0.09), inset -6px -6px 12px rgba(255,255,255,0.95), 0 2px 4px rgba(0,0,0,0.06);
+  }
+  .preview-theme-toggle svg {
+    @apply w-4 h-4;
+  }
+  .dark .preview-theme-toggle {
+    background: linear-gradient(145deg, #0f172a, #1e293b);
+    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.65), inset -3px -3px 6px rgba(255,255,255,0.06), 0 1px 2px rgba(0,0,0,0.4);
+  }
+  .dark .preview-theme-toggle::before {
+    box-shadow: inset 8px 8px 16px rgba(0,0,0,0.7), inset -8px -8px 16px rgba(255,255,255,0.07);
+  }
+  .dark .preview-theme-toggle[aria-pressed="true"] {
+    box-shadow: inset 6px 6px 12px rgba(0,0,0,0.75), inset -6px -6px 12px rgba(255,255,255,0.07), 0 2px 4px rgba(0,0,0,0.5);
+  }
+  .preview-theme-toggle:active::before {
+    box-shadow: inset 10px 10px 20px rgba(0,0,0,0.12), inset -10px -10px 20px rgba(255,255,255,0.95);
+  }
+  .dark .preview-theme-toggle:active::before {
+    box-shadow: inset 10px 10px 20px rgba(0,0,0,0.8), inset -10px -10px 20px rgba(255,255,255,0.08);
   }
   .preview-settings-btn { 
     @apply p-3 bg-white dark:bg-slate-700 rounded-lg transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm;
@@ -363,7 +401,24 @@
   .draggable-toggle-icon { @apply text-neutral-600 dark:text-neutral-300 transition-colors duration-200; }
   .draggable-title { @apply text-lg font-semibold text-neutral-800 dark:text-slate-100 transition-colors duration-200; }
   .draggable-content { @apply px-6 pb-6 border-t border-neutral-200 dark:border-neutral-700 pt-6 animate-fadeIn; }
-  
+  .navigation-control { @apply bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 }
+
+  /* ReactQuill (dark-mode overrides) */
+  .ql-toolbar { @apply bg-neutral-50 dark:bg-slate-900 border border-neutral-200 dark:border-neutral-700 rounded-t-lg; }
+  .ql-container { @apply bg-white dark:bg-slate-800 border border-neutral-200 dark:border-neutral-700 rounded-b-lg; }
+  .ql-editor { @apply text-neutral-900 dark:text-slate-100; }
+  /* Quill placeholder */
+  .ql-editor.ql-blank::before { @apply text-neutral-400 dark:text-neutral-500; }
+  /* Quill icon colors (raw CSS where Tailwind can't) */
+  .ql-toolbar .ql-stroke { stroke: #525252; }
+  .dark .ql-toolbar .ql-stroke { stroke: #d4d4d4; }
+  .ql-toolbar .ql-fill { fill: #525252; }
+  .dark .ql-toolbar .ql-fill { fill: #d4d4d4; }
+  /* Editor right panel (light mode gradient, preserved dark mode) */
+  .editor-panel {
+    @apply bg-gradient-to-br from-gray-50 via-white to-slate-100 dark:bg-slate-900;
+  }
+
   /* Animation utilities */
   @keyframes fadeIn {
     from {
@@ -468,6 +523,20 @@
     background: #a1a1aa;
   }
 
+  /* Dark mode scrollbar */
+  .dark .custom-scrollbar { 
+    scrollbar-color: #334155 #0f172a;
+  }
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155; /* slate-700 */
+  }
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #3b82f6; 
+  }
+
   /* Additional animation keyframes */
   @keyframes fadeIn {
     from {
@@ -557,15 +626,3 @@
     stroke-dasharray: 0 24;
   }
 }
-
-/* ReactQuill (dark-mode overrides) */
-.ql-toolbar { @apply bg-neutral-50 dark:bg-slate-900 border border-neutral-200 dark:border-neutral-700 rounded-t-lg; }
-.ql-container { @apply bg-white dark:bg-slate-800 border border-neutral-200 dark:border-neutral-700 rounded-b-lg; }
-.ql-editor { @apply text-neutral-900 dark:text-slate-100; }
-/* Quill placeholder */
-.ql-editor.ql-blank::before { @apply text-neutral-400 dark:text-neutral-500; }
-/* Quill icon colors (raw CSS where Tailwind can't) */
-.ql-toolbar .ql-stroke { stroke: #525252; }
-.dark .ql-toolbar .ql-stroke { stroke: #d4d4d4; }
-.ql-toolbar .ql-fill { fill: #525252; }
-.dark .ql-toolbar .ql-fill { fill: #d4d4d4; }

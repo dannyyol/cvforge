@@ -61,9 +61,9 @@ export default function CustomizationSidebar({
   }
 
   return (
-    <div className="w-full h-screen bg-gray-50 flex flex-col border-r border-gray-200 dark:bg-slate-900 dark:border-slate-800">
+    <div className="w-full h-screen bg-gray-50 flex flex-col border-r border-gray-200 dark:bg-slate-950 dark:border-slate-800">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 dark:bg-slate-800 dark:border-slate-800">
+      <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 dark:bg-slate-950 dark:border-slate-800">
         <button
           onClick={onClose}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors dark:text-slate-300 dark:hover:text-slate-100"
@@ -75,7 +75,7 @@ export default function CustomizationSidebar({
       </div>
 
       {/* Simplified Tab Navigation */}
-      <div className="flex bg-white border-b border-gray-200 dark:bg-slate-800 dark:border-slate-800">
+      <div className="flex bg-white border-b border-gray-200 dark:bg-slate-950 dark:border-slate-800">
         <button
           onClick={() => setActiveTab('templates')}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative ${
@@ -107,7 +107,7 @@ export default function CustomizationSidebar({
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto dark:bg-slate-800">
+      <div className="flex-1 overflow-y-auto dark:bg-slate-950">
         {activeTab === 'templates' && (
           <div className="p-6 space-y-8 animate-fade-in">
             {/* Color Palette Section */}

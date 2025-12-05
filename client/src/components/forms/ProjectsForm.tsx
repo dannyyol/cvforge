@@ -28,6 +28,10 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
   };
 
   const handleChange = (id: string, field: keyof ProjectEntry, value: string) => {
+    const existing = projects.find((project) => project.id === id);
+    if (!existing) return;
+    if ((existing as any)[field] === value) return;
+
     onChange(
       projects.map((project) =>
         project.id === id ? { ...project, [field]: value } : project
@@ -81,7 +85,7 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
                 Start Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={project.start_date || ''}
                 onChange={(e) => handleChange(project.id, 'start_date', e.target.value)}
                 className="form-input"
@@ -93,7 +97,7 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
                 End Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={project.end_date || ''}
                 onChange={(e) => handleChange(project.id, 'end_date', e.target.value)}
                 className="form-input"

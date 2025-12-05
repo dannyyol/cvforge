@@ -1,107 +1,202 @@
-import { Document, Page, Text, View } from '@react-pdf/renderer';
-import { TemplateProps } from '../registry';
-import { createClassicStyles } from './Styles';
-import PdfHtml from '../pdf/Html';
+import React from 'react';
+import { WorkExperience, EducationEntry, SkillEntry, ProjectEntry, CertificationEntry } from '../../../types/resume';
+import type { TemplateProps } from '../registry';
+import './styles.css'
 
-export default function PdfClassic(props: TemplateProps) {
-  const styles = createClassicStyles();
-  const { personalDetails, professionalSummary, workExperiences, educationEntries, skills, projects, certifications, sections } = props;
-  const fullName = personalDetails ? `${personalDetails.first_name} ${personalDetails.last_name}`.trim() : '';
+export default function Classic({
+  personalDetails,
+  professionalSummary,
+  workExperiences,
+  educationEntries,
+  skills,
+  projects,
+  certifications,
+  sections,
+  accentColor = '#334155',
+}: TemplateProps) {
+  const fullName =
+    personalDetails ? `${personalDetails.first_name} ${personalDetails.last_name}`.trim() : '';
   const orderedSections = [...sections].sort((a, b) => a.order - b.order);
 
   return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <Text style={styles.name}>{fullName || 'Your Name'}</Text>
-          {personalDetails?.job_title && <Text style={styles.role}>{personalDetails.job_title}</Text>}
-          <Text style={styles.contact}>
-            {personalDetails?.email || ''}{personalDetails?.phone ? `  •  ${personalDetails.phone}` : ''}
-          </Text>
-        </View>
+    <div
+      className="cv-html-root cv-classic"
+      style={{ '--accent-color': accentColor } as React.CSSProperties}
+    >
+      {/* Header */}
+      <section className="cv-header" data-cv-section data-section-id="header">
+        <div className="cv-header-name">{fullName || 'Your Name'}</div>
+        {personalDetails?.job_title && (
+          <div className="cv-header-role">{personalDetails.job_title}</div>
+        )}
+        <div className="cv-header-contact">
+          {personalDetails?.email}
+          {personalDetails?.phone ? <span className="cv-header-dot"> • </span> : null}
+          {personalDetails?.phone}
+          {personalDetails?.city_state ? <span className="cv-header-dot"> • </span> : null}
+          {personalDetails?.city_state}
+        </div>
+        <div className="cv-header-divider" />
+      </section>
 
-        {orderedSections.map((s) => {
-          switch (s.id) {
-            case 'summary':
-              if (!professionalSummary?.content) return null;
-              return (
-                <View key={s.id} style={styles.section} wrap>
-                  <Text style={styles.sectionTitle}>Professional Summary</Text>
-                  <View>
-                    <PdfHtml html={professionalSummary.content} paragraphStyle={styles.paragraph} />
-                  </View>
-                </View>
-              );
-            case 'experience':
-              if (!workExperiences.length) return null;
-              return (
-                <View key={s.id} style={styles.section} wrap>
-                  <Text style={styles.sectionTitle}>Work Experience</Text>
-                  {workExperiences.map((exp) => (
-                    <View key={exp.id} style={{ marginBottom: 8 }}>
-                      <Text style={styles.itemTitle}>{exp.job_title || 'Job Title'}{exp.company ? ` — ${exp.company}` : ''}</Text>
-                      {exp.location ? <Text style={styles.itemMeta}>{exp.location}</Text> : null}
-                      {exp.description ? <PdfHtml html={exp.description} paragraphStyle={styles.paragraph} /> : null}
-                    </View>
-                  ))}
-                </View>
-              );
-            case 'education':
-              if (!educationEntries.length) return null;
-              return (
-                <View key={s.id} style={styles.section} wrap>
-                  <Text style={styles.sectionTitle}>Education</Text>
-                  {educationEntries.map((ed) => (
-                    <View key={ed.id} style={{ marginBottom: 8 }}>
-                      <Text style={styles.itemTitle}>{ed.degree || 'Degree'}{ed.institution ? ` — ${ed.institution}` : ''}</Text>
-                      <Text style={styles.itemMeta}>{[ed.start_date, ed.end_date].filter(Boolean).join(' — ')}</Text>
-                      {ed.description ? <PdfHtml html={ed.description} paragraphStyle={styles.paragraph} /> : null}
-                    </View>
-                  ))}
-                </View>
-              );
-            case 'skills':
-              if (!skills.length) return null;
-              return (
-                <View key={s.id} style={styles.section} wrap>
-                  <Text style={styles.sectionTitle}>Skills</Text>
-                  <Text style={styles.paragraph}>
-                    {skills.map((sk) => `${sk.name}${sk.level ? ` (${sk.level})` : ''}`).join(' • ')}
-                  </Text>
-                </View>
-              );
-            case 'projects':
-              if (!projects.length) return null;
-              return (
-                <View key={s.id} style={styles.section} wrap>
-                  <Text style={styles.sectionTitle}>Projects</Text>
-                  {projects.map((p) => (
-                    <View key={p.id} style={{ marginBottom: 8 }}>
-                      <Text style={styles.itemTitle}>{p.title || 'Project Title'}</Text>
-                      {p.url ? <Text style={styles.itemMeta}>{p.url}</Text> : null}
-                      {p.description ? <PdfHtml html={p.description} paragraphStyle={styles.paragraph} /> : null}
-                    </View>
-                  ))}
-                </View>
-              );
-            case 'certifications':
-              if (!certifications.length) return null;
-              return (
-                <View key={s.id} style={styles.section} wrap>
-                  <Text style={styles.sectionTitle}>Certifications</Text>
-                  {certifications.map((c) => (
-                    <View key={c.id} style={{ marginBottom: 6 }}>
-                      <Text style={styles.itemTitle}>{c.name}</Text>
-                      {c.issuer ? <Text style={styles.itemMeta}>{c.issuer}</Text> : null}
-                    </View>
-                  ))}
-                </View>
-              );
-            default:
-              return null;
+      {/* Sections */}
+      {orderedSections.map((section) => {
+        switch (section.id) {
+          case 'summary': {
+            if (!professionalSummary?.content) return null;
+            return (
+              <section
+                key={section.id}
+                className="cv-section"
+                data-cv-section
+                data-section-id={section.id}
+              >
+                <h2 className="cv-section-title">Professional Summary</h2>
+                <div
+                  className="cv-paragraph"
+                  dangerouslySetInnerHTML={{ __html: professionalSummary.content }}
+                />
+              </section>
+            );
           }
-        })}
-      </Page>
-    </Document>
+          case 'experience': {
+            if (!workExperiences.length) return null;
+            return (
+              <section
+                key={section.id}
+                className="cv-section"
+                data-cv-section
+                data-section-id={section.id}
+              >
+                <h2 className="cv-section-title">Work Experience</h2>
+                <ul className="cv-list">
+                  {workExperiences.map((exp: WorkExperience) => (
+                    <li className="cv-list-item" key={exp.id}>
+                      <div className="cv-item-title">
+                        {exp.job_title || 'Job Title'}
+                        {exp.company ? <span className="cv-item-divider"> — {exp.company}</span> : null}
+                      </div>
+                      {exp.location ? <div className="cv-item-meta">{exp.location}</div> : null}
+                      <div className="cv-item-meta">
+                        {[exp.start_date, exp.end_date].filter(Boolean).join(' — ')}
+                      </div>
+                      {exp.description ? (
+                        <div
+                          className="cv-paragraph"
+                          dangerouslySetInnerHTML={{ __html: exp.description }}
+                        />
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          }
+          case 'education': {
+            if (!educationEntries.length) return null;
+            return (
+              <section
+                key={section.id}
+                className="cv-section"
+                data-cv-section
+                data-section-id={section.id}
+              >
+                <h2 className="cv-section-title">Education</h2>
+                <ul className="cv-list">
+                  {educationEntries.map((ed: EducationEntry) => (
+                    <li className="cv-list-item" key={ed.id}>
+                      <div className="cv-item-title">
+                        {ed.degree || 'Degree'}
+                        {ed.institution ? <span className="cv-item-divider"> — {ed.institution}</span> : null}
+                      </div>
+                      <div className="cv-item-meta">
+                        {[ed.start_date, ed.end_date].filter(Boolean).join(' — ')}
+                      </div>
+                      {ed.description ? (
+                        <div
+                          className="cv-paragraph"
+                          dangerouslySetInnerHTML={{ __html: ed.description }}
+                        />
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          }
+          case 'skills': {
+            if (!skills.length) return null;
+            return (
+              <section
+                key={section.id}
+                className="cv-section"
+                data-cv-section
+                data-section-id={section.id}
+              >
+                <h2 className="cv-section-title">Skills</h2>
+                <ul className="cv-inline-list">
+                  {skills.map((sk: SkillEntry) => (
+                    <li key={sk.id} className="cv-inline-item">
+                      {sk.name}
+                      {sk.level ? <span className="cv-muted"> ({sk.level})</span> : null}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          }
+          case 'projects': {
+            if (!projects.length) return null;
+            return (
+              <section
+                key={section.id}
+                className="cv-section"
+                data-cv-section
+                data-section-id={section.id}
+              >
+                <h2 className="cv-section-title">Projects</h2>
+                <ul className="cv-list">
+                  {projects.map((p: ProjectEntry) => (
+                    <li className="cv-list-item" key={p.id}>
+                      <div className="cv-item-title">{p.title || 'Project Title'}</div>
+                      {p.url ? <div className="cv-item-meta">{p.url}</div> : null}
+                      {p.description ? (
+                        <div
+                          className="cv-paragraph"
+                          dangerouslySetInnerHTML={{ __html: p.description }}
+                        />
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          }
+          case 'certifications': {
+            if (!certifications.length) return null;
+            return (
+              <section
+                key={section.id}
+                className="cv-section"
+                data-cv-section
+                data-section-id={section.id}
+              >
+                <h2 className="cv-section-title">Certifications</h2>
+                <ul className="cv-list">
+                  {certifications.map((c: CertificationEntry) => (
+                    <li className="cv-list-item" key={c.id}>
+                      <div className="cv-item-title">{c.name}</div>
+                      {c.issuer ? <div className="cv-item-meta">{c.issuer}</div> : null}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          }
+          default:
+            return null;
+        }
+      })}
+    </div>
   );
 }

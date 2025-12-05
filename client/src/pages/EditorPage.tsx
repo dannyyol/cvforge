@@ -186,7 +186,7 @@ export default function EditorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-neutral-900 dark:text-slate-100 flex flex-col lg:flex-row">
+    <div className="min-h-screen lg:h-screen bg-slate-50 dark:bg-slate-900 text-neutral-900 dark:text-slate-100 flex flex-col lg:flex-row lg:overflow-hidden">
       <MobileTabNav
         activeTab={mobileTab}
         onTabChange={setMobileTab}
@@ -258,10 +258,7 @@ export default function EditorPage() {
           </div>
 
           {/* Right Panel - Editor Section */}
-          <div className={`w-full lg:w-[50%] overflow-y-auto custom-scrollbar pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}
-               style={{
-                //  background: 'linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)'
-               }}>
+          <div className={`w-full lg:w-[50%] lg:h-screen overflow-y-auto custom-scrollbar pb-20 lg:pb-0 pt-16 lg:pt-0 editor-panel ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
             <div className="p-4 lg:p-8 lg:pl-10 w-full dark:bg-slate-900">
               <div className="animate-slideInRight">
                 <CVTitleCard

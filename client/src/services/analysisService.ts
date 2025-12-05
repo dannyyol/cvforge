@@ -33,7 +33,6 @@ export interface AnalysisResponse {
   recommendations: string[];
 }
 
-// Use zero-arg resolver to satisfy MockOptions<TRes> type
 export async function analyzeCV(
   cvData: CVDataPayload,
   opts?: { mock?: boolean; delayMs?: number; resolver?: (req: CVDataPayload) => AnalysisResponse }
@@ -52,7 +51,6 @@ export async function analyzeCV(
   return api.post<CVDataPayload, AnalysisResponse>('/analyze', cvData, undefined, mockOptions);
 }
 
-// Live AI review response used by AIReviewPanel
 export interface AIReviewResponse {
   overall_score: number;
   strengths: string[];

@@ -52,6 +52,7 @@ export default function SkillsForm({ skills, onChange }: SkillsFormProps) {
                 onChange={(e) => handleChange(skill.id, 'level', e.target.value)}
                 className="form-select"
               >
+                <option value="">Select Level</option>
                 {skillLevels.map((level) => (
                   <option key={level} value={level}>
                     {level}

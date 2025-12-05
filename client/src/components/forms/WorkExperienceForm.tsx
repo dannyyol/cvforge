@@ -30,6 +30,10 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
   };
 
   const handleChange = (id: string, field: keyof WorkExperience, value: string | boolean) => {
+    const existing = experiences.find((exp) => exp.id === id);
+    if (!existing) return;
+    if ((existing as any)[field] === value) return;
+
     onChange(
       experiences.map((exp) =>
         exp.id === id ? { ...exp, [field]: value } : exp
@@ -123,7 +127,7 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
                 Start Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={experience.start_date || ''}
                 onChange={(e) => handleChange(experience.id, 'start_date', e.target.value)}
                 className="form-input-soft"
@@ -135,7 +139,7 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
                 End Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={experience.end_date || ''}
                 onChange={(e) => handleChange(experience.id, 'end_date', e.target.value)}
                 disabled={experience.current}
