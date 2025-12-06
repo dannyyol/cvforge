@@ -41,6 +41,10 @@ export default function Professional({
           {personalDetails?.phone}
           {personalDetails?.city_state ? <span className="cv-header-dot"> | </span> : null}
           {personalDetails?.city_state}
+          <br />
+          {personalDetails?.website}
+          {personalDetails?.linkedin ? <span className="cv-header-dot"> | </span> : null}
+          {personalDetails?.linkedin}
         </div>
         <div className="cv-header-divider" />
       </section>

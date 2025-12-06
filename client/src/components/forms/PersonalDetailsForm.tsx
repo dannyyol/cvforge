@@ -115,6 +115,34 @@ export default function PersonalDetailsForm({ details, onChange }: PersonalDetai
             />
           </div>
         </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div>
+            <label className="form-label">
+              LinkedIn
+            </label>
+            <input
+              type="url"
+              placeholder="https://linkedin.com/in/username"
+              value={details?.linkedin || ''}
+              onChange={(e) => onChange('linkedin', e.target.value)}
+              className="form-input-soft"
+            />
+          </div>
+
+          <div>
+            <label className="form-label">
+              Website
+            </label>
+            <input
+              type="url"
+              placeholder="https://your-portfolio.com"
+              value={details?.website || ''}
+              onChange={(e) => onChange('website', e.target.value)}
+              className="form-input-soft"
+            />
+          </div>
+        </div>
     </div>
   );
 }

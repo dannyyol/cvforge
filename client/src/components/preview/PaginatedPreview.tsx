@@ -14,13 +14,13 @@ interface PaginatedPreviewProps {
   }) => void;
   scaleMode?: 'fit' | 'fill'; // 'fit' for normal scaling, 'fill' for maximized scaling
   templateId?: string;
+  accentColor?: string;
 }
 
 interface ReactPageContent {
   elements: React.ReactNode[];
 }
-
-export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fit', templateId = '' }: PaginatedPreviewProps) {
+export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fit', templateId = '', accentColor = '#0f172a' }: PaginatedPreviewProps) {
   const [pages, setPages] = useState<ReactPageContent[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const measureRef = useRef<HTMLDivElement>(null);
@@ -81,7 +81,7 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
           <div
             key={`block-${pageIndex}-${elementIndex}`}
             className={`cv-block ${elementIndex === 0 ? 'cv-block--first' : ''}`}
-            style={{ marginTop: element.marginTop }}
+            style={{  marginTop: element.marginTop }}
             dangerouslySetInnerHTML={{ __html: element.html }}
           />
         );
@@ -220,6 +220,7 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
           width: `${pageInnerWidth}px`,
           padding: 0,
           margin: 0,
+          ['--page-padding' as any]: `${A4_DIMENSIONS.margin}px`,
         }}
       >
         {children}
@@ -304,7 +305,10 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
                 style={{
                   boxSizing: 'border-box',
                   height: `${A4_DIMENSIONS.height - (2*A4_DIMENSIONS.margin)}px`,
-                  overflow: 'hidden',
+                  ['--page-padding' as any]: `${A4_DIMENSIONS.margin}px`,
+                  ['--accent-color' as any]: accentColor,
+                  overflowX: 'visible',
+                  overflowY: 'visible',
                 }}
               >
                 {pages[currentPage]?.elements}

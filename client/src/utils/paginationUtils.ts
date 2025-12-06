@@ -34,7 +34,17 @@ const measureSize = (el: HTMLElement): { height: number; width: number } => {
   const style = window.getComputedStyle(el);
   const marginTop = parseFloat(style.marginTop || '0');
   const marginBottom = parseFloat(style.marginBottom || '0');
-  return { height: rect.height + marginTop + marginBottom, width: rect.width };
+  let height = rect.height + marginTop + marginBottom;
+  
+
+  const className = el.getAttribute('class') || '';
+  if (className.includes('cv-header--full-bleed')) {
+    const pagePaddingRaw = style.getPropertyValue('--page-padding');
+    const pagePadding = pagePaddingRaw ? parseFloat(pagePaddingRaw) : 0;
+    height += pagePadding || 0;
+  }
+
+  return { height, width: rect.width };
 };
 
 /**
@@ -228,4 +238,3 @@ export const performPagination = async (measureRef: HTMLElement): Promise<Pagina
   const blocks = await extractContentBlocksAsync(measureRef);
   return paginateBlocks(blocks);
 };
-

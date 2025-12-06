@@ -111,7 +111,7 @@ The script will:
 - Use Puppeteer to take screenshots of each template
 - Generate thumbnails at 400x500 resolution
 - Save thumbnails to `client/public/thumbnails/`
-- Support templates: classic, modern, minimalist, professional
+- Support templates: classic, legacy, minimalist, professional
 
 ## How to Contribute
 

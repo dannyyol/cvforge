@@ -12,7 +12,7 @@ import {
 } from '../../types/resume';
 
 import Classic from './classic/Classic';
-import Modern from './modern/Modern';
+import Legacy from './legacy/Legacy';
 import Minimalist from './minimalist/Minimalist';
 import Professional from './professional/Professional';
 
@@ -36,7 +36,7 @@ export interface TemplateDefinition {
   supportsAccent: boolean;
 }
 
-export type TemplateId = 'classic' | 'modern' | 'minimalist' | 'professional';
+export type TemplateId = 'classic' | 'legacy' | 'minimalist' | 'professional';
 
 export const TEMPLATE_REGISTRY: Record<TemplateId, TemplateDefinition> = {
   classic: {
@@ -46,11 +46,11 @@ export const TEMPLATE_REGISTRY: Record<TemplateId, TemplateDefinition> = {
     component: Classic,
     supportsAccent: false,
   },
-  modern: {
-    name: 'Modern',
+  legacy: {
+    name: 'Legacy',
     description: 'Clean and contemporary design',
-    thumbnail: '/thumbnails/modern.png',
-    component: Modern,
+    thumbnail: '/thumbnails/legacy.png',
+    component: Legacy,
     supportsAccent: true,
   },
   minimalist: {

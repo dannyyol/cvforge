@@ -75,6 +75,8 @@ export default function CVPreview({
     sectionStatus: sections,
   };
 
+  // console.log('accentColor', accentColor);
+
   const renderTemplate = () => {
     const TemplateComponent = getTemplateComponent(templateId);
     return <TemplateComponent {...commonProps} />;
@@ -143,7 +145,7 @@ export default function CVPreview({
             </div>
           ) : (
             // Use HTML paginator for live CV preview
-            <PaginatedPreview templateId={templateId}>
+            <PaginatedPreview templateId={templateId} accentColor={accentColor}>
               {renderTemplate()}
             </PaginatedPreview>
           )}

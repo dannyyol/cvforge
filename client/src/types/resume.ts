@@ -19,6 +19,8 @@ export interface PersonalDetails {
   address: string;
   city_state: string;
   country: string;
+  linkedin?: string;
+  website?: string;
 }
 
 export interface ProfessionalSummary {

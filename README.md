@@ -11,7 +11,7 @@
 
 ### Technical Features
 - **100% Open Source** - AGPLv3 licensed, community-driven development
-- **Modern Tech Stack** - React 18, TypeScript, Tailwind CSS, FastAPI
+- **Legacy Tech Stack** - React 18, TypeScript, Tailwind CSS, FastAPI
 - **Real-time Preview** - See changes instantly as you type
 - **Drag & Drop Sections** - Reorder CV sections with ease
 - **Self-hostable** - Deploy on your own infrastructure
@@ -127,7 +127,7 @@ The thumbnail generation script:
 - Uses Puppeteer to take screenshots of each template
 - Generates thumbnails at 400x500 resolution
 - Saves thumbnails to `client/public/thumbnails/`
-- Supports templates: classic, modern, minimalist, professional
+- Supports templates: classic, legacy, minimalist, professional
 
 ### Customizing Thumbnail Generation
 

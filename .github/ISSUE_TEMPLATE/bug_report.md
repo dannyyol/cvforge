@@ -28,7 +28,7 @@ If applicable, add screenshots to help explain your problem.
 - **OS**: [e.g. macOS 14.0, Windows 11, Ubuntu 22.04]
 - **Browser**: [e.g. Chrome 120, Firefox 121, Safari 17]
 - **CVForge Version**: [e.g. latest main branch, specific commit hash]
-- **Template Used**: [e.g. Classic, Modern, Minimalist, Professional]
+- **Template Used**: [e.g. Classic, Legacy, Minimalist, Professional]
 
 ## CV Data (if relevant)
 - **Sections affected**: [e.g. Work Experience, Education, Skills]

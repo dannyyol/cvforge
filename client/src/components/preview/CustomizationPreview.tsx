@@ -1,7 +1,7 @@
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection } from '../../types/resume';
 import { TemplateId } from '../templates/registry';
 import Classic from '../templates/classic/Classic';
-import Modern from '../templates/modern/Modern';
+import Legacy from '../templates/legacy/Legacy';
 import Minimalist from '../templates/minimalist/Minimalist';
 import Professional from '../templates/professional/Professional';
 import PaginatedPreview from './PaginatedPreview';
@@ -29,7 +29,7 @@ export default function CustomizationPreview({
   certifications,
   sections,
   templateId,
-  accentColor = 'slate'
+  accentColor = '#475569'
 }: CustomizationPreviewProps) {
   const commonProps = {
     personalDetails,
@@ -45,8 +45,8 @@ export default function CustomizationPreview({
 
   const renderTemplate = () => {
     switch (templateId) {
-      case 'modern':
-        return <Modern {...commonProps} />;
+      case 'legacy':
+        return <Legacy {...commonProps} />;
       case 'minimalist':
         return <Minimalist {...commonProps} />;
       case 'professional':
@@ -60,7 +60,7 @@ export default function CustomizationPreview({
   return (
     <div className="w-full h-screen bg-neutral-100 dark:bg-slate-900 flex flex-col items-center overflow-y-auto custom-scrollbar">
       <div className="flex-1 flex flex-col items-center w-full min-h-full">
-        <PaginatedPreview scaleMode="fill" templateId={templateId}>
+        <PaginatedPreview scaleMode="fill" templateId={templateId} accentColor={accentColor}>
           {renderTemplate()}
         </PaginatedPreview>
       </div>
