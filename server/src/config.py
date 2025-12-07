@@ -23,6 +23,10 @@ class AppSettings(BaseSettings):
 
     CORS_ALLOWED_ORIGINS: List[str]
 
+    CLIENT_BASE_URL: str
+    PDF_SERVICE_URL: str
+    TOKEN_TTL_SECONDS: int = 300
+
     @field_validator("CORS_ALLOWED_ORIGINS", mode="before")
     def _split_csv(cls, v):
         if isinstance(v, str):

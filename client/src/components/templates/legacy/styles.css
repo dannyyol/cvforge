@@ -1,9 +1,11 @@
 
 .cv-legacy { font-family: "Source Sans Pro",  Roboto, "Segoe UI", -apple-system, system-ui, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; color: #111827; --accent-color: #0f172a; line-height: 2; }
 
-.cv-legacy .cv-header--full-bleed { background-color: var(--accent-color) !important; color: #ffffff; margin-left: calc(-1 * var(--page-padding)); 
+.cv-legacy .cv-header--full-bleed { background-color: var(--accent-color) !important; color: #ffffff; margin-left: calc(-1.1 * var(--page-padding)); 
     margin-right: calc(-1 * var(--page-padding)); margin-top: calc(-1 * var(--page-padding)); 
-    padding-top: var(--page-padding); padding-left: var(--page-padding); padding-right: var(--page-padding);
+    padding-top: var(--page-padding); 
+    padding-left: var(--page-padding); 
+    padding-right: var(--page-padding);
     padding-bottom: 20px;
     line-height: 1.5;
 }

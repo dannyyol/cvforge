@@ -94,11 +94,16 @@ export const extractContentBlocksAsync = async (measureRef: HTMLElement): Promis
 
           if (tagName === 'ul' || tagName === 'ol') {
             const items = Array.from(child.children) as HTMLElement[];
+            const isCvList = (child.getAttribute('class') || '').includes('cv-list');
             for (const item of items) {
+              const itemHtml = isCvList
+                ? `<div class="${item.getAttribute('class') || ''}">${item.innerHTML}</div>`
+                : item.outerHTML;
+              const size = measureSize(item);
               blocks.push({
-                html: item.outerHTML,
-                height: measureSize(item).height,
-                width: measureSize(item).width,
+                html: itemHtml,
+                height: size.height,
+                width: size.width,
                 sectionId,
                 isAtomic: true,
                 sumHeight,

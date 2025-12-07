@@ -61,18 +61,16 @@ export default function CVPreview({
 
   const cvData = {
     resume: resumeMeta ?? { id: personalDetails?.resume_id ?? workExperiences[0]?.resume_id ?? 'unknown' },
-    sections: {
-      personalDetails,
-      professionalSummary,
-      workExperiences,
-      education: educationEntries,
-      skills,
-      projects,
-      certifications,
-    },
+    personalDetails,
+    professionalSummary,
+    education: educationEntries,
+    workExperience: workExperiences,
+    skills,
+    projects,
+    certifications,
     templateId,
     accentColor,
-    sectionStatus: sections,
+    sections,
   };
 
   // console.log('accentColor', accentColor);
@@ -107,8 +105,25 @@ export default function CVPreview({
               <Moon className="w-4 h-4" />
             )}
           </button>
-          {/* Pass the URL down to the dropdown; templateId optional now */}
-          <DownloadDropdown className="preview-download-btn" downloadUrl={pdfUrl ?? undefined} />
+          <DownloadDropdown
+            className="preview-download-btn"
+            buildExportPayload={() => ({
+              template: templateId,
+              data: {
+                sections: {
+                  personalDetails,
+                  professionalSummary,
+                  workExperiences,
+                  education: educationEntries,
+                  skills,
+                  projects,
+                  certifications,
+                },
+                sectionStatus: sections,
+                accentColor,
+              },
+            })}
+          />
         </div>
       </div>
 
@@ -161,8 +176,25 @@ export default function CVPreview({
             <Settings className="w-4 h-4 preview-icon-muted" />
             Edit More
           </button>
-          {/* Provide url for mobile dropdown too */}
-          <DownloadDropdown variant="mobile" downloadUrl={pdfUrl ?? undefined} />
+          <DownloadDropdown
+            variant="mobile"
+            buildExportPayload={() => ({
+              template: templateId,
+              data: {
+                sections: {
+                  personalDetails,
+                  professionalSummary,
+                  workExperiences,
+                  education: educationEntries,
+                  skills,
+                  projects,
+                  certifications,
+                },
+                sectionStatus: sections,
+                accentColor,
+              },
+            })}
+          />
         </div>
       )}
     </div>

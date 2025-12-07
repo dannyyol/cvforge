@@ -299,6 +299,22 @@ export default function EditorPage() {
                 <DownloadDropdown 
                   variant="icon-only" 
                   className="w-full px-5 py-3 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-md"
+                  buildExportPayload={() => ({
+                    template: selectedTemplate,
+                    data: {
+                      sections: {
+                        personalDetails,
+                        professionalSummary,
+                        workExperiences,
+                        education: educationEntries,
+                        skills,
+                        projects,
+                        certifications,
+                      },
+                      sectionStatus: sections,
+                      accentColor: accentColor.color,
+                    },
+                  })}
                 />
               </div>
             </div>

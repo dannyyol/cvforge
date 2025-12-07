@@ -84,5 +84,8 @@
   margin: 0 6px;
 }
 
+.cv-block--first .cv-item-title{
+  /* padding-top: -20px !important; */
+}
 /* Muted helper */
 .cv-classic .cv-muted { color: #6b7280; } /* gray-500 */
