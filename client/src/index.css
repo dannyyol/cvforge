@@ -390,7 +390,7 @@
   .header-tab-btn--active { @apply bg-white text-neutral-900 shadow-sm; }
   .header-tab-btn--inactive { @apply text-neutral-600 hover:text-neutral-900; }
   .header-download-btn { 
-    @apply px-4 py-2 text-white text-sm font-medium rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 hover:-translate-y-px;
+    @apply px-4 py-2 text-white text-sm font-medium rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 hover:-translate-y-px dark:from-primary-500 dark:to-primary-600 dark:hover:from-primary-600 dark:hover:to-primary-700;
   }
   .header-settings-btn { @apply p-2 hover:bg-neutral-100 rounded-lg transition-all duration-200; }
 

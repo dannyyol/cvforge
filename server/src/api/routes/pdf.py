@@ -3,7 +3,6 @@ from fastapi.responses import Response
 from typing import Any, Dict
 from uuid import uuid4
 import time
-import httpx
 
 from ...config import get_settings
 
@@ -44,28 +43,44 @@ async def export_pdf(payload: Dict[str, Any]):
 
         settings = get_settings()
         preview_url = f"{settings.CLIENT_BASE_URL}/preview?template={template}&token={token}"
+        try:
+            from playwright.async_api import async_playwright
 
-        async with httpx.AsyncClient(timeout=60) as client:
-            res = await client.post(
-                f"{settings.PDF_SERVICE_URL}/generate-pdf",
-                json={
-                    "url": preview_url,
-                    "pdfOptions": {
-                        "format": "A4",
-                        "printBackground": True,
-                        # "margin": {"top": "10mm", "right": "0mm", "bottom": "0mm", "left": "0mm"},
-                    },
-                    "emulateMedia": "screen",
-                    "waitUntil": "networkidle0",
-                },
-            )
-            if res.status_code != 200:
-                raise HTTPException(status_code=502, detail="PDF service error")
-            pdf_bytes = res.content
-        headers = {"Content-Disposition": "attachment; filename=cv.pdf"}
-        return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(args=[
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                ])
+                context = await browser.new_context()
+                page = await context.new_page()
+                await page.emulate_media(media="screen")
+                await page.goto(preview_url, wait_until="networkidle")
+                await page.evaluate("""
+                    () => new Promise((resolve) => {
+                        try {
+                            if (document.fonts && document.fonts.ready) {
+                                document.fonts.ready.then(() => resolve(null)).catch(() => resolve(null));
+                            } else {
+                                resolve(null);
+                            }
+                        } catch { resolve(null); }
+                    })
+                """)
+                pdf_bytes = await page.pdf(
+                    format="A4",
+                    print_background=True,
+                    prefer_css_page_size=True,
+                    margin={"top": "0px"},
+                )
+                await browser.close()
+            headers = {"Content-Disposition": "attachment; filename=cv.pdf"}
+            return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
+        except ModuleNotFoundError:
+            raise HTTPException(status_code=500, detail="Playwright is not installed")
+        except Exception:
+            raise HTTPException(status_code=500, detail="Failed to generate PDF")
     except HTTPException:
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="Export failed")
-

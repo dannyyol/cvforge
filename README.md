@@ -67,10 +67,20 @@
    npm install
    ```
 
-4.4. **Set up the backend (Server)**
+4. **Set up the backend (Server)**
    ```bash
    cd ../server
    pip install -r requirements.txt
+   ```
+
+   Install Playwright browsers (for PDF export)
+   ```bash
+   # macOS / Windows / Linux (generic)
+   python -m playwright install chromium
+
+   # Linux only: install required system dependencies
+   # (run with sudo if prompted)
+   playwright install-deps
    ```
 
 5. **Configure environment variables**
@@ -85,7 +95,7 @@
 1. **Start the backend server**
    ```bash
    cd server
-   python -m uvicorn src.main:app --reload --host 127.0.0.1 --port 8000
+   python -m uvicorn src.main:app --reload
    ```
 
 2. **Start the frontend development server**

@@ -9,7 +9,6 @@ from pydantic import field_validator
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 ENV_FILE = BASE_DIR / ".env"
-print(ENV_FILE)
 
 class AppSettings(BaseSettings):
     APP_NAME: str
@@ -24,8 +23,7 @@ class AppSettings(BaseSettings):
     CORS_ALLOWED_ORIGINS: List[str]
 
     CLIENT_BASE_URL: str
-    PDF_SERVICE_URL: str
-    TOKEN_TTL_SECONDS: int = 300
+    TOKEN_TTL_SECONDS: int = Field(default=300, env="TOKEN_TTL_SECONDS")
 
     @field_validator("CORS_ALLOWED_ORIGINS", mode="before")
     def _split_csv(cls, v):
@@ -37,6 +35,7 @@ class AppSettings(BaseSettings):
         env_file=str(ENV_FILE),
         env_file_encoding="utf-8",
         case_sensitive=True,
+        extra="ignore",
     )
 
 
