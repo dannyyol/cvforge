@@ -13,7 +13,6 @@ import {
 
 import Classic from './classic/Classic';
 import Legacy from './legacy/Legacy';
-import Minimalist from './minimalist/Minimalist';
 import Professional from './professional/Professional';
 
 export interface TemplateProps {
@@ -36,7 +35,7 @@ export interface TemplateDefinition {
   supportsAccent: boolean;
 }
 
-export type TemplateId = 'classic' | 'legacy' | 'minimalist' | 'professional';
+export type TemplateId = 'classic' | 'legacy' | 'professional';
 
 export const TEMPLATE_REGISTRY: Record<TemplateId, TemplateDefinition> = {
   classic: {
@@ -52,13 +51,6 @@ export const TEMPLATE_REGISTRY: Record<TemplateId, TemplateDefinition> = {
     thumbnail: '/thumbnails/legacy.png',
     component: Legacy,
     supportsAccent: true,
-  },
-  minimalist: {
-    name: 'Minimalist',
-    description: 'Simple and elegant style',
-    thumbnail: '/thumbnails/minimalist.png',
-    component: Minimalist,
-    supportsAccent: false,
   },
   professional: {
     name: 'Professional',

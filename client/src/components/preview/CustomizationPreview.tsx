@@ -1,9 +1,5 @@
 import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection } from '../../types/resume';
-import { TemplateId } from '../templates/registry';
-import Classic from '../templates/classic/Classic';
-import Legacy from '../templates/legacy/Legacy';
-import Minimalist from '../templates/minimalist/Minimalist';
-import Professional from '../templates/professional/Professional';
+import { getTemplateComponent, TemplateId } from '../templates/registry';
 import PaginatedPreview from './PaginatedPreview';
 
 interface CustomizationPreviewProps {
@@ -44,17 +40,8 @@ export default function CustomizationPreview({
   };
 
   const renderTemplate = () => {
-    switch (templateId) {
-      case 'legacy':
-        return <Legacy {...commonProps} />;
-      case 'minimalist':
-        return <Minimalist {...commonProps} />;
-      case 'professional':
-        return <Professional {...commonProps} />;
-      case 'classic':
-      default:
-        return <Classic {...commonProps} />;
-    }
+    const TemplateComponent = getTemplateComponent(templateId);
+    return <TemplateComponent {...commonProps} />;
   };
 
   return (

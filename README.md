@@ -137,7 +137,7 @@ The thumbnail generation script:
 - Uses Puppeteer to take screenshots of each template
 - Generates thumbnails at 400x500 resolution
 - Saves thumbnails to `client/public/thumbnails/`
-- Supports templates: classic, legacy, minimalist, professional
+- Supports templates: classic, legacy, professional
 
 ### Customizing Thumbnail Generation
 
