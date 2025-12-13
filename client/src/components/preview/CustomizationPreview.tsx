@@ -1,8 +1,5 @@
-import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId } from '../../types/resume';
-import ClassicTemplate from '../templates/ClassicTemplate';
-import ModernTemplate from '../templates/ModernTemplate';
-import MinimalistTemplate from '../templates/MinimalistTemplate';
-import ProfessionalTemplate from '../templates/ProfessionalTemplate';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection } from '../../types/resume';
+import { getTemplateComponent, TemplateId } from '../templates/registry';
 import PaginatedPreview from './PaginatedPreview';
 
 interface CustomizationPreviewProps {
@@ -28,7 +25,7 @@ export default function CustomizationPreview({
   certifications,
   sections,
   templateId,
-  accentColor = 'slate'
+  accentColor = '#475569'
 }: CustomizationPreviewProps) {
   const commonProps = {
     personalDetails,
@@ -43,23 +40,14 @@ export default function CustomizationPreview({
   };
 
   const renderTemplate = () => {
-    switch (templateId) {
-      case 'modern':
-        return <ModernTemplate {...commonProps} />;
-      case 'minimalist':
-        return <MinimalistTemplate {...commonProps} />;
-      case 'professional':
-        return <ProfessionalTemplate {...commonProps} />;
-      case 'classic':
-      default:
-        return <ClassicTemplate {...commonProps} />;
-    }
+    const TemplateComponent = getTemplateComponent(templateId);
+    return <TemplateComponent {...commonProps} />;
   };
 
   return (
-    <div className="w-full h-screen bg-neutral-100 flex flex-col items-center overflow-y-auto custom-scrollbar">
+    <div className="w-full h-screen bg-neutral-100 dark:bg-slate-900 flex flex-col items-center overflow-y-auto custom-scrollbar">
       <div className="flex-1 flex flex-col items-center w-full min-h-full">
-        <PaginatedPreview scaleMode="fill">
+        <PaginatedPreview scaleMode="fill" templateId={templateId} accentColor={accentColor}>
           {renderTemplate()}
         </PaginatedPreview>
       </div>

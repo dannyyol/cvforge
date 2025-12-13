@@ -5,16 +5,19 @@ export const A4_DIMENSIONS = {
 };
 
 export const SECTION_MARGIN_TOP = 16;
+export const BLOCK_MARGIN_TOP = 5;
 
 export type ContentBlock = {
   html: string;
   height: number;
+  width: number;
   sectionId: string;
   isAtomic: boolean;
+  sumHeight: number;
 };
 
 export type PageContent = {
-  elements: Array<{ html: string; marginTop: number }>;
+  elements: Array<{ html: string; marginTop: number; height: number }>;
 };
 
 export type PaginationResult = {
@@ -24,93 +27,155 @@ export type PaginationResult = {
 };
 
 /**
- * Measures the height of an HTML element including margins
+ * Measures the height, margin and width of an HTML element including margins
  */
-export const measureHeight = (el: HTMLElement): number => {
+const measureSize = (el: HTMLElement): { height: number; width: number } => {
   const rect = el.getBoundingClientRect();
   const style = window.getComputedStyle(el);
   const marginTop = parseFloat(style.marginTop || '0');
   const marginBottom = parseFloat(style.marginBottom || '0');
-  return rect.height + marginTop + marginBottom;
+  let height = rect.height + marginTop + marginBottom;
+  
+
+  const className = el.getAttribute('class') || '';
+  if (className.includes('cv-header--full-bleed')) {
+    const pagePaddingRaw = style.getPropertyValue('--page-padding');
+    const pagePadding = pagePaddingRaw ? parseFloat(pagePaddingRaw) : 0;
+    height += pagePadding || 0;
+  }
+
+  return { height, width: rect.width };
 };
 
 /**
  * Extracts content blocks from CV sections for pagination
  */
-export const extractContentBlocks = (measureRef: HTMLElement): ContentBlock[] => {
-  const blocks: ContentBlock[] = [];
+export const extractContentBlocksAsync = async (measureRef: HTMLElement): Promise<ContentBlock[]> => {
   const sections = Array.from(
     measureRef.querySelectorAll('[data-cv-section]')
   ) as HTMLElement[];
 
-  for (const section of sections) {
-    const sectionId = section.getAttribute('data-section-id') || 'unknown';
-    const children = Array.from(section.children) as HTMLElement[];
+  if (sections.length === 0) return [];
 
-    for (const child of children) {
-      const tagName = child.tagName.toLowerCase();
+  const raf = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  try {
+    // @ts-ignore
+    if (document.fonts) await (document.fonts as any).ready;
+  } catch {}
+  await raf();
+  await raf();
 
-      if (tagName === 'ul' || tagName === 'ol') {
-        const items = Array.from(child.children) as HTMLElement[];
-        
-        for (const item of items) {
-          const itemClone = child.cloneNode(false) as HTMLElement;
-          itemClone.appendChild(item.cloneNode(true));
-          
+  return new Promise<ContentBlock[]>((resolve) => {
+    const sizeMap = new Map<HTMLElement, { height: number; width: number }>();
+    let sumHeight = 0;
+
+    const finalize = () => {
+      const blocks: ContentBlock[] = [];
+      for (const section of sections) {
+        const sectionId = section.getAttribute('data-section-id') || 'unknown';
+        const s = sizeMap.get(section) || measureSize(section);
+        sumHeight += s.height;
+
+        if (sectionId === 'header') {
           blocks.push({
-            html: itemClone.outerHTML,
-            height: measureHeight(item),
+            html: section.outerHTML,
+            height: s.height,
+            width: s.width,
             sectionId,
             isAtomic: true,
+            sumHeight,
           });
+          continue;
         }
-        continue;
-      }
 
-      // Preserve containers with background classes or header section
-      const className = child.getAttribute('class') || '';
-      const isBackgroundContainer = className.includes('bg-');
+        const children = Array.from(section.children) as HTMLElement[];
+        for (const child of children) {
+          const tagName = child.tagName.toLowerCase();
 
-      if (isBackgroundContainer || sectionId === 'header') {
-        blocks.push({
-          html: child.outerHTML,
-          height: measureHeight(child),
-          sectionId,
-          isAtomic: true,
-        });
-        continue;
-      }
+          if (tagName === 'ul' || tagName === 'ol') {
+            const items = Array.from(child.children) as HTMLElement[];
+            const isCvList = (child.getAttribute('class') || '').includes('cv-list');
+            for (const item of items) {
+              const itemHtml = isCvList
+                ? `<div class="${item.getAttribute('class') || ''}">${item.innerHTML}</div>`
+                : item.outerHTML;
+              const size = measureSize(item);
+              blocks.push({
+                html: itemHtml,
+                height: size.height,
+                width: size.width,
+                sectionId,
+                isAtomic: true,
+                sumHeight,
+              });
+            }
+            continue;
+          }
 
-      const grandChildren = Array.from(child.children) as HTMLElement[];
-      if (grandChildren.length > 0) {
-        for (const grandChild of grandChildren) {
+          // Preserve containers with background classes or header section
+          const className = child.getAttribute('class') || '';
+          const isBackgroundContainer = className.includes('bg-');
+          const isCvScopedContainer = className
+            .split(/\s+/)
+            .some((c) => c.startsWith('cv-'));
+
+          if (isBackgroundContainer || sectionId === 'header' || isCvScopedContainer) {
+            blocks.push({
+              html: child.outerHTML,
+              height: measureSize(child).height,
+              width: measureSize(child).width,
+              sectionId,
+              isAtomic: true,
+              sumHeight,
+            });
+            continue;
+          }
+
+          const grandChildren = Array.from(child.children) as HTMLElement[];
+          if (grandChildren.length > 0) {
+            for (const grandChild of grandChildren) {
+              blocks.push({
+                html: grandChild.outerHTML,
+                height: measureSize(grandChild).height,
+                width: measureSize(grandChild).width,
+                sectionId,
+                isAtomic: true,
+                sumHeight,
+              });
+            }
+            continue;
+          }
+
           blocks.push({
-            html: grandChild.outerHTML,
-            height: measureHeight(grandChild),
+            html: child.outerHTML,
+            height: measureSize(child).height,
+            width: measureSize(child).width,
             sectionId,
             isAtomic: true,
+            sumHeight,
           });
         }
-        continue;
       }
+      resolve(blocks);
+    };
 
-      blocks.push({
-        html: child.outerHTML,
-        height: measureHeight(child),
-        sectionId,
-        isAtomic: true,
-      });
+    if (typeof ResizeObserver === 'undefined') {
+      finalize();
+      return;
     }
-  }
 
-  return blocks;
+    setTimeout(() => {
+      finalize();
+    }, 200);
+  });
 };
+
 
 /**
  * Paginates content blocks into pages based on A4 dimensions
  */
 export const paginateBlocks = (blocks: ContentBlock[]): PaginationResult => {
-  const pageInnerHeight = A4_DIMENSIONS.height - (2 * A4_DIMENSIONS.margin);
+  const pageInnerHeight = (A4_DIMENSIONS.height - (2 * A4_DIMENSIONS.margin));
   const pageInnerWidth = A4_DIMENSIONS.width - (2 * A4_DIMENSIONS.margin);
 
   if (blocks.length === 0) {
@@ -122,12 +187,15 @@ export const paginateBlocks = (blocks: ContentBlock[]): PaginationResult => {
   }
 
   const pages: PageContent[] = [];
-  let currentPageElements: Array<{ html: string; marginTop: number }> = [];
+  let currentPageElements: Array<{ html: string; marginTop: number; height: number }> = [];
   let currentPageHeight = 0;
   let lastSectionIdOnPage: string | null = null;
 
   const finalizePage = () => {
     if (currentPageElements.length > 0) {
+      console.log('Page', pages.length, 'block heights:', currentPageElements.map((e) => e));
+      const blocksTotal = currentPageElements.reduce((sum, e) => sum + e.height, 0);
+      console.log('Page', pages.length, 'blocks total height:', blocksTotal);
       pages.push({ elements: [...currentPageElements] });
       currentPageElements = [];
       currentPageHeight = 0;
@@ -138,17 +206,23 @@ export const paginateBlocks = (blocks: ContentBlock[]): PaginationResult => {
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
     const isSectionChange = lastSectionIdOnPage !== null && lastSectionIdOnPage !== block.sectionId;
-    const marginTop = isSectionChange ? SECTION_MARGIN_TOP : 0;
-
+    let marginTop = isSectionChange ? SECTION_MARGIN_TOP : 0;
+    const hasItemTitle = block.html.includes('cv-item-title');
+    if (currentPageElements.length > 0 && hasItemTitle) {
+      marginTop += BLOCK_MARGIN_TOP;
+    }
+    console.log('Current pageheight:', currentPageHeight + marginTop + block.height);
+    // If it fits, place it and include marginTop in accumulated height
     if (currentPageHeight + marginTop + block.height <= pageInnerHeight) {
-      currentPageElements.push({ html: block.html, marginTop });
-      currentPageHeight += block.height + 3;
+      currentPageElements.push({ html: block.html, marginTop, height: block.height });
+      currentPageHeight += marginTop + block.height;
       lastSectionIdOnPage = block.sectionId;
       continue;
     }
 
+    // Otherwise start a new page and place the block there
     finalizePage();
-    currentPageElements.push({ html: block.html, marginTop: 0 });
+    currentPageElements.push({ html: block.html, marginTop: 0, height: block.height });
     currentPageHeight = block.height;
     lastSectionIdOnPage = block.sectionId;
   }
@@ -165,7 +239,7 @@ export const paginateBlocks = (blocks: ContentBlock[]): PaginationResult => {
 /**
  * Complete pagination process from measure ref to paginated content
  */
-export const performPagination = (measureRef: HTMLElement): PaginationResult => {
-  const blocks = extractContentBlocks(measureRef);
+export const performPagination = async (measureRef: HTMLElement): Promise<PaginationResult> => {
+  const blocks = await extractContentBlocksAsync(measureRef);
   return paginateBlocks(blocks);
 };

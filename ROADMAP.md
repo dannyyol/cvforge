@@ -112,7 +112,7 @@ Transform CVforge into a comprehensive, AI-powered career toolkit that combines 
 ### Competitive Advantage
 - **Privacy-first:** Local AI processing option
 - **Open source:** Full transparency and customization
-- **Modern tech:** Latest frameworks and best practices
+- **Legacy tech:** Latest frameworks and best practices
 - **Community-driven:** User feedback shapes development
 
 ---

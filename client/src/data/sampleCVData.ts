@@ -51,13 +51,15 @@ export const samplePersonalDetails: PersonalDetails = {
   address: '123 Main Street',
   city_state: 'San Francisco, CA',
   country: 'United States',
+  linkedin: 'https://linkedin.com/in/johndoe',
+  website: 'https://johndoe.dev',
 };
 
 export const sampleProfessionalSummary: ProfessionalSummary = {
   id: '1',
   resume_id: '1',
   content:
-    'Experienced software engineer with 8+ years of expertise in full-stack development, cloud architecture, and team leadership. Proven track record of delivering scalable solutions and driving technical innovation in fast-paced environments. Passionate about clean code, mentoring junior developers, and staying current with emerging technologies.',
+    'Experienced software engineer with 8+ years of expertise in full-stack development, cloud architecture, and team leadership. Proven track record of delivering scalable solutions and driving technical innovation in fast-paced environments. Passionate about clean code, mentoring junior developers, and staying current with emerging technologies.'
 };
 
 export const sampleEducation: EducationEntry[] = [
@@ -136,7 +138,7 @@ export const sampleWorkExperience: WorkExperience[] = [
     end_date: '2017-05',
     current: false,
     description:
-      'Built responsive web interfaces and RESTful APIs for SaaS platform. Participated in agile sprints and daily standups. Gained experience in full-stack development and modern JavaScript frameworks.',
+      'Built responsive web interfaces and RESTful APIs for SaaS platform. Participated in agile sprints and daily standups. Gained experience in full-stack development and legacy JavaScript frameworks.',
     sort_order: 2,
   },
   {
@@ -173,7 +175,7 @@ export const sampleProjects: ProjectEntry[] = [
     resume_id: '1',
     title: 'E-Commerce Platform Redesign',
     description:
-      'Led complete overhaul of legacy e-commerce platform serving 500K monthly users. Implemented modern React architecture with TypeScript, reducing page load times by 60% and increasing conversion rates by 25%. Integrated Stripe payment gateway and real-time inventory management.',
+      'Led complete overhaul of legacy e-commerce platform serving 500K monthly users. Implemented legacy React architecture with TypeScript, reducing page load times by 60% and increasing conversion rates by 25%. Integrated Stripe payment gateway and real-time inventory management.',
     start_date: '2023-01',
     end_date: '2023-08',
     url: 'https://example-ecommerce.com',

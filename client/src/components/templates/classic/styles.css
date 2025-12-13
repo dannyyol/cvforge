@@ -1,0 +1,91 @@
+/* Scoped styles for Classic HTML template */
+.cv-classic {
+  font-family: "Times New Roman", Times, serif;
+  color: #111827;
+  --accent-color: #111827;
+  line-height: 2.1;
+}
+
+/* Header: centered with strong name and thick divider */
+.cv-classic .cv-header {
+  text-align: center;
+  padding-bottom: 10px;
+}
+.cv-classic .cv-header-name {
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: #0f172a; /* slate-900 */
+}
+.cv-classic .cv-header-role {
+  color: #111827;
+  font-weight: 400;
+  font-size: 14px;
+}
+.cv-classic .cv-header-contact {
+  color: #4b5563; /* gray-600 */
+  font-size: 14.5px;
+}
+.cv-classic .cv-header-dot { color: #9ca3af; } /* gray-400 */
+.cv-classic .cv-header-divider {
+  height: 2.7px;
+  background-color: #111827;
+}
+
+/* top spacing handled by paginator */
+.cv-classic .cv-section-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #111827;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #d1d5db;
+  line-height: 1.8;
+}
+
+.cv-classic .cv-paragraph ul, .cv-classic .cv-paragraph ol { 
+  padding-left: 1rem; 
+  margin-left: 1rem;
+  list-style-position: outside;
+}
+
+.cv-classic .cv-paragraph ul { list-style-type: disc; }
+.cv-classic .cv-paragraph ol { list-style-type: decimal; }
+.cv-classic .cv-paragraph li { margin-left: 0.25rem; }
+
+.cv-classic .cv-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cv-classic .cv-item-title {
+  font-weight: 700;
+  color: #111827;
+}
+
+.cv-classic .cv-item-meta {
+  color: #4b5563;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+
+.cv-classic .cv-inline-list {
+  list-style: none;
+  padding: 0;
+}
+
+.cv-classic .cv-inline-sep {
+  color: #6b7280; /* gray-500 */
+  margin: 0 6px;
+}
+
+.cv-block--first .cv-item-title{
+  /* padding-top: -20px !important; */
+}
+/* Muted helper */
+.cv-classic .cv-muted { color: #6b7280; } /* gray-500 */

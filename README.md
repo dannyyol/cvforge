@@ -11,7 +11,7 @@
 
 ### Technical Features
 - **100% Open Source** - AGPLv3 licensed, community-driven development
-- **Modern Tech Stack** - React 18, TypeScript, Tailwind CSS, FastAPI
+- **Legacy Tech Stack** - React 18, TypeScript, Tailwind CSS, FastAPI
 - **Real-time Preview** - See changes instantly as you type
 - **Drag & Drop Sections** - Reorder CV sections with ease
 - **Self-hostable** - Deploy on your own infrastructure
@@ -67,10 +67,20 @@
    npm install
    ```
 
-4.4. **Set up the backend (Server)**
+4. **Set up the backend (Server)**
    ```bash
    cd ../server
    pip install -r requirements.txt
+   ```
+
+   Install Playwright browsers (for PDF export)
+   ```bash
+   # macOS / Windows / Linux (generic)
+   python -m playwright install chromium
+
+   # Linux only: install required system dependencies
+   # (run with sudo if prompted)
+   playwright install-deps
    ```
 
 5. **Configure environment variables**
@@ -85,7 +95,7 @@
 1. **Start the backend server**
    ```bash
    cd server
-   python -m uvicorn src.main:app --reload --host 127.0.0.1 --port 8000
+   python -m uvicorn src.main:app --reload
    ```
 
 2. **Start the frontend development server**
@@ -127,7 +137,7 @@ The thumbnail generation script:
 - Uses Puppeteer to take screenshots of each template
 - Generates thumbnails at 400x500 resolution
 - Saves thumbnails to `client/public/thumbnails/`
-- Supports templates: classic, modern, minimalist, professional
+- Supports templates: classic, legacy, professional
 
 ### Customizing Thumbnail Generation
 

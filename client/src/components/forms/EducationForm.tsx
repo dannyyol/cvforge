@@ -1,6 +1,7 @@
 import { EducationEntry } from '../../types/resume';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import RichTextEditor from './RichTextEditor';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface EducationFormProps {
   entries: EducationEntry[];
@@ -28,11 +29,23 @@ export default function EducationForm({ entries, onChange }: EducationFormProps)
   };
 
   const handleChange = (id: string, field: keyof EducationEntry, value: string) => {
+    const existing = entries.find((entry) => entry.id === id);
+    if (!existing) return;
+    if ((existing as any)[field] === value) return;
+
     onChange(
       entries.map((entry) =>
         entry.id === id ? { ...entry, [field]: value } : entry
       )
     );
+  };
+
+  const quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link'],
+    ],
   };
 
   return (
@@ -99,7 +112,7 @@ export default function EducationForm({ entries, onChange }: EducationFormProps)
                 Start Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={entry.start_date || ''}
                 onChange={(e) => handleChange(entry.id, 'start_date', e.target.value)}
                 className="form-input"
@@ -111,7 +124,7 @@ export default function EducationForm({ entries, onChange }: EducationFormProps)
                 End Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={entry.end_date || ''}
                 onChange={(e) => handleChange(entry.id, 'end_date', e.target.value)}
                 className="form-input"
@@ -122,11 +135,13 @@ export default function EducationForm({ entries, onChange }: EducationFormProps)
               <label className="form-label">
                 Description
               </label>
-              <RichTextEditor
+              <ReactQuill
                 value={entry.description}
-                onChange={(value) => handleChange(entry.id, 'description', value)}
+                onChange={(content) => handleChange(entry.id, 'description', content)}
                 placeholder="Additional details about your education..."
-                rows={3}
+                modules={quillModules}
+                theme="snow"
+                style={{ minHeight: 72 }}
               />
             </div>
           </div>

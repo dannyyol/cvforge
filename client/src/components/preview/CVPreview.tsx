@@ -1,13 +1,11 @@
 import { useState } from 'react';
-import { LucideLayoutGrid, Palette, Settings} from 'lucide-react';
+import { Settings, Sun, Moon } from 'lucide-react';
 import DownloadDropdown from '../DownloadDropdown';
-import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId, Resume } from '../../types/resume';
-import ClassicTemplate from '../templates/ClassicTemplate';
-import ModernTemplate from '../templates/ModernTemplate';
-import MinimalistTemplate from '../templates/MinimalistTemplate';
-import ProfessionalTemplate from '../templates/ProfessionalTemplate';
 import PaginatedPreview from './PaginatedPreview';
+import { useTheme } from '../../theme/ThemeProvider';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, Resume } from '../../types/resume';
 import AIReviewPanel from '../AIReviewPanel';
+import { getTemplateComponent, TemplateId } from '../templates/registry';
 
 interface CVPreviewProps {
   personalDetails: PersonalDetails | null;
@@ -35,9 +33,13 @@ export default function CVPreview({
     isMobilePreview = false, showMobileMenu = false, onMobileMenuToggle, resumeMeta 
   }: CVPreviewProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+
+  // NEW: hold the generated PDF blob URL from RenderPreview
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const isMenuVisible = isMobilePreview ? showMobileMenu : isMenuOpen;
-  const handleMenuToggle = () => {
+  const toggleMenu = () => {
     if (isMobilePreview && onMobileMenuToggle) {
       onMobileMenuToggle();
     } else {
@@ -59,32 +61,23 @@ export default function CVPreview({
 
   const cvData = {
     resume: resumeMeta ?? { id: personalDetails?.resume_id ?? workExperiences[0]?.resume_id ?? 'unknown' },
-    sections: {
-      personalDetails,
-      professionalSummary,
-      workExperiences,
-      education: educationEntries,
-      skills,
-      projects,
-      certifications,
-    },
+    personalDetails,
+    professionalSummary,
+    education: educationEntries,
+    workExperience: workExperiences,
+    skills,
+    projects,
+    certifications,
     templateId,
     accentColor,
-    sectionStatus: sections,
+    sections,
   };
 
+  // console.log('accentColor', accentColor);
+
   const renderTemplate = () => {
-    switch (templateId) {
-      case 'modern':
-        return <ModernTemplate {...commonProps} />;
-      case 'minimalist':
-        return <MinimalistTemplate {...commonProps} />;
-      case 'professional':
-        return <ProfessionalTemplate {...commonProps} />;
-      case 'classic':
-      default:
-        return <ClassicTemplate {...commonProps} />;
-    }
+    const TemplateComponent = getTemplateComponent(templateId);
+    return <TemplateComponent {...commonProps} />;
   };
 
   return (
@@ -95,16 +88,53 @@ export default function CVPreview({
           className="preview-customize-btn"
         >
           <Settings className="w-4 h-4 preview-icon-muted" />
-          <span className="text-sm font-medium text-neutral-700">Edit More</span>
+          <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Edit More</span>
         </button>
 
-        <div className="flex items-center bg-gray-200 rounded-lg p-1">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="preview-theme-toggle"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`${theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}`}
+            aria-pressed={theme === 'dark'}
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
+          </button>
+          <DownloadDropdown
+            className="preview-download-btn"
+            buildExportPayload={() => ({
+              template: templateId,
+              data: {
+                sections: {
+                  personalDetails,
+                  professionalSummary,
+                  workExperiences,
+                  education: educationEntries,
+                  skills,
+                  projects,
+                  certifications,
+                },
+                sectionStatus: sections,
+                accentColor,
+              },
+            })}
+          />
+        </div>
+      </div>
+
+      <div className='m-2 flex justify-center self-center'>
+        <div className="flex items-center bg-gray-200 dark:bg-slate-800 rounded-lg p-1">
           <button
             onClick={() => onTabChange('preview')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
               activeTab === 'preview'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-gray-900 shadow-sm dark:bg-slate-700 dark:text-slate-100'
+                : 'text-gray-600 hover:text-gray-900 dark:text-slate-300 dark:hover:text-slate-100'
             }`}
           >
             CV Output
@@ -113,24 +143,24 @@ export default function CVPreview({
             onClick={() => onTabChange('ai-review')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
               activeTab === 'ai-review'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-gray-900 shadow-sm dark:bg-slate-700 dark:text-slate-100'
+                : 'text-gray-600 hover:text-gray-900 dark:text-slate-300 dark:hover:text-slate-100'
             }`}
           >
             AI Analysis
           </button>
         </div>
-        <div className="flex items-center gap-2">
-          <DownloadDropdown className="preview-download-btn" />
-        </div>
       </div>
 
-      <div className={`flex-1 relative ${activeTab === 'ai-review' ? 'overflow-y-auto' : 'overflow-hidden'}`}>
-        <div className={`${activeTab === 'ai-review' ? '' : 'preview-content'} ${isMobilePreview ? 'pb-16' : ''}`}>
+      <div className="flex-1 relative overflow-y-auto custom-scrollbar">
+        <div className={`${activeTab === 'ai-review' ? 'ai-panel' : 'preview-content'} ${isMobilePreview ? 'pb-16' : ''}`}>
           {activeTab === 'ai-review' ? (
-            <AIReviewPanel overallScore={75} cvData={cvData} />
+            <div className="ai-container">
+              <AIReviewPanel overallScore={75} cvData={cvData} />
+            </div>
           ) : (
-            <PaginatedPreview>
+            // Use HTML paginator for live CV preview
+            <PaginatedPreview templateId={templateId} accentColor={accentColor}>
               {renderTemplate()}
             </PaginatedPreview>
           )}
@@ -146,47 +176,27 @@ export default function CVPreview({
             <Settings className="w-4 h-4 preview-icon-muted" />
             Edit More
           </button>
-          <DownloadDropdown variant="mobile" />
+          <DownloadDropdown
+            variant="mobile"
+            buildExportPayload={() => ({
+              template: templateId,
+              data: {
+                sections: {
+                  personalDetails,
+                  professionalSummary,
+                  workExperiences,
+                  education: educationEntries,
+                  skills,
+                  projects,
+                  certifications,
+                },
+                sectionStatus: sections,
+                accentColor,
+              },
+            })}
+          />
         </div>
       )}
     </div>
-  );
-}
-
-interface MenuItemProps {
-  icon: React.ReactNode;
-  label: string;
-  active?: boolean;
-  hasArrow?: boolean;
-  badge?: string;
-  badgeColor?: 'blue' | 'gray';
-}
-
-function MenuItem({ icon, label, active = false, hasArrow = false, badge, badgeColor = 'gray' }: MenuItemProps) {
-  return (
-    <button
-      className={`w-full flex items-center justify-between px-3 py-3 rounded-lg mb-1 transition-colors ${
-        active ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-50'
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        <span className={active ? 'text-neutral-700' : 'text-neutral-400'}>{icon}</span>
-        <span className="text-sm font-medium">{label}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        {badge && (
-          <span
-            className={`text-xs font-bold px-2 py-0.5 rounded ${
-              badgeColor === 'blue'
-                ? 'bg-blue-500 text-white'
-                : 'bg-blue-100 text-blue-600'
-            }`}
-          >
-            {badge}
-          </span>
-        )}
-        {hasArrow && <span className="text-neutral-400">›</span>}
-      </div>
-    </button>
   );
 }

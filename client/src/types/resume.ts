@@ -19,6 +19,8 @@ export interface PersonalDetails {
   address: string;
   city_state: string;
   country: string;
+  linkedin?: string;
+  website?: string;
 }
 
 export interface ProfessionalSummary {
@@ -128,13 +130,4 @@ export interface CVSection {
   title: string;
   isOpen: boolean;
   order: number;
-}
-
-export type TemplateId = 'classic' | 'modern' | 'minimalist' | 'professional';
-
-export interface CVTemplate {
-  id: TemplateId;
-  name: string;
-  description: string;
-  thumbnail: string;
 }

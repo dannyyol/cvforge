@@ -1,9 +1,6 @@
-import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, TemplateId } from '../../../types/resume';
-import ClassicTemplate from '../ClassicTemplate';
-import ModernTemplate from '../ModernTemplate';
-import MinimalistTemplate from '../MinimalistTemplate';
-import ProfessionalTemplate from '../ProfessionalTemplate';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection } from '../../../types/resume';
 import { sampleCVData } from '../../../data/sampleCVData';
+import { getTemplateComponent, TemplateId } from '../registry';
 
 const A4_UK = {
   width: 794,
@@ -51,17 +48,8 @@ export default function Template() {
   };
 
   const renderTemplate = () => {
-    switch (templateParam) {
-      case 'modern':
-        return <ModernTemplate {...commonProps} />;
-      case 'minimalist':
-        return <MinimalistTemplate {...commonProps} />;
-      case 'professional':
-        return <ProfessionalTemplate {...commonProps} />;
-      case 'classic':
-      default:
-        return <ClassicTemplate {...commonProps} />;
-    }
+    const TemplateComponent = getTemplateComponent(templateParam);
+    return <TemplateComponent {...commonProps} />;
   };
 
   return (

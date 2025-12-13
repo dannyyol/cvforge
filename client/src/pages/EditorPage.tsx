@@ -14,8 +14,9 @@ import CVPreview from '../components/preview/CVPreview';
 import CustomizationSidebar from '../components/CustomizationSidebar';
 import CustomizationPreview from '../components/preview/CustomizationPreview';
 import MobileTabNav from '../components/MobileTabNav';
-import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, SectionType, TemplateId } from '../types/resume';
+import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection, SectionType } from '../types/resume';
 import { sampleCVData } from '../data/sampleCVData';
+import { TEMPLATE_REGISTRY, TemplateId } from '../components/templates/registry';
 
 export default function EditorPage() {
   const [searchParams] = useSearchParams();
@@ -42,7 +43,10 @@ export default function EditorPage() {
   ]);
   const [draggedSectionId, setDraggedSectionId] = useState<SectionType | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>('classic');
-  const [accentColor, setAccentColor] = useState('slate');
+  const [accentColor, setAccentColor] = useState({
+    id: 'slate',
+    color: '#475569',
+  });   
   const [isCustomizationSidebarOpen, setIsCustomizationSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'preview' | 'ai-review'>('preview');
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview' | 'ai-review'>('editor');
@@ -53,7 +57,7 @@ export default function EditorPage() {
     const previewParam = searchParams.get('preview');
 
     if (templateParam && previewParam === 'true') {
-      const validTemplates: TemplateId[] = ['classic', 'modern', 'minimalist', 'professional'];
+      const validTemplates = Object.keys(TEMPLATE_REGISTRY) as TemplateId[];
       if (validTemplates.includes(templateParam as TemplateId)) {
         setSelectedTemplate(templateParam as TemplateId);
         setMobileTab('preview');
@@ -182,7 +186,7 @@ export default function EditorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+    <div className="min-h-screen lg:h-screen bg-slate-50 dark:bg-slate-900 text-neutral-900 dark:text-slate-100 flex flex-col lg:flex-row lg:overflow-hidden">
       <MobileTabNav
         activeTab={mobileTab}
         onTabChange={setMobileTab}
@@ -204,7 +208,7 @@ export default function EditorPage() {
               certifications={certifications}
               sections={sections}
               templateId={selectedTemplate}
-              accentColor={accentColor}
+              accentColor={accentColor.color}
             />
           </div>
 
@@ -213,7 +217,12 @@ export default function EditorPage() {
               selectedTemplate={selectedTemplate}
               onSelectTemplate={setSelectedTemplate}
               accentColor={accentColor}
-              onAccentColorChange={setAccentColor}
+              onAccentColorChange={(colorId, color) => {
+                setAccentColor({
+                    id: colorId,
+                    color,
+                });
+              }}
               onClose={() => setIsCustomizationSidebarOpen(false)}
             />
           </div>
@@ -232,7 +241,7 @@ export default function EditorPage() {
               certifications={certifications}
               sections={sections}
               templateId={selectedTemplate}
-              accentColor={accentColor}
+              accentColor={accentColor.color}
               activeTab={mobileTab === 'ai-review' ? 'ai-review' : activeTab}
               onTabChange={setActiveTab}
               onOpenTemplateSelector={() => setIsCustomizationSidebarOpen(true)}
@@ -249,11 +258,8 @@ export default function EditorPage() {
           </div>
 
           {/* Right Panel - Editor Section */}
-          <div className={`w-full lg:w-[50%] overflow-y-auto custom-scrollbar pb-20 lg:pb-0 pt-16 lg:pt-0 ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}
-               style={{
-                 background: 'linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)'
-               }}>
-            <div className="p-4 lg:p-8 lg:pl-10 w-full">
+          <div className={`w-full lg:w-[50%] lg:h-screen overflow-y-auto custom-scrollbar pb-20 lg:pb-0 pt-16 lg:pt-0 editor-panel ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
+            <div className="p-4 lg:p-8 lg:pl-10 w-full dark:bg-slate-900">
               <div className="animate-slideInRight">
                 <CVTitleCard
                   title={resumeTitle}
@@ -293,6 +299,22 @@ export default function EditorPage() {
                 <DownloadDropdown 
                   variant="icon-only" 
                   className="w-full px-5 py-3 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-md"
+                  buildExportPayload={() => ({
+                    template: selectedTemplate,
+                    data: {
+                      sections: {
+                        personalDetails,
+                        professionalSummary,
+                        workExperiences,
+                        education: educationEntries,
+                        skills,
+                        projects,
+                        certifications,
+                      },
+                      sectionStatus: sections,
+                      accentColor: accentColor.color,
+                    },
+                  })}
                 />
               </div>
             </div>

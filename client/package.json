@@ -12,12 +12,21 @@
     "generate-thumbnails": "node scripts/generate-thumbnails.mjs"
   },
   "dependencies": {
+    "@pdf-viewer/react": "^1.11.0",
+    "@react-pdf-viewer/core": "^3.12.0",
+    "@react-pdf-viewer/default-layout": "^3.12.0",
+    "@react-pdf-viewer/toolbar": "^3.12.0",
+    "@react-pdf/renderer": "^4.3.1",
     "axios": "^1.12.2",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.3",
     "lucide-react": "^0.344.0",
+    "pagedjs": "^0.4.3",
+    "pdfjs-dist": "^5.4.394",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-pdf": "^10.2.0",
+    "react-quill": "^2.0.0",
     "react-router-dom": "^7.9.5"
   },
   "devDependencies": {

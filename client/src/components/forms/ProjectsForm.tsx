@@ -1,6 +1,7 @@
 import { ProjectEntry } from '../../types/resume';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import RichTextEditor from './RichTextEditor';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface ProjectsFormProps {
   projects: ProjectEntry[];
@@ -27,11 +28,23 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
   };
 
   const handleChange = (id: string, field: keyof ProjectEntry, value: string) => {
+    const existing = projects.find((project) => project.id === id);
+    if (!existing) return;
+    if ((existing as any)[field] === value) return;
+
     onChange(
       projects.map((project) =>
         project.id === id ? { ...project, [field]: value } : project
       )
     );
+  };
+
+  const quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link'],
+    ],
   };
 
   return (
@@ -72,7 +85,7 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
                 Start Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={project.start_date || ''}
                 onChange={(e) => handleChange(project.id, 'start_date', e.target.value)}
                 className="form-input"
@@ -84,7 +97,7 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
                 End Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={project.end_date || ''}
                 onChange={(e) => handleChange(project.id, 'end_date', e.target.value)}
                 className="form-input"
@@ -108,11 +121,13 @@ export default function ProjectsForm({ projects, onChange }: ProjectsFormProps) 
               <label className="form-label">
                 Description
               </label>
-              <RichTextEditor
+              <ReactQuill
                 value={project.description}
-                onChange={(value) => handleChange(project.id, 'description', value)}
+                onChange={(content) => handleChange(project.id, 'description', content)}
                 placeholder="Describe the project, your role, and key achievements..."
-                rows={4}
+                modules={quillModules}
+                theme="snow"
+                style={{ minHeight: 96 }}
               />
             </div>
           </div>

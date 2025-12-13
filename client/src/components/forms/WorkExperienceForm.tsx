@@ -1,6 +1,7 @@
 import { WorkExperience } from '../../types/resume';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import RichTextEditor from './RichTextEditor';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface WorkExperienceFormProps {
   experiences: WorkExperience[];
@@ -29,11 +30,23 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
   };
 
   const handleChange = (id: string, field: keyof WorkExperience, value: string | boolean) => {
+    const existing = experiences.find((exp) => exp.id === id);
+    if (!existing) return;
+    if ((existing as any)[field] === value) return;
+
     onChange(
       experiences.map((exp) =>
         exp.id === id ? { ...exp, [field]: value } : exp
       )
     );
+  };
+
+  const quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link'],
+    ],
   };
 
   return (
@@ -96,7 +109,7 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
             </div>
 
             <div className="flex items-end">
-              <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-neutral-50 transition-colors duration-200">
+              <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-slate-800 transition-colors duration-200">
                 <input
                   type="checkbox"
                   checked={experience.current}
@@ -114,7 +127,7 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
                 Start Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={experience.start_date || ''}
                 onChange={(e) => handleChange(experience.id, 'start_date', e.target.value)}
                 className="form-input-soft"
@@ -126,7 +139,7 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
                 End Date
               </label>
               <input
-                type="date"
+                type="month"
                 value={experience.end_date || ''}
                 onChange={(e) => handleChange(experience.id, 'end_date', e.target.value)}
                 disabled={experience.current}
@@ -138,11 +151,13 @@ export default function WorkExperienceForm({ experiences, onChange }: WorkExperi
               <label className="form-label">
                 Description
               </label>
-              <RichTextEditor
+              <ReactQuill
                 value={experience.description}
-                onChange={(value) => handleChange(experience.id, 'description', value)}
+                onChange={(content) => handleChange(experience.id, 'description', content)}
                 placeholder="Describe your responsibilities and achievements..."
-                rows={4}
+                modules={quillModules}
+                theme="snow"
+                style={{ minHeight: 96 }}
               />
             </div>
           </div>
