@@ -1,4 +1,3 @@
-# imports and setup
 import os
 import re
 import json
@@ -348,8 +347,7 @@ class CVReviewService:
             "areas_to_improve": sorted({a.strip() for a in improvements if a.strip()}),
             "sections": final_sections,
         }
-    def review_cv_payload(self, payload: dict) -> dict:
-        sections_payload = (payload or {}).get("sections") or {}
+    def review_cv_payload(self, sections_payload: dict) -> dict:
         model = (payload or {}).get("model") or self.config.default_model
         resume_text_full = ResumeProcessor.build_resume_text_from_nested(sections_payload)
         combined = self.content_analyzer.analyze_resume_content(resume_text_full or "", model)

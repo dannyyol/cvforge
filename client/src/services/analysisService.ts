@@ -8,9 +8,10 @@ import {
   ProjectEntry,
   CertificationEntry,
   CVSection,
-  TemplateId,
   Resume,
 } from '../types/resume';
+
+import { TemplateId } from '../../src/components/templates/registry';
 
 export interface CVDataPayload {
   resume: Partial<Resume>;

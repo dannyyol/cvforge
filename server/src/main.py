@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from loguru import logger
 from pathlib import Path
 
@@ -32,6 +35,22 @@ def create_app() -> FastAPI:
         redoc_url="/redoc" if settings.DEBUG else None,
         openapi_url="/openapi.json" if settings.DEBUG else None,
     )
+
+    async def _http_exc_handler(request: Request, exc: HTTPException):
+        logger.error(f"HTTPException {exc.status_code} {request.method} {request.url} {exc.detail}")
+        return await http_exception_handler(request, exc)
+
+    async def _validation_exc_handler(request: Request, exc: RequestValidationError):
+        logger.error(f"RequestValidationError {request.method} {request.url} {exc.errors()}")
+        return await request_validation_exception_handler(request, exc)
+
+    async def _unhandled_exc_handler(request: Request, exc: Exception):
+        logger.exception(f"Unhandled exception {request.method} {request.url}")
+        return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
+
+    app.add_exception_handler(HTTPException, _http_exc_handler)
+    app.add_exception_handler(RequestValidationError, _validation_exc_handler)
+    app.add_exception_handler(Exception, _unhandled_exc_handler)
 
     app.add_middleware(
         CORSMiddleware,
