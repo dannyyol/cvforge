@@ -347,14 +347,14 @@ class CVReviewService:
             "areas_to_improve": sorted({a.strip() for a in improvements if a.strip()}),
             "sections": final_sections,
         }
-    def review_cv_payload(self, sections_payload: dict) -> dict:
+    def review_cv_payload(self, payload: dict) -> dict:
         model = (payload or {}).get("model") or self.config.default_model
-        resume_text_full = ResumeProcessor.build_resume_text_from_nested(sections_payload)
+        resume_text_full = ResumeProcessor.build_resume_text_from_nested(payload)
         combined = self.content_analyzer.analyze_resume_content(resume_text_full or "", model)
         ats = combined.get("atsCompatibility", {"score": 0.0, "summary": []})
         content_quality = combined.get("contentQuality", {"score": 0.0, "summary": []})
         fmt_analysis = combined.get("formattingAnalysis", {"score": 0.0, "summary": []})
-        sections = ResumeProcessor.flatten_resume_sections(sections_payload)
+        sections = ResumeProcessor.flatten_resume_sections(payload)
         base = self.review_cv_from_sections(sections, model=model)
 
         # Blend section score with dimension scores and apply small penalties for missing key sections
