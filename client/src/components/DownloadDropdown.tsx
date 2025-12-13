@@ -137,14 +137,6 @@ export default function DownloadDropdown({ variant = 'default', className = '', 
             <File className="w-4 h-4" />
             PDF
           </button>
-          <button
-            onClick={() => handleDownload('doc')}
-            disabled={isDownloading}
-            className="w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FileType className="w-4 h-4" />
-            DOC
-          </button>
         </div>
       )}
     </div>
