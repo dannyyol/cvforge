@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Upload, Sparkles, CheckCircle, ShieldCheck, Clock, Download } from 'lucide-react';
+import { ArrowRight, Upload, Sparkles, CheckCircle, ShieldCheck, Clock, Download, Github } from 'lucide-react';
 
 export default function Homepage() {
   return (
@@ -13,11 +13,24 @@ export default function Homepage() {
             <img src="/images/logo.png" alt="CVForge" className="w-8 h-8" />
             <span className="tracking-widest text-sm font-semibold">CVFORGE</span>
           </div>
+          <div className="flex items-center gap-3">
+            <a
+              href='https://github.com/dannyyol/cvforge'
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full px-3 py-2 border border-neutral-200 text-neutral-700 hover:bg-neutral-100 shadow-sm"
+              aria-label="GitHub repository"
+              title="GitHub"
+            >
+              <Github className="w-5 h-5" />
+              <span className="hidden sm:inline">Star on GitHub</span>
+            </a>
+          </div>
         </div>
       </header>
       <main className="relative z-10 overflow-hidden flex-1 flex flex-col">
-        <section className="relative flex-1">
-          <div className="mx-auto max-w-7xl px-6 py-12 md:py-16 grid lg:grid-cols-2 gap-10 lg:gap-20 xl:gap-24 items-center">
+        <section className="relative flex-1 flex items-center">
+          <div className="mx-auto max-w-7xl px-6 py-12 md:py-0 lg:py-0 grid lg:grid-cols-2 gap-10 lg:gap-20 xl:gap-24 items-center">
             <div className="max-w-xl">
               <h1 className="text-4xl md:text-5xl font-black leading-tight">
                 Build a job‑winning CV
@@ -63,7 +76,7 @@ export default function Homepage() {
               </div>
           
             </div>
-            <div className="relative lg:mx-auto lg:w-[600px] xl:w-[640px]">
+            <div className="relative lg:mx-auto lg:w-[600px] xl:w-[540px] 2xl:w-[640px]">
               <img src="/images/hero.png" alt="Product hero" className="w-full h-auto rounded-2xl" />
               <div className="absolute left-1/2 -translate-x-1/2 -top-10 bg-white rounded-full ring-1 ring-black/5 px-4 py-2 text-sm font-semibold flex items-center gap-2 motion-safe:animate-bounce transition-transform hover:scale-[1.03] hover:-translate-y-0.5" style={{ animationDuration: '3.4s', animationDelay: '0.4s' }}>
                 <Sparkles className="w-4 h-4 text-primary-600" />

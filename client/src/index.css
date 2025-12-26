@@ -414,10 +414,6 @@
   .dark .ql-toolbar .ql-stroke { stroke: #d4d4d4; }
   .ql-toolbar .ql-fill { fill: #525252; }
   .dark .ql-toolbar .ql-fill { fill: #d4d4d4; }
-  /* Editor right panel (light mode gradient, preserved dark mode) */
-  .editor-panel {
-    @apply bg-gradient-to-br from-gray-50 via-white to-slate-100 dark:bg-slate-900;
-  }
 
   /* Animation utilities */
   @keyframes fadeIn {
