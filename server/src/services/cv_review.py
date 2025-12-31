@@ -160,11 +160,11 @@ class ResumeProcessor:
         exp_items = sections_payload.get("workExperiences") or []
         exp_parts: List[str] = []
         for item in exp_items:
-            title = item.get("job_title", "")
+            title = item.get("position", "")
             company = item.get("company", "")
             location = item.get("location", "")
-            start = item.get("start_date", "")
-            end = item.get("end_date", "")
+            start = item.get("startDate", "")
+            end = item.get("endDate", "")
             current = item.get("current", False)
             date_range = f"{start}–{'Present' if current else end}".strip("–")
             header = ", ".join([p for p in [title, company] if p])
@@ -178,10 +178,10 @@ class ResumeProcessor:
         edu_parts: List[str] = []
         for item in edu_items:
             degree = item.get("degree", "")
-            field = item.get("field_of_study", "")
+            field = item.get("fieldOfStudy", "")
             inst = item.get("institution", "")
-            start = item.get("start_date", "")
-            end = item.get("end_date", "")
+            start = item.get("startDate", "")
+            end = item.get("endDate", "")
             line = ", ".join([p for p in [degree, field] if p])
             tail = " — ".join([p for p in [inst, f"{start}–{end}".strip('–')] if p])
             edu_parts.append(ResumeProcessor._join_nonempty([" ".join([line, tail]).strip()]))
@@ -193,11 +193,11 @@ class ResumeProcessor:
         proj_items = sections_payload.get("projects") or []
         proj_parts: List[str] = []
         for item in proj_items:
-            title = item.get("title", "")
+            title = item.get("name", "")
             desc = item.get("description", "")
-            start = item.get("start_date", "")
-            end = item.get("end_date", "")
-            url = item.get("url", "")
+            start = item.get("startDate", "")
+            end = item.get("endDate", "")
+            url = item.get("link", "")
             line = " — ".join([p for p in [title, desc] if p])
             tail = " ".join([p for p in [f"({start}–{end})".strip('()–'), url] if p])
             proj_parts.append(ResumeProcessor._join_nonempty([line, tail]).strip())
@@ -208,8 +208,8 @@ class ResumeProcessor:
         for item in cert_items:
             name = item.get("name", "")
             issuer = item.get("issuer", "")
-            issue_date = item.get("issue_date", "")
-            expiry_date = item.get("expiry_date", "")
+            issue_date = item.get("issueDate", "")
+            expiry_date = item.get("expiryDate", "")
             line = " — ".join([p for p in [name, issuer] if p])
             tail = f"{issue_date}–{expiry_date}".strip("–")
             cert_parts.append(ResumeProcessor._join_nonempty([line, tail]).strip())
@@ -230,7 +230,7 @@ class ResumeProcessor:
         for item in award_items:
             title = item.get("title", "")
             issuer = item.get("issuer", "")
-            year = item.get("year", "")
+            year = item.get("date", "")
             description = item.get("description", "")
             line = " — ".join([p for p in [title, issuer] if p])
             tail = " ".join([p for p in [year, description] if p])
@@ -242,8 +242,8 @@ class ResumeProcessor:
         for item in pub_items:
             title = item.get("title", "")
             publisher = item.get("publisher", "")
-            year = item.get("year", "")
-            raw_url = item.get("url", "")
+            year = item.get("date", "")
+            raw_url = item.get("link", "")
             url = str(raw_url).replace("`", "").strip()
             line = " — ".join([p for p in [title, publisher] if p])
             tail = " ".join([p for p in [f"({year})".strip('()'), url] if p])
@@ -282,6 +282,7 @@ class ContentAnalyzer:
     def analyze_resume_content(self, resume_text: str, model: str) -> dict:
         try:
             prompt = PromptBuilder.compose_content_analysis_prompt(resume_text)
+          
             response_text = self.llm_client.generate(prompt, model)
             parsed = TextProcessor.extract_json(response_text) or {}
             ats = parsed.get("atsCompatibility", {}) or {}
@@ -378,12 +379,10 @@ class CVReviewService:
         base["formattingAnalysis"] = fmt_analysis
         return base
 
-
 def create_default_cv_review_service() -> CVReviewService:
     config = CVReviewConfig()
     llm_client = OllamaClient(config.ollama_url)
     return CVReviewService(llm_client, config)
-
 
 def review_cv_payload(payload: dict) -> dict:
     service = create_default_cv_review_service()

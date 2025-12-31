@@ -1,31 +1,5 @@
 import { api } from './apiClient';
-import {
-  PersonalDetails,
-  ProfessionalSummary,
-  EducationEntry,
-  WorkExperience,
-  SkillEntry,
-  ProjectEntry,
-  CertificationEntry,
-  CVSection,
-  Resume,
-} from '../types/resume';
-
-import { TemplateId } from '../../src/components/templates/registry';
-
-export interface CVDataPayload {
-  resume: Partial<Resume>;
-  personalDetails: PersonalDetails | null;
-  professionalSummary: ProfessionalSummary | null;
-  education: EducationEntry[];
-  workExperience: WorkExperience[];
-  skills: SkillEntry[];
-  projects: ProjectEntry[];
-  certifications: CertificationEntry[];
-  templateId: TemplateId;
-  accentColor?: string;
-  sections: CVSection[];
-}
+import type { CVPayload } from '../utils/payloadBuilder';
 
 export interface AnalysisResponse {
   overallScore: number;
@@ -35,8 +9,8 @@ export interface AnalysisResponse {
 }
 
 export async function analyzeCV(
-  cvData: CVDataPayload,
-  opts?: { mock?: boolean; delayMs?: number; resolver?: (req: CVDataPayload) => AnalysisResponse }
+  cvData: CVPayload,
+  opts?: { mock?: boolean; delayMs?: number; resolver?: (req: CVPayload) => AnalysisResponse }
 ): Promise<AnalysisResponse> {
   const mockOptions = opts?.mock
     ? {
@@ -49,7 +23,7 @@ export async function analyzeCV(
       }
     : undefined;
 
-  return api.post<CVDataPayload, AnalysisResponse>('/analyze', cvData, undefined, mockOptions);
+  return api.post<CVPayload, AnalysisResponse>('/analyze', cvData, undefined, mockOptions);
 }
 
 export interface AIReviewResponse {
@@ -66,6 +40,6 @@ export interface AIReviewResponse {
   formattingAnalysis: { score: number; summary: string[] };
 }
 
-export async function submitCVForReview(cvData: CVDataPayload): Promise<AIReviewResponse> {
-  return api.post<CVDataPayload, AIReviewResponse>('/review', cvData);
+export async function submitCVForReview(cvData: CVPayload['data']): Promise<AIReviewResponse> {
+  return api.post<CVPayload['data'], AIReviewResponse>('/review', cvData);
 }

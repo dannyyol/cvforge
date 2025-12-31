@@ -1,20 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 import colors from 'tailwindcss/colors';
-import defaultTheme from 'tailwindcss/defaultTheme';
-
 export default {
-  darkMode: 'class',
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['Inter', ...defaultTheme.fontFamily.sans],
-        heading: ['Inter', ...defaultTheme.fontFamily.sans],
-        mono: [...defaultTheme.fontFamily.mono],
-      },
-      colors: {
-        // Custom Primary Brand Colors
-   
+      colors: {   
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -27,7 +20,6 @@ export default {
           800: '#075985',
           900: '#0c4a6e',
         },
-        // Secondary colors
         secondary: colors.cyan,
         // Neutral grays
         neutral: {
@@ -76,21 +68,10 @@ export default {
         },
         info: colors.sky,
       },
-      // Custom shadows
-      boxShadow: {
-        'sm': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-        'md': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-        'lg': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-        'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-      },
-      // Custom border radius
-      borderRadius: {
-        'sm': '0.375rem',
-        'md': '0.5rem',
-        'lg': '0.75rem',
-        'xl': '1rem',
-      },
     },
   },
-  plugins: [],
-};
+  plugins: [
+    require("tailwindcss-animate"),
+  ],
+}
+

@@ -1,133 +1,119 @@
-export interface Resume {
-  id: string;
-  user_id: string;
-  title: string;
-  language: string;
-  cv_score: number;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface PersonalDetails {
-  id: string;
-  resume_id: string;
-  job_title: string;
-  first_name: string;
-  last_name: string;
+  fullName: string;
   email: string;
   phone: string;
   address: string;
-  city_state: string;
-  country: string;
-  linkedin?: string;
-  website?: string;
+  jobTitle: string;
+  website: string;
+  linkedin: string;
+  github: string;
 }
 
 export interface ProfessionalSummary {
-  id: string;
-  resume_id: string;
   content: string;
 }
 
-export interface EducationEntry {
+export interface Education {
   id: string;
-  resume_id: string;
   institution: string;
   degree: string;
-  field_of_study: string;
-  start_date: string | null;
-  end_date: string | null;
+  fieldOfStudy?: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
   description: string;
-  sort_order: number;
 }
 
 export interface WorkExperience {
   id: string;
-  resume_id: string;
-  job_title: string;
   company: string;
-  location: string;
-  start_date: string | null;
-  end_date: string | null;
+  position: string;
+  location?: string;
+  startDate: string;
+  endDate: string;
   current: boolean;
   description: string;
-  sort_order: number;
 }
 
-export interface SkillEntry {
+export interface Skill {
   id: string;
-  resume_id: string;
   name: string;
-  level: string;
-  sort_order: number;
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
 }
 
-export interface ProjectEntry {
+export interface Project {
   id: string;
-  resume_id: string;
-  title: string;
+  name: string;
   description: string;
-  start_date: string | null;
-  end_date: string | null;
-  url: string;
-  sort_order: number;
+  technologies: string[];
+  link: string;
+  startDate?: string;
+  endDate?: string;
 }
 
-export interface LanguageEntry {
+export interface Certification {
   id: string;
-  resume_id: string;
-  language: string;
-  proficiency: string;
-  sort_order?: number;
+  name: string;
+  issuer: string;
+  issueDate: string;
+  expiryDate?: string;
+  credentialId?: string;
+  link: string;
 }
 
-export interface AwardEntry {
+export interface Award {
   id: string;
-  resume_id: string;
   title: string;
   issuer: string;
-  year: string;
+  date: string;
   description: string;
-  sort_order?: number;
 }
 
-export interface PublicationEntry {
+export interface Publication {
   id: string;
-  resume_id: string;
   title: string;
   publisher: string;
-  year: string;
-  url: string;
-  sort_order?: number;
+  date: string;
+  description: string;
+  link: string;
 }
 
-export interface CertificationEntry {
-  id: string;
-  resume_id: string;
+export type SectionType = 'personal' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications';
+
+export type TemplateId = 'classic' | 'legacy' | 'professional';
+
+export interface ThemeConfig {
+  primaryColor: string;
+  secondaryColor: string;
+  fontFamily: string;
+}
+
+export interface Template {
+  id: TemplateId;
   name: string;
-  issuer: string;
-  issue_date: string | null;
-  expiry_date: string | null;
-  credential_id: string;
-  url: string;
-  sort_order: number;
+  thumbnail: string;
 }
 
-export type SectionType =
-  | 'header'
-  | 'summary'
-  | 'experience'
-  | 'education'
-  | 'skills'
-  | 'projects'
-  | 'certifications'
-  | 'languages'
-  | 'awards'
-  | 'publications';
+export interface TemplateProps {
+  personalDetails: PersonalDetails;
+  professionalSummary: ProfessionalSummary;
+  workExperiences: WorkExperience[];
+  education: Education[];
+  skills: Skill[];
+  projects: Project[];
+  certifications: Certification[];
+  // awards: Award[];
+  // publications: Publication[];
+  sections: CVSection[];
+  theme: ThemeConfig;
+  // accentColor?: string;
+  // fontFamily?: string;
+}
 
 export interface CVSection {
-  id: SectionType;
+  id: string;
+  type: SectionType;
   title: string;
-  isOpen: boolean;
+  isVisible: boolean;
   order: number;
 }

@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from typing import Any, Dict
 import time
+from playwright.async_api import async_playwright
 
 from ..config import get_settings
 
@@ -23,7 +24,6 @@ def get_token(token: str) -> Dict[str, Any]:
     return entry["data"]
 
 async def generate_pdf_from_preview(preview_url: str) -> bytes:
-    from playwright.async_api import async_playwright
     async with async_playwright() as p:
         browser = await p.chromium.launch(args=[
             "--no-sandbox",

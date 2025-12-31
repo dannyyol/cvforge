@@ -1,3 +1,5 @@
+from sys import exception
+from venv import logger
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
 from typing import Any, Dict
@@ -25,6 +27,7 @@ async def export_pdf(payload: Dict[str, Any]):
 
         settings = get_settings()
         preview_url = f"{settings.CLIENT_BASE_URL}/preview?template={template}&token={token}"
+        print(preview_url)
         try:
             pdf_bytes = await generate_pdf_from_preview(preview_url)
             headers = {"Content-Disposition": "attachment; filename=cv.pdf"}

@@ -1,17 +1,20 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { Download, ChevronDown, File, FileType } from 'lucide-react';
-import { exportResumeToPDF, ExportPayload } from '../services/pdfService';
+import { Download, ChevronDown, File } from 'lucide-react';
+import { exportResumeToPDF } from '../services/pdfService';
+import { useCVStore } from '../store/useCVStore';
+import { buildCVPayload } from '../utils/payloadBuilder';
+import { Toast, type ToastType } from './ui/Toast';
 
 interface DownloadDropdownProps {
-  variant?: 'default' | 'mobile' | 'icon-only';
   className?: string;
-  buildExportPayload?: () => ExportPayload;
 }
 
-export default function DownloadDropdown({ variant = 'default', className = '', buildExportPayload }: DownloadDropdownProps) {
+export default function DownloadDropdown({ className = '' }: DownloadDropdownProps) {
+  const { cvData, selectedTemplate } = useCVStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({ message: '', type: 'info', isVisible: false });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,98 +32,34 @@ export default function DownloadDropdown({ variant = 'default', className = '', 
     if (format === 'pdf') {
       setIsDownloading(true);
       try {
-        if (!buildExportPayload) throw new Error('Missing export payload');
-        const payload = buildExportPayload();
+        const payload = buildCVPayload(cvData, selectedTemplate);
         await exportResumeToPDF(payload, 'cv.pdf');
+        setToast({ message: 'PDF exported successfully!', type: 'success', isVisible: true });
       } catch (error) {
-        console.error('Failed to generate PDF:', error);
+        setToast({ message: 'Failed to export PDF. Please try again.', type: 'error', isVisible: true });
       } finally {
         setIsDownloading(false);
       }
-    } else {
-      console.log('DOC export not implemented yet');
-    }
+    } 
     setIsOpen(false);
   };
 
-  if (variant === 'icon-only') {
-    return (
-      <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          disabled={isDownloading}
-          className={`w-full px-5 py-3 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
-        >
-          <Download className="w-4 h-4" />
-          {isDownloading && <span className="text-xs">Generating...</span>}
-        </button>
-
-        {isOpen && (
-          <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-neutral-700 py-1 z-[9999]">
-            <button
-              onClick={() => handleDownload('pdf')}
-              disabled={isDownloading}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <File className="w-4 h-4" />
-              PDF
-            </button>
-            <button
-              onClick={() => handleDownload('doc')}
-              disabled={isDownloading}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <FileType className="w-4 h-4" />
-              DOC
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (variant === 'mobile') {
-    return (
-      <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          disabled={isDownloading}
-          className={`preview-mobile-download ${className} ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          <Download className="w-4 h-4" />
-          {isDownloading ? 'Generating...' : 'Export'}
-        </button>
-
-        {isOpen && (
-          <div className="absolute bottom-full right-0 mb-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-neutral-700 py-1 z-[9999] min-w-[160px]">
-            <button
-              onClick={() => handleDownload('pdf')}
-              disabled={isDownloading}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <File className="w-4 h-4" />
-              PDF
-            </button>
-            <button
-              onClick={() => handleDownload('doc')}
-              disabled={isDownloading}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <FileType className="w-4 h-4" />
-              DOC
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  }
+  const handleCloseToast = () => {
+    setToast({ ...toast, isVisible: false });
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={handleCloseToast}
+      />
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isDownloading}
-        className={`${className} ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`bg-primary-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-600 transition-colors ${className} ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <Download className="w-4 h-4" />
         {isDownloading ? 'Generating...' : 'Export'}

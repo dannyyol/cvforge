@@ -15,13 +15,14 @@ interface PaginatedPreviewProps {
   scaleMode?: 'fit' | 'fill'; // 'fit' for normal scaling, 'fill' for maximized scaling
   templateId?: string;
   accentColor?: string;
+  fontFamily?: string;
   renderAll?: boolean;
 }
 
 interface ReactPageContent {
   elements: React.ReactNode[];
 }
-export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fit', templateId = '', accentColor = '#0f172a', renderAll = false }: PaginatedPreviewProps) {
+export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fit', templateId = '', accentColor = '#0f172a', fontFamily = 'inherit', renderAll = false }: PaginatedPreviewProps) {
   const [pages, setPages] = useState<ReactPageContent[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const measureRef = useRef<HTMLDivElement>(null);
@@ -29,12 +30,10 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
   const [scale, setScale] = useState(1);
   const [baseScale, setBaseScale] = useState(1);
   const [zoom, setZoom] = useState(1);
-  const [bottomMargin, setBottomMargin] = useState(48);
   const containerRef = useRef<HTMLDivElement>(null);
   const minScaleRef = useRef(1);
 
   const pageInnerWidth = A4_DIMENSIONS.width - (2 * A4_DIMENSIONS.margin);
-
 
   const performPaginationLocal = async () => {
     if (!measureRef.current) return;
@@ -150,35 +149,71 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
 
     const isMobile = screenWidth < 640;
     const isTablet = screenWidth >= 640 && screenWidth < 1024;
+    const isLaptop = screenWidth >= 1024 && screenWidth < 1440;
+    const isDesktop = screenWidth >= 1440 && screenWidth < 1900;
+    const isLargeMonitor = screenWidth >= 1900;
 
-    const margin = isMobile ? 16 : isTablet ? 24 : 60;
     let widthMultiplier: number;
     let availableHeight: number;
+    let minScale: number;
 
     if (scaleMode === 'fill') {
       widthMultiplier = isMobile ? 0.98 : 0.96;
       availableHeight = screenHeight - (isMobile ? 80 : isTablet ? 100 : 120);
+      
+      if (isLargeMonitor) minScale = 1;
+      else if (isDesktop) minScale = 1.0;
+      else if (isLaptop) minScale = 0.82;
+      else if (isTablet) minScale = 0.9;
+      else minScale = 0.55;
+
       const scaleByWidth = (containerWidth * widthMultiplier) / A4_DIMENSIONS.width;
       const scaleByHeight = availableHeight / A4_DIMENSIONS.height;
       const nextBase = Math.min(scaleByWidth, scaleByHeight);
-      const minScale = isMobile ? 0.55 : 0.9;
+      
       minScaleRef.current = minScale;
       setBaseScale(nextBase);
       setScale(Math.max(nextBase, minScale) * zoom);
     } else {
+      // Fit mode (default)
       widthMultiplier = isMobile ? 0.95 : 0.92;
       availableHeight = screenHeight - (isMobile ? 140 : isTablet ? 160 : 180);
+
+      // Fit mode minimums
+      if (isLargeMonitor) {
+          minScale = 0.9; 
+          widthMultiplier = 0.85;
+      } else if (isDesktop) {
+          minScale = 0.85;
+          widthMultiplier = 0.85;
+      } else if (isLaptop) {
+          minScale = 0.65;
+          widthMultiplier = 0.5;
+      } else if (isTablet) {
+          minScale = 0.55;
+          widthMultiplier = 0.92;
+      } else {
+          minScale = 0.45;
+      }
+
       const scaleByWidth = (containerWidth * widthMultiplier) / A4_DIMENSIONS.width;
       const scaleByHeight = availableHeight / A4_DIMENSIONS.height;
       const nextBase = Math.min(scaleByWidth, scaleByHeight);
-      const minScale = isMobile ? 0.45 : 0.8;
+      
       minScaleRef.current = minScale;
       setBaseScale(nextBase);
       setScale(Math.max(nextBase, minScale) * zoom);
     }
-
-    setBottomMargin(margin);
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+        calculateScaleAndMargin();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [scaleMode, zoom]);
 
   useEffect(() => {
     calculateScaleAndMargin();
@@ -237,56 +272,6 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
 
         {ready && pages.length > 0 && (
           <>
-            {!renderAll && (
-              <div className="flex items-center gap-1 mb-2 navigation-control rounded-lg shadow-md px-1.5 py-1.5">
-                <button
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 0}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  aria-label="Previous page"
-                >
-                  <ChevronLeft size={16} className="text-gray-700 dark:text-slate-200" />
-                </button>
-
-                <div className="px-3 py-0.5">
-                  <span className="text-xs font-medium text-gray-900 dark:text-slate-100">
-                    Page {currentPage + 1} of {pages.length}
-                  </span>
-                </div>
-
-                <button
-                  onClick={handleNextPage}
-                  disabled={currentPage === pages.length - 1}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  aria-label="Next page"
-                >
-                  <ChevronRight size={16} className="text-gray-700 dark:text-slate-200" />
-                </button>
-
-                <div className="mx-2 w-px h-4 bg-gray-200 dark:bg-slate-700" />
-
-                <button
-                  onClick={handleZoomOut}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors"
-                  aria-label="Zoom out"
-                >
-                  <ZoomOut size={16} className="text-gray-700 dark:text-slate-200" />
-                </button>
-
-                <div className="px-2 py-0.5 min-w-[48px] text-center">
-                  <span className="text-xs font-medium text-gray-900 dark:text-slate-100">{Math.round(scale * 100)}%</span>
-                </div>
-
-                <button
-                  onClick={handleZoomIn}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors"
-                  aria-label="Zoom in"
-                >
-                  <ZoomIn size={16} className="text-gray-700 dark:text-slate-200" />
-                </button>
-              </div>
-            )}
-
             {renderAll ? (
               <div className="flex flex-col items-center gap-6">
                 {pages.map((p, i) => (
@@ -297,6 +282,8 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
                         height: `${A4_DIMENSIONS.height - (2*A4_DIMENSIONS.margin)}px`,
                         ['--page-padding' as any]: `${40}px`,
                         ['--accent-color' as any]: accentColor,
+                        ['--font-family' as any]: fontFamily,
+                        fontFamily: fontFamily,
                         overflowX: 'visible',
                         overflowY: 'visible',
                         width: `${A4_DIMENSIONS.width  - (2*A4_DIMENSIONS.margin)}px`,
@@ -321,6 +308,7 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
                   transformOrigin: 'top center',
                   transition: 'transform 0.2s ease-in-out',
                   background: 'white',
+                  marginBottom: `-${A4_DIMENSIONS.height * (1 - scale)}px`,
                 }}
               >
                 <div
@@ -330,11 +318,63 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
                     height: `${A4_DIMENSIONS.height - (2*A4_DIMENSIONS.margin)}px`,
                     ['--page-padding' as any]: `${A4_DIMENSIONS.margin}px`,
                     ['--accent-color' as any]: accentColor,
+                    ['--font-family' as any]: fontFamily,
+                    fontFamily: fontFamily,
                     overflowX: 'visible',
                     overflowY: 'visible',
                   }}
                 >
                   {pages[currentPage]?.elements}
+                </div>
+              </div>
+            )}
+
+            {!renderAll && (
+              <div className="sticky bottom-4 mt-4 z-50 flex items-center gap-3 navigation-control rounded-full shadow-xl px-4 py-2 bg-white/90 backdrop-blur-sm border border-gray-200/60 transition-all hover:shadow-2xl hover:bg-white text-gray-700">
+                <div className="flex items-center gap-1 border-r border-gray-200 pr-3 mr-1">
+                  <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 0}
+                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-gray-600"
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+
+                  <span className="text-xs font-semibold text-gray-700 tabular-nums min-w-[3rem] text-center select-none">
+                    {currentPage + 1} / {pages.length}
+                  </span>
+
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === pages.length - 1}
+                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-gray-600"
+                    aria-label="Next page"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={handleZoomOut}
+                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-colors text-gray-600"
+                    aria-label="Zoom out"
+                  >
+                    <ZoomOut size={16} />
+                  </button>
+
+                  <span className="text-xs font-semibold text-gray-700 tabular-nums min-w-[3rem] text-center select-none">
+                    {Math.round(scale * 100)}%
+                  </span>
+
+                  <button
+                    onClick={handleZoomIn}
+                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-colors text-gray-600"
+                    aria-label="Zoom in"
+                  >
+                    <ZoomIn size={16} />
+                  </button>
                 </div>
               </div>
             )}

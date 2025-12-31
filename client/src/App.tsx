@@ -1,20 +1,22 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { DashboardLayout } from './components/Layout/DashboardLayout';
+import { EditorPage } from './pages/EditorPage';
+import { TemplatesPage } from './pages/TemplatesPage';
 import Homepage from './pages/Homepage';
-import EditorPage from './pages/EditorPage';
 import PreviewPage from './pages/PreviewPage';
-import { ThemeProvider } from './theme/ThemeProvider';
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router>
+    <Router>
         <Routes>
           <Route path="/" element={<Homepage />} />
-          <Route path="/editor" element={<EditorPage />} />
           <Route path="/preview" element={<PreviewPage />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="/editor" element={<EditorPage />} />
+            <Route path="/templates" element={<TemplatesPage />} />
+          </Route>
         </Routes>
-      </Router>
-    </ThemeProvider>
+    </Router>
   );
 }
 

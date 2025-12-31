@@ -1,29 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import PaginatedPreview from '../components/preview/PaginatedPreview';
-import { getTemplateComponent, TemplateId } from '../components/templates/registry';
-import { PersonalDetails, ProfessionalSummary, EducationEntry, WorkExperience, SkillEntry, ProjectEntry, CertificationEntry, CVSection } from '../types/resume';
+import PaginatedPreview from '../components/Preview/PaginatedPreview';
+import { getTemplateComponent, type TemplateId } from '../components/Preview/templates/registry';
+import { type TemplateProps } from '../types/resume';
 import { api } from '../services/apiClient';
-
-type PreviewDataResponse = {
-  sections: {
-    personalDetails: PersonalDetails | null;
-    professionalSummary: ProfessionalSummary | null;
-    workExperiences: WorkExperience[];
-    education: EducationEntry[];
-    skills: SkillEntry[];
-    projects: ProjectEntry[];
-    certifications: CertificationEntry[];
-  };
-  sectionStatus: CVSection[];
-  accentColor?: string;
-};
 
 export default function PreviewPage() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<PreviewDataResponse | null>(null);
+  const [data, setData] = useState<TemplateProps | null>(null);
 
   const templateId = useMemo<TemplateId>(() => {
     const t = searchParams.get('template') || 'classic';
@@ -39,7 +25,7 @@ export default function PreviewPage() {
     }
     const load = async () => {
       try {
-        const res = await api.get<PreviewDataResponse>(`/cv-data/${token}`);
+        const res = await api.get<TemplateProps>(`/cv-data/${token}`);
         setData(res);
       } catch (e) {
         setError('Failed to load preview data');
@@ -57,22 +43,10 @@ export default function PreviewPage() {
   const TemplateComponent = getTemplateComponent(templateId);
 
   return (
-    // <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-neutral-900 dark:text-slate-100">
-      // <div className="">
-        <PaginatedPreview templateId={templateId} accentColor={data.accentColor} renderAll>
-          <TemplateComponent
-            personalDetails={data.sections.personalDetails}
-            professionalSummary={data.sections.professionalSummary}
-            workExperiences={data.sections.workExperiences}
-            educationEntries={data.sections.education}
-            skills={data.sections.skills}
-            projects={data.sections.projects}
-            certifications={data.sections.certifications}
-            sections={data.sectionStatus}
-            accentColor={data.accentColor}
-          />
-        </PaginatedPreview>
-    //   </div>
-    // </div>
+    <PaginatedPreview templateId={templateId} accentColor={data.theme.primaryColor} fontFamily={data.theme.fontFamily} renderAll>
+      <TemplateComponent
+        {...data}
+      />
+    </PaginatedPreview>
   );
 }
