@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Section, PersonalDetails, WorkExperience, Education, Skill, Project, Certification, Award, Publication, ThemeConfig, TemplateId, TemplateProps } from '../types/resume';
+import type { CVSection as Section, PersonalDetails, WorkExperience, Education, Skill, Project, Certification, Award, Publication, ThemeConfig, TemplateId, TemplateProps } from '../types/resume';
 
 interface CVStore {
   cvData: TemplateProps;
@@ -294,7 +294,13 @@ export const useCVStore = create<CVStore>((set) => ({
   })),
   
   updateSummary: (summary) => set((state) => ({
-    cvData: { ...state.cvData, summary }
+    cvData: {
+      ...state.cvData,
+      professionalSummary: {
+        ...state.cvData.professionalSummary,
+        content: summary
+      }
+    }
   })),
   
   setSections: (sections) => set((state) => ({

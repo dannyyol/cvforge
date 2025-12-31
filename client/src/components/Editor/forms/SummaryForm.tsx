@@ -4,6 +4,7 @@ import { FileText } from 'lucide-react';
 
 export const SummaryForm = () => {
   const { cvData, updateSummary } = useCVStore();
+  console.log('cvData', cvData);
 
   return (
     <div className="form-container">
@@ -22,7 +23,7 @@ export const SummaryForm = () => {
             <div className="flex-1">
                  <RichTextEditor
                     label="Summary"
-                    value={cvData.summary}
+                    value={cvData?.professionalSummary?.content}
                     onChange={updateSummary}
                     placeholder="e.g. Dedicated and experienced Software Engineer with over 5 years of experience in building scalable web applications..."
                   />

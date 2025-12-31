@@ -273,14 +273,14 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
         {ready && pages.length > 0 && (
           <>
             {renderAll ? (
-              <div className="flex flex-col items-center gap-6">
+              <div className="flex flex-col items-center gap-6 pt-6">
                 {pages.map((p, i) => (
                     <div
                       className={`page-inner cv-preview-container cv-${templateId}`}
                       style={{
                         boxSizing: 'border-box',
                         height: `${A4_DIMENSIONS.height - (2*A4_DIMENSIONS.margin)}px`,
-                        ['--page-padding' as any]: `${40}px`,
+                        ['--page-padding' as any]: `${A4_DIMENSIONS.margin}px`,
                         ['--accent-color' as any]: accentColor,
                         ['--font-family' as any]: fontFamily,
                         fontFamily: fontFamily,

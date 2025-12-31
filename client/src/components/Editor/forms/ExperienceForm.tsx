@@ -141,7 +141,7 @@ export const ExperienceForm = () => {
                  </div>
             </div>
             
-            {cvData.experience.length === 0 ? (
+            {cvData.workExperiences.length === 0 ? (
                 <div className="text-center py-12 px-4 text-gray-500 bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300">
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-600">
                         <Briefcase className="w-6 h-6" />
@@ -158,7 +158,7 @@ export const ExperienceForm = () => {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {cvData.experience.map((exp) => (
+                    {cvData.workExperiences.map((exp) => (
                         <ExperienceItem 
                             key={exp.id} 
                             experience={exp} 
