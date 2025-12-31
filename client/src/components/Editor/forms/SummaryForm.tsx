@@ -4,7 +4,6 @@ import { FileText } from 'lucide-react';
 
 export const SummaryForm = () => {
   const { cvData, updateSummary } = useCVStore();
-  console.log('cvData', cvData);
 
   return (
     <div className="form-container">
