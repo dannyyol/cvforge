@@ -263,7 +263,7 @@ export default function PaginatedPreview({ children, onPaginate, scaleMode = 'fi
       </div>
 
       {/* Main preview container */}
-      <div ref={containerRef} className="flex flex-col items-center pt-4">
+      <div ref={containerRef} className="flex flex-col items-center">
         {!ready && (
           <div className="mb-4 text-sm text-gray-500">
             Preparing preview...
