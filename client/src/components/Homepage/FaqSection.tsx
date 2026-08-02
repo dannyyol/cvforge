@@ -36,7 +36,6 @@ const faqData: FaqItem[] = [
 
 export function FaqSection() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
   const toggleFaq = (idx: number) => {
     setOpenFaq(openFaq === idx ? null : idx);
   };
