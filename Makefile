@@ -16,7 +16,7 @@ dev:
 	@bash ./scripts/dev-setup.sh
 
 up:
-	@docker compose --profile dev up -d server-dev client-dev
+	@docker compose --profile dev up -d --build server-dev client-dev
 
 down:
 	@docker compose down
@@ -27,7 +27,7 @@ refresh:
 
 init:
 	@docker compose --profile dev up -d db
-	@docker compose --profile dev run --rm server-init
+	@docker compose --profile dev run --build --rm server-init
 
 logs:
 	@docker compose logs -f --tail=100 server-dev client-dev

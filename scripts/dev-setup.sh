@@ -59,7 +59,7 @@ echo "Running migrations and seeders..."
 docker compose --profile dev run --rm server-init
 
 echo "Starting API and frontend..."
-docker compose --profile dev up -d server-dev client-dev
+docker compose --profile dev up -d --build server-dev client-dev
 
 echo
 echo "Setup complete:"
