@@ -24,9 +24,16 @@ from src.api.schemas.common import PaginatedResponse
 from src.services.file_parser_service import FileParser
 from src.services.ai.ai_resume_parser_service import AIResumeParser
 from src.services.ai.ai_clients_service import (
-    TextProcessor, AIConfigurationError, AIProviderError
+    AIConfigurationError, AIProviderError
 )
-from src.services.settings.ai_service import get_configured_ai_client
+from src.services.ai.guardrails import GuardrailViolation
+from src.services.ai.llm.models import get_chat_model
+from src.services.ai.workflows.tailor import (
+    TailorDeps,
+    TailorWorkflowError,
+    run_tailor_resume,
+    tailor_workflow_error_to_http,
+)
 from src.services.settings.plan_service import PlanService
 from src.utils.pagination import paginate
 from src.config import settings
@@ -401,7 +408,7 @@ class ResumeService:
             primary_color='#475569',
             secondary_color='#4b5563',
             font_family='',
-            template_key='professional'
+            template_key='soft-modern'
         )
         self.db.add(cl_theme)
 
@@ -451,7 +458,7 @@ class ResumeService:
             parsed_data = None
             
             try:
-                client, model_id, is_platform_mode = await get_configured_ai_client(self.db, self.user_id)
+                chat_model, model_id, is_platform_mode = await get_chat_model(self.db, self.user_id)
                 
                 plan_service = PlanService(self.db, self.user)
                 cost = settings.COST_PARSE_RESUME
@@ -461,7 +468,7 @@ class ResumeService:
                         raise HTTPException(status_code=402, detail=f"Insufficient tokens. This action requires at least {cost} tokens.")
 
                 logger.info(f"Attempting AI parsing with configured client / {model_id}")
-                parsed_data = await AIResumeParser.parse_with_client(text, client, model_id)
+                parsed_data = await AIResumeParser.parse_with_model(text, chat_model)
                 logger.info("AI Parsing successful")
                 
                 if is_platform_mode:
@@ -525,7 +532,7 @@ class ResumeService:
                 primary_color='#475569',
                 secondary_color='#4b5563',
                 font_family='',
-                template_key='professional'
+                template_key='soft-modern'
             )
             self.db.add(cl_theme)
             
@@ -647,275 +654,28 @@ class ResumeService:
         return self._serialize_public_resume(resume)
 
     async def tailor_resume(self, resume_id: str, body: TailorResumeRequest) -> ResumeResponse:
-        stmt = select(Resume).where(
-            Resume.id == resume_id,
-            Resume.user_id == self.user_id
-        ).options(
-            selectinload(Resume.template),
-            selectinload(Resume.theme),
-            selectinload(Resume.cover_letters),
-        )
-        result = await self.db.execute(stmt)
-        resume = result.scalar_one_or_none()
-        if not resume:
-            raise HTTPException(status_code=404, detail="Resume not found")
-        
-        client, model_id, is_platform_mode = await get_configured_ai_client(self.db, self.user_id)
+        if not self.user:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        chat_model, _model_id, is_platform_mode = await get_chat_model(self.db, self.user_id)
         plan_service = PlanService(self.db, self.user)
-        cost = settings.COST_TAILOR_RESUME
-        
-        if is_platform_mode:
-            if not await plan_service.has_sufficient_balance(cost):
-                raise HTTPException(status_code=402, detail=f"Insufficient tokens. This action requires at least {cost} tokens.")
-        
-        resume_text = self._compose_resume_text(resume)
-        try:
-            job_match = await JobMatchService(client, model_id).analyse(
-                body.job_title,
-                body.job_description,
-                resume_text,
-            )
-        except AIConfigurationError as e:
-            logger.error("AI job match configuration error: {}", str(e))
-            raise HTTPException(status_code=400, detail="AI configuration is invalid. Please check your AI configuration settings.")
-        except AIProviderError as e:
-            logger.error("AI job match provider error: {}", str(e))
-            raise HTTPException(status_code=502, detail="AI connection failed. Please check your AI configuration settings and try again.")
-        suggestions = job_match.get("suggestions") or []
-        missing_keywords = job_match.get("missing_keywords") or []
-
-
-        rd = resume.resume_data or {}
-        if not isinstance(rd, dict):
-            rd = {}
-
-        def _set_section_visible(section_type: str) -> None:
-            sections = rd.get("sections")
-            if not isinstance(sections, list):
-                return
-            for item in sections:
-                if not isinstance(item, dict):
-                    continue
-                if str(item.get("type", "")).strip().lower() == section_type.lower():
-                    item["is_visible"] = True
-                    item["isVisible"] = True
-                    return
-
-        raw_work_experiences = rd.get("workExperiences", [])
-        work_experiences_context = []
-        if isinstance(raw_work_experiences, list):
-            for item in raw_work_experiences:
-                if not isinstance(item, dict):
-                    continue
-                wid = str(item.get("id", "")).strip()
-                if not wid:
-                    continue
-                work_experiences_context.append(
-                    {
-                        "id": wid,
-                        "position": str(item.get("position", "")).strip(),
-                        "company": str(item.get("company", "")).strip(),
-                        "description": str(item.get("description", "")).strip(),
-                    }
-                )
-
-        raw_projects = rd.get("projects", [])
-        projects_context = []
-        if isinstance(raw_projects, list):
-            for item in raw_projects:
-                if not isinstance(item, dict):
-                    continue
-                pid = str(item.get("id", "")).strip()
-                if not pid:
-                    continue
-                projects_context.append(
-                    {
-                        "id": pid,
-                        "name": str(item.get("name", "")).strip(),
-                        "description": str(item.get("description", "")).strip(),
-                        "technologies": item.get("technologies", []),
-                        "link": str(item.get("link", "")).strip(),
-                    }
-                )
-
-        existing_skill_names: set[str] = set()
-        if isinstance(rd.get("skills"), list):
-            from src.utils.skills import collect_skill_item_names, normalize_skills
-
-            rd["skills"] = normalize_skills(rd["skills"])
-            existing_skill_names = collect_skill_item_names(rd["skills"])
-
-        prompt = (
-            "You are an expert resume writer.\n"
-            "Generate a machine-applicable list of actions that apply the job-match suggestions to the resume data.\n\n"
-            "Hard rules:\n"
-            "- Do not fabricate experience, projects, employers, dates, or achievements.\n"
-            "- Only update existing experiences/projects by using an existing id from the provided lists.\n"
-            "- You may add missing keywords as Skills, but keep the level conservative (e.g. \"Familiar\").\n"
-            "- Keep output concise and ATS-friendly.\n\n"
-            "Return ONLY valid JSON with exactly this structure (no markdown, no extra keys):\n"
-            "{\n"
-            '  "actions": [\n'
-            '    { "type": "update_summary", "content": string },\n'
-            '    { "type": "add_skill", "name": string, "category": string },\n'
-            '    { "type": "update_experience_description", "experienceId": string, "description": string },\n'
-            '    { "type": "update_project_description", "projectId": string, "description": string },\n'
-            '    { "type": "add_project", "name": string, "description": string, "technologies": [string], "link": string }\n'
-            "  ]\n"
-            "}\n\n"
-            f"Tone: {body.tone}\n"
-            f"Role: {body.job_title}\n\n"
-            "Job Description:\n"
-            f"\"\"\"\n{body.job_description}\n\"\"\"\n\n"
-            "Job Match Suggestions:\n"
-            f"{suggestions}\n\n"
-            "Missing Keywords:\n"
-            f"{missing_keywords}\n\n"
-            "Resume (plain text):\n"
-            f"\"\"\"\n{resume_text}\n\"\"\"\n\n"
-            "Existing Skills (names only):\n"
-            f"{sorted(existing_skill_names)}\n\n"
-            "Work Experiences (allowed ids):\n"
-            f"{work_experiences_context}\n\n"
-            "Projects (allowed ids):\n"
-            f"{projects_context}\n"
+        deps = TailorDeps(
+            db=self.db,
+            user=self.user,
+            chat_model=chat_model,
+            plan_service=plan_service,
+            compose_resume_text=self._compose_resume_text,
+            get_resume_by_id=self.get_resume_by_id,
         )
         try:
-            generated = await client.generate(prompt, model_id)
-        except AIConfigurationError as e:
-            logger.error("AI tailoring configuration error: {}", str(e))
-            raise HTTPException(status_code=400, detail="AI configuration is invalid. Please check your AI configuration settings.")
-        except AIProviderError as e:
-            logger.error("AI tailoring provider error: {}", str(e))
-            raise HTTPException(status_code=502, detail="AI connection failed. Please check your AI configuration settings and try again.")
-        parsed = TextProcessor.extract_json(generated) or {}
-        actions = parsed.get("actions") or []
-        if not isinstance(actions, list):
-            actions = []
-
-        if "professionalSummary" not in rd or not isinstance(rd.get("professionalSummary"), dict):
-            rd["professionalSummary"] = {}
-        if "skills" not in rd or not isinstance(rd.get("skills"), list):
-            rd["skills"] = []
-        if "projects" not in rd or not isinstance(rd.get("projects"), list):
-            rd["projects"] = []
-
-        exp_by_id: dict[str, dict] = {}
-        if isinstance(rd.get("workExperiences"), list):
-            for exp in rd["workExperiences"]:
-                if isinstance(exp, dict):
-                    eid = str(exp.get("id", "")).strip()
-                    if eid:
-                        exp_by_id[eid] = exp
-
-        project_by_id: dict[str, dict] = {}
-        if isinstance(rd.get("projects"), list):
-            for proj in rd["projects"]:
-                if isinstance(proj, dict):
-                    pid = str(proj.get("id", "")).strip()
-                    if pid:
-                        project_by_id[pid] = proj
-
-        for action in actions:
-            if not isinstance(action, dict):
-                continue
-            t = str(action.get("type", "")).strip()
-
-            if t == "update_summary":
-                content = sanitize_rich_text_html(str(action.get("content", "")).strip())
-                if content:
-                    rd["professionalSummary"]["content"] = content
-                continue
-
-            if t == "add_skill":
-                name = str(action.get("name", "")).strip()
-                if not name:
-                    continue
-                if name.lower() in existing_skill_names:
-                    continue
-                category = str(action.get("category", "")).strip()
-                from src.utils.skills import normalize_skills
-
-                skills_list = normalize_skills(rd.get("skills") or [])
-                # Prefer appending into a matching category when provided
-                target = None
-                if category:
-                    for s in skills_list:
-                        if str(s.get("name", "")).strip().lower() == category.lower():
-                            target = s
-                            break
-                if target is None and not category:
-                    for s in skills_list:
-                        if not str(s.get("name", "")).strip():
-                            target = s
-                            break
-                if target is not None:
-                    items = list(target.get("items") or [])
-                    items.append(name)
-                    target["items"] = items
-                else:
-                    skills_list.append(
-                        {
-                            "id": str(uuid.uuid4()),
-                            "name": category,
-                            "items": [name],
-                            "level": "",
-                        }
-                    )
-                rd["skills"] = skills_list
-                existing_skill_names.add(name.lower())
-                _set_section_visible("skills")
-                continue
-
-            if t == "update_experience_description":
-                eid = str(action.get("experienceId", "")).strip()
-                desc = sanitize_rich_text_html(str(action.get("description", "")).strip())
-                if eid and desc and eid in exp_by_id:
-                    exp_by_id[eid]["description"] = desc
-                    _set_section_visible("experience")
-                continue
-
-            if t == "update_project_description":
-                pid = str(action.get("projectId", "")).strip()
-                desc = sanitize_rich_text_html(str(action.get("description", "")).strip())
-                if pid and desc and pid in project_by_id:
-                    project_by_id[pid]["description"] = desc
-                    _set_section_visible("projects")
-                continue
-
-            if t == "add_project":
-                name = str(action.get("name", "")).strip()
-                desc = sanitize_rich_text_html(str(action.get("description", "")).strip())
-                if not name or not desc:
-                    continue
-                technologies_raw = action.get("technologies", [])
-                technologies = []
-                if isinstance(technologies_raw, list):
-                    technologies = [str(x).strip() for x in technologies_raw if str(x).strip()]
-                link = str(action.get("link", "")).strip()
-                rd["projects"].append(
-                    {
-                        "id": str(uuid.uuid4()),
-                        "name": name,
-                        "description": desc,
-                        "technologies": technologies,
-                        "link": link,
-                        "startDate": "",
-                        "endDate": "",
-                    }
-                )
-                _set_section_visible("projects")
-                continue
-        
-        sanitize_resume_data_inplace(rd)
-
-        resume.resume_data = dict(rd)
-        flag_modified(resume, "resume_data")
-        resume.updated_at = datetime.utcnow()
-        if is_platform_mode:
-            await plan_service.deduct_tokens(cost, "Resume Tailoring")
-        await self.db.commit()
-        return await self.get_resume_by_id(resume_id)
+            return await run_tailor_resume(
+                deps=deps,
+                resume_id=resume_id,
+                body=body,
+                is_platform_mode=is_platform_mode,
+            )
+        except TailorWorkflowError as exc:
+            raise tailor_workflow_error_to_http(exc) from exc
 
     async def analyse_job_match(self, resume_id: str, body: JobMatchRequest) -> JobMatchResponse:
         from src.services.resumes.job_match_service import JobMatchService
@@ -932,7 +692,7 @@ class ResumeService:
         if not resume:
             raise HTTPException(status_code=404, detail="Resume not found")
 
-        client, model_id, is_platform_mode = await get_configured_ai_client(self.db, self.user_id)
+        chat_model, model_id, is_platform_mode = await get_chat_model(self.db, self.user_id)
         plan_service = PlanService(self.db, self.user)
         cost = settings.COST_JOB_MATCH
 
@@ -944,9 +704,11 @@ class ResumeService:
 
         resume_text = self._compose_resume_text(resume)
         try:
-            data = await JobMatchService(client, model_id).analyse(
+            data = await JobMatchService(chat_model).analyse(
                 body.job_title, body.job_description, resume_text
             )
+        except GuardrailViolation as e:
+            raise HTTPException(status_code=400, detail=e.detail) from e
         except AIConfigurationError as e:
             logger.error("AI job match configuration error: {}", str(e))
             raise HTTPException(status_code=400, detail="AI configuration is invalid. Please check your AI configuration settings.")
@@ -1147,7 +909,7 @@ class ResumeService:
                     content=sanitized_data.cover_letter.content or "",
                     job_title=sanitized_data.cover_letter.job_title or "",
                     job_description=sanitized_data.cover_letter.job_description or "",
-                    template_key=(getattr(sanitized_data.cover_letter, "template_key", None) or (resume.cover_letter_theme.template_key if resume.cover_letter_theme else "professional")),
+                    template_key=(getattr(sanitized_data.cover_letter, "template_key", None) or (resume.cover_letter_theme.template_key if resume.cover_letter_theme else "soft-modern")),
                     tone=(getattr(sanitized_data.cover_letter, "tone", None) or "professional"),
                     length=(getattr(sanitized_data.cover_letter, "length", None) or "medium"),
                 )
