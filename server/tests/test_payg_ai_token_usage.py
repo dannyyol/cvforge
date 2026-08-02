@@ -186,7 +186,7 @@ def test_review_resume_platform_mode_charges_tokens_for_default_ai_connection():
             self.calls.append(("deduct_tokens", amount, description))
 
     class _FakeReviewService:
-        async def review_cv_payload(self, payload):
+        async def review_cv_payload(self, payload, is_platform_mode=None):
             return {"ok": True}
 
     fake_plan_service = _FakePlanService(None, None)
