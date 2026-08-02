@@ -36,4 +36,5 @@ IMAGE_TAG=latest docker compose --profile prod up -d
 
 - The server runs migrations + seeders on container start.
 - For custom domains / TLS termination, place a reverse proxy (Caddy / Nginx / Traefik) in front of `client` and `server`.
+- Optional LangSmith tracing is **off by default**. To enable: set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` in `server/.env`. When `DEBUG=false`, resume/prompt inputs are hidden from LangSmith (`LANGSMITH_HIDE_INPUTS`).
 

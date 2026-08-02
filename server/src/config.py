@@ -50,6 +50,12 @@ class AppSettings(BaseSettings):
     COST_PARSE_RESUME: int = 15
     COST_JOB_MATCH: int = 10
 
+    LANGSMITH_TRACING: bool = False
+    LANGSMITH_API_KEY: Optional[str] = None
+    LANGSMITH_PROJECT: str = "cvrise"
+    LANGSMITH_ENDPOINT: Optional[str] = None
+    AI_LOG_PROMPTS: bool = False
+
     PDF_EXPORT_TOKEN_SECRET: Optional[str] = None
     PDF_EXPORT_TOKEN_TTL_SECONDS: int = 300
     PDF_EXPORT_MAX_PAYLOAD_BYTES: int = 512_000

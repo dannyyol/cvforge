@@ -24,7 +24,10 @@ logger.add(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from src.services.ai.observability import configure_ai_observability
+
     logger.info("FastAPI lifespan startup")
+    configure_ai_observability()
     yield
     logger.info("FastAPI lifespan shutdown")
 
