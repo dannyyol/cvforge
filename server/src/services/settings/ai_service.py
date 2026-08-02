@@ -1,18 +1,17 @@
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi import HTTPException
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Tuple
 from urllib.parse import urlsplit
 
 from src.models.settings import Setting
 from src.models.ai_model import AIModel
 from src.api.schemas.ai_settings import AISettingsUpdate
 from src.services.ai.ai_clients_service import (
-    AsyncLLMClient, OpenAIClient, AnthropicClient, GoogleClient, OllamaClient
+    AsyncLLMClient, get_ai_client
 )
 from src.services.ai.ai_provider_registry_service import resolve_ai_base_url, resolve_ai_model_id
-from src.config import get_settings
+from src.services.ai.ai_runtime_config import resolve_ai_runtime_config
 
 class AISettingsService:
     def __init__(self, session: AsyncSession, user_id: str):
@@ -80,69 +79,6 @@ async def get_configured_ai_client(session: AsyncSession, user_id: str) -> Tuple
     """
     Returns (client, model_id, is_platform_mode)
     """
-    stmt = select(Setting).where(Setting.user_id == user_id, Setting.key == "ai_config")
-    result = await session.execute(stmt)
-    setting = result.scalar_one_or_none()
-    ai_settings = setting.value if setting else {}
-    
-    usage_mode = ai_settings.get("usageMode", "custom")
-    
-    if usage_mode == "platform":
-        app_settings = get_settings()
-        
-        if not app_settings.PLATFORM_OPENAI_API_KEY:
-             raise HTTPException(
-                 status_code=400, 
-                 detail="Platform OpenAI API Key is not configured on the server. Please contact support or switch to Custom mode."
-             )
-        
-        client = OpenAIClient(
-            base_url="https://api.openai.com/v1", 
-            api_key=app_settings.PLATFORM_OPENAI_API_KEY
-        )
-        return client, app_settings.PLATFORM_OPENAI_MODEL, True
-        
-    else:
-        active_model_id = ai_settings.get("activeModelId")
-        if not active_model_id:
-             raise HTTPException(status_code=400, detail="No active AI model selected. Please configure an AI model in Settings.")
-             
-        stmt = select(AIModel).where(AIModel.id == active_model_id)
-        result = await session.execute(stmt)
-        active_model = result.scalar_one_or_none()
-        
-        if not active_model:
-            raise HTTPException(status_code=400, detail="Invalid Active Model ID")
-            
-        provider = active_model.key_id
-        configs = ai_settings.get("configs", {})
-        provider_config = configs.get(provider, {})
-        
-        base_url = resolve_ai_base_url(provider, provider_config.get("baseUrl", ""))
-        api_key = str(provider_config.get("apiKey", "") or "").strip()
-        model_id = resolve_ai_model_id(provider, provider_config.get("modelId"), active_model.id)
-
-        if not model_id:
-            raise HTTPException(status_code=400, detail="No AI model configured. Please check your AI configuration settings.")
-
-        if not base_url:
-            raise HTTPException(status_code=400, detail="AI Base URL is missing. Please check your AI configuration settings.")
-
-        if not (base_url.startswith("http://") or base_url.startswith("https://")):
-            raise HTTPException(status_code=400, detail="AI Base URL must start with http:// or https://. Please check your AI configuration settings.")
-
-        if provider != "ollama" and not api_key:
-            raise HTTPException(status_code=400, detail="AI API key is missing. Please check your AI configuration settings.")
-        
-        if provider == "openai":
-            client = OpenAIClient(base_url, api_key)
-        elif provider == "anthropic":
-            client = AnthropicClient(base_url, api_key)
-        elif provider == "google":
-            client = GoogleClient(base_url, api_key)
-        elif provider == "ollama":
-            client = OllamaClient(base_url)
-        else:
-            raise HTTPException(status_code=400, detail=f"Unsupported provider: {provider}")
-            
-        return client, model_id, False
+    config = await resolve_ai_runtime_config(session, user_id)
+    client = get_ai_client(config.provider, config.base_url, config.api_key)
+    return client, config.model_id, config.is_platform_mode
