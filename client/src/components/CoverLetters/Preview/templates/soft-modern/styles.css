@@ -54,3 +54,11 @@
   line-height: var(--line-height, 1.7);
   color: #111827;
 }
+
+.cl-soft-modern .cl-content p {
+  margin: 0;
+}
+
+.cl-soft-modern .cl-content p:empty::before {
+  content: "\00a0";
+}

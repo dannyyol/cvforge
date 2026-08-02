@@ -58,3 +58,11 @@
   line-height: var(--line-height, 1.75);
   color: #111827;
 }
+
+.cl-aesthetic .cl-content p {
+  margin: 0;
+}
+
+.cl-aesthetic .cl-content p:empty::before {
+  content: "\00a0";
+}

@@ -17,7 +17,9 @@ import { Input } from "@/src/components/ui/Form";
 import { Card, CardHeader, CardContent } from "@/src/components/ui/Card";
 import { clsx } from "clsx";
 import axios from "axios";
+import { AnimatePresence, motion } from "framer-motion";
 
+const panelTransition = { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const };
 // ─── Colour helpers ────────────────────────────────────────────────────────────
 
 function scoreTextColor(n: number) {
@@ -348,8 +350,10 @@ function JobMatchSection() {
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState<JobMatchApiResponse | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isTailoring, setIsTailoring] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
   const [history, setHistory] = useState<JobMatchHistorySummary[]>([]);
   const [historyPage, setHistoryPage] = useState(1);
   const [historyPages, setHistoryPages] = useState(1);
@@ -395,6 +399,7 @@ function JobMatchSection() {
     e.preventDefault();
     if (!currentResumeId) return;
     setIsAnalyzing(true);
+    setActiveHistoryId(null);
     setErrorMsg(null);
     try {
       setResult(await resumeService.matchJob(currentResumeId, { jobTitle, jobDescription }));
@@ -411,21 +416,34 @@ function JobMatchSection() {
 
   const handleTailor = async () => {
     setIsTailoring(true);
-    try { await tailorResume({ jobTitle, jobDescription }); }
-    catch { setErrorMsg("Failed to tailor CV. Please try again."); }
-    finally { setIsTailoring(false); }
+    setErrorMsg(null);
+    try {
+      await tailorResume({ jobTitle, jobDescription });
+    } catch (err: unknown) {
+      setErrorMsg(
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+          ?? "Failed to tailor CV. Please try again."
+      );
+    } finally {
+      setIsTailoring(false);
+    }
   };
 
-  const reset = () => { setResult(null); setErrorMsg(null); };
+  const reset = () => {
+    setResult(null);
+    setErrorMsg(null);
+    setActiveHistoryId(null);
+  };
 
   const handleLoadHistory = async (id: string) => {
-    if (!currentResumeId) return;
-    setIsAnalyzing(true);
+    if (!currentResumeId || isLoadingHistory || isAnalyzing) return;
+    setIsLoadingHistory(true);
     setErrorMsg(null);
     try {
       const item = await resumeService.getJobMatchHistoryItem(id);
       setJobTitle(item.jobTitle ?? "");
       setJobDescription(item.jobDescription ?? "");
+      setActiveHistoryId(id);
       setResult({
         matchScore: item.matchScore,
         summary: item.summary,
@@ -436,7 +454,7 @@ function JobMatchSection() {
     } catch {
       setErrorMsg("Failed to load job match history.");
     } finally {
-      setIsAnalyzing(false);
+      setIsLoadingHistory(false);
     }
   };
 
@@ -477,29 +495,48 @@ function JobMatchSection() {
       </CardHeader>
 
       <CardContent className="pt-0 space-y-4">
-        {errorMsg && (
+        {errorMsg && !result && (
           <div className="flex items-start gap-2.5 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <p>{errorMsg}</p>
           </div>
         )}
 
-        {/* ── Loading ── */}
-        {isAnalyzing && (
-          <div className="py-8 flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center">
-              <Loader2 className="w-6 h-6 text-emerald-600 animate-spin" />
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-semibold text-gray-900">Analysing match…</p>
-              <p className="text-xs text-gray-400 mt-1">Comparing your CV to the job description</p>
-            </div>
+        {isLoadingHistory && (
+          <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl px-3.5 py-2.5">
+            <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+            Loading saved match…
           </div>
         )}
 
-        {/* ── Form ── */}
-        {!isAnalyzing && !result && (
-          <form onSubmit={handleAnalyze} className="space-y-3.5">
+        <AnimatePresence mode="wait" initial={false}>
+          {isAnalyzing ? (
+            <motion.div
+              key="analyzing"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={panelTransition}
+              className="py-8 flex flex-col items-center gap-3"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center">
+                <Loader2 className="w-6 h-6 text-emerald-600 animate-spin" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-gray-900">Analysing match…</p>
+                <p className="text-xs text-gray-400 mt-1">Comparing your CV to the job description</p>
+              </div>
+            </motion.div>
+          ) : !result ? (
+            <motion.form
+              key="form"
+              onSubmit={handleAnalyze}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={panelTransition}
+              className={clsx("space-y-3.5", isLoadingHistory && "opacity-60 pointer-events-none")}
+            >
             <p className="text-sm text-gray-500 leading-relaxed">
               Paste a job description to see your match score, missing keywords, and tailored suggestions.
             </p>
@@ -532,12 +569,11 @@ function JobMatchSection() {
             >
               Analyse Match
             </Button>
-          </form>
-        )}
-
-        {/* ── Results ── */}
-        {!isAnalyzing && result && (
-          <div className="space-y-4">
+            </motion.form>
+          ) : (
+          <div
+            className={clsx("space-y-4 transition-opacity duration-200", isLoadingHistory && "opacity-60")}
+          >
             {/* Score + summary */}
             <div className="flex items-start gap-4 p-3 bg-gray-50 rounded-xl">
               <ScoreRing score={result.matchScore} size={80} />
@@ -624,6 +660,12 @@ function JobMatchSection() {
             <p className="text-[11px] text-gray-500 leading-relaxed bg-[#04659A]/5 border border-[#04659A]/10 rounded-xl px-3.5 py-3">
               Tailoring applies the suggestions by updating your Summary, Skills, and rewriting existing Experience/Project descriptions. It may also add a new Project if suggested. It will not invent experience, companies, or dates.
             </p>
+            {errorMsg && (
+              <div className="flex items-start gap-2.5 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <p>{errorMsg}</p>
+              </div>
+            )}
             <Button
               variant="primary"
               size="md"
@@ -635,7 +677,8 @@ function JobMatchSection() {
               {isTailoring ? "Tailoring…" : "Tailor CV to This Job"}
             </Button>
           </div>
-        )}
+          )}
+        </AnimatePresence>
 
         <div className="border-t border-gray-100 pt-4">
           <div className="flex items-center gap-2 mb-2.5">
@@ -657,13 +700,19 @@ function JobMatchSection() {
               {history.map((h) => (
                 <div
                   key={h.id}
-                  className="group w-full rounded-xl bg-white border border-gray-100 hover:border-gray-200 px-3.5 py-3 transition-colors"
+                  className={clsx(
+                    "group w-full rounded-xl bg-white border px-3.5 py-3 transition-colors",
+                    activeHistoryId === h.id
+                      ? "border-emerald-200 bg-emerald-50/40"
+                      : "border-gray-100 hover:border-gray-200"
+                  )}
                 >
                   <div className="flex items-start gap-3">
                     <button
                       type="button"
                       onClick={() => handleLoadHistory(h.id)}
-                      className="text-left flex-1 min-w-0"
+                      disabled={isLoadingHistory || isAnalyzing}
+                      className="text-left flex-1 min-w-0 disabled:opacity-60"
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-semibold text-gray-800 truncate flex-1">

@@ -1,12 +1,15 @@
-import os
-import re
-import json
-from typing import Dict, List, Optional, Protocol, Any
-import httpx
+from typing import Dict, List, Optional
+
+from langchain_core.language_models.chat_models import BaseChatModel
 from loguru import logger
-from src.services.ai.ai_clients_service import (
-    AsyncLLMClient, OllamaClient, OpenAIClient, 
-    AnthropicClient, GoogleClient, TextProcessor, AIConfigurationError, AIProviderError
+
+from src.services.ai.ai_clients_service import AIConfigurationError, AIProviderError
+from src.services.ai.llm.models import ainvoke_structured
+from src.services.ai.llm.schemas import ContentReview, SectionReview
+from src.services.ai.workflows.review_merge import (
+    assemble_section_base,
+    soft_failed_section,
+    weighted_section_score,
 )
 
 
@@ -24,22 +27,15 @@ class PromptBuilder:
     def compose_section_prompt(name: str, content: str) -> str:
         return (
             f"You are a CV reviewer. Analyze the '{name}' section below and provide feedback.\n\n"
-            "Return ONLY valid JSON with exactly this structure:\n"
-            "{\n"
-            f'  "name": "{name}",\n'
-            '  "score": number,  // 0-100\n'
-            '  "strengths": [string],\n'
-            '  "areas_to_improve": [string],\n'
-            '  "suggestions": [string]\n'
-            "}\n\n"
             "Guidelines:\n"
-            "- Score based on relevance, clarity, and impact\n"
+            "- Score based on relevance, clarity, and impact (0-100)\n"
             "- Strengths: what works well\n"
             "- Areas to improve: specific weaknesses\n"
-            "- Suggestions: actionable improvements\n\n"
-            "Do NOT include any text outside the JSON.\n\n"
+            "- Suggestions: actionable improvements\n"
+            f"- Set name to exactly '{name}'\n\n"
             f"Section content:\n\"\"\"\n{content}\n\"\"\"\n"
         )
+
     @staticmethod
     def compose_content_analysis_prompt(content: str) -> str:
         return (
@@ -47,51 +43,31 @@ class PromptBuilder:
             "- ATS Compatibility\n"
             "- Content Quality\n"
             "- Formatting\n\n"
-            "Return ONLY valid JSON with exactly this structure:\n"
-            "{\n"
-            '  "atsCompatibility": {\n'
-            '    "score": number,  // 0-100\n'
-            '    "summary": [string]\n'
-            "  },\n"
-            '  "contentQuality": {\n'
-            '    "score": number,  // 0-100\n'
-            '    "summary": [string]\n'
-            "  },\n"
-            '  "formattingAnalysis": {\n'
-            '    "score": number,  // 0-100\n'
-            '    "summary": [string]\n'
-            "  }\n"
-            "}\n\n"
             "Guidelines:\n"
+            "- Scores are 0-100\n"
             "- ATS: section headings, simple formatting, keyword use, clear titles\n"
             "- Content: measurable outcomes, specificity, coverage of key sections, action verbs\n"
-            "- Formatting: consistency in headings, bullets, whitespace, punctuation, date ranges\n\n"
-            "Provide concise bullet-style strings for each summary. Do NOT include any text outside the JSON.\n\n"
+            "- Formatting: consistency in headings, bullets, whitespace, punctuation, date ranges\n"
+            "- Provide concise bullet-style strings for each summary\n\n"
             "Resume to analyze:\n"
             f"\"\"\"\n{content}\n\"\"\"\n"
         )
 
 
 class SectionAnalyzer:
-    def __init__(self, llm_client: AsyncLLMClient):
-        self.llm_client = llm_client
-    async def analyze_section(self, name: str, content: str, model: str) -> dict:
+    def __init__(self, model: BaseChatModel):
+        self.model = model
+
+    async def analyze_section(self, name: str, content: str, model: str = "") -> dict:
         try:
             prompt = PromptBuilder.compose_section_prompt(name, content)
-            response_text = await self.llm_client.generate(prompt, model)
-            parsed = TextProcessor.extract_json(response_text) or {}
-            return {
-                "name": parsed.get("name", name),
-                "score": TextProcessor.safe_number(parsed.get("score", 0)),
-                "strengths": list(map(str, parsed.get("strengths", []))),
-                "areas_to_improve": list(map(str, parsed.get("areas_to_improve", []))),
-                "suggestions": list(map(str, parsed.get("suggestions", []))),
-            }
+            result = await ainvoke_structured(self.model, SectionReview, prompt)
+            return result.to_analyse_dict(fallback_name=name)
         except (AIConfigurationError, AIProviderError):
             raise
         except Exception as exc:
             logger.warning("Section analysis failed for '{}': {}", name, str(exc))
-            return {"name": name, "score": 0.0, "strengths": [], "areas_to_improve": [], "suggestions": []}
+            return soft_failed_section(name, "Section analysis unavailable")
 
 
 class ResumeProcessor:
@@ -218,57 +194,32 @@ class ResumeProcessor:
         return "\n\n".join(lines).strip()
 
 class ContentAnalyzer:
-    def __init__(self, llm_client: AsyncLLMClient):
-        self.llm_client = llm_client
-    async def analyze_resume_content(self, resume_text: str, model: str) -> dict:
+    def __init__(self, model: BaseChatModel):
+        self.model = model
+
+    async def analyze_resume_content(self, resume_text: str, model: str = "") -> dict:
         try:
             prompt = PromptBuilder.compose_content_analysis_prompt(resume_text)
-          
-            response_text = await self.llm_client.generate(prompt, model)
-            parsed = TextProcessor.extract_json(response_text) or {}
-            ats = parsed.get("atsCompatibility", {}) or {}
-            cq = parsed.get("contentQuality", {}) or {}
-            fmt = parsed.get("formattingAnalysis", {}) or {}
-            return {
-                "atsCompatibility": {"score": TextProcessor.safe_number(ats.get("score", 0)), "summary": list(map(str, ats.get("summary", [])))},
-                "contentQuality": {"score": TextProcessor.safe_number(cq.get("score", 0)), "summary": list(map(str, cq.get("summary", [])))},
-                "formattingAnalysis": {"score": TextProcessor.safe_number(fmt.get("score", 0)), "summary": list(map(str, fmt.get("summary", [])))},
-            }
+            result = await ainvoke_structured(self.model, ContentReview, prompt)
+            return result.to_analyse_dict()
         except (AIConfigurationError, AIProviderError):
             raise
         except Exception as exc:
             logger.warning("Combined analysis failed; falling back to separate calls: {}", str(exc))
-            return {
-                "atsCompatibility": {"score": 0.0, "summary": []},
-                "contentQuality": {"score": 0.0, "summary": []},
-                "formattingAnalysis": {"score": 0.0, "summary": []},
-            }
+            from src.services.ai.workflows.review_merge import empty_content_review
+
+            return empty_content_review()
 
 
 class CVReviewService:
-    def __init__(self, llm_client: AsyncLLMClient, config: CVReviewConfig):
-        self.llm_client = llm_client
+    def __init__(self, model: BaseChatModel, config: CVReviewConfig):
+        self.model = model
         self.config = config
-        self.section_analyzer = SectionAnalyzer(llm_client)
-        self.content_analyzer = ContentAnalyzer(llm_client)
+        self.section_analyzer = SectionAnalyzer(model)
+        self.content_analyzer = ContentAnalyzer(model)
+
     def _weighted_section_score(self, sections: List[dict]) -> float:
-        weights = {
-            "Summary": 0.10,
-            "Experience": 0.35,
-            "Education": 0.15,
-            "Skills": 0.20,
-            "Projects": 0.10,
-        }
-        default_weight = 0.10
-        total_w = 0.0
-        accum = 0.0
-        for s in sections:
-            name = str(s.get("name", "")).strip()
-            score = TextProcessor.safe_number(s.get("score", 0), 0.0)
-            w = weights.get(name, default_weight)
-            accum += score * w
-            total_w += w
-        return round(accum / total_w, 1) if total_w > 0 else 0.0
+        return weighted_section_score(sections)
 
     async def review_cv_from_sections(self, sections: Dict[str, str], model: Optional[str] = None) -> dict:
         model = model or self.config.model_name
@@ -279,71 +230,18 @@ class CVReviewService:
                 analyzed.append(await self.section_analyzer.analyze_section(name, sections[name], model))
         if not analyzed:
             analyzed.append(await self.section_analyzer.analyze_section("Summary", "\n".join(sections.values()), model))
-        strengths: List[str] = []
-        improvements: List[str] = []
-        final_sections: List[dict] = []
-        for sec in analyzed:
-            final_sections.append({"name": sec["name"], "score": TextProcessor.safe_number(sec["score"], 0), "suggestions": sec.get("suggestions", [])})
-            strengths.extend(sec.get("strengths", []))
-            improvements.extend(sec.get("areas_to_improve", []))
-        overall = self._weighted_section_score(final_sections)
-        return {
-            "overall_score": overall,
-            "strengths": sorted({s.strip() for s in strengths if s.strip()}),
-            "areas_to_improve": sorted({a.strip() for a in improvements if a.strip()}),
-            "sections": final_sections,
-        }
+        return assemble_section_base(analyzed)
 
-    async def review_cv_payload(self, payload: dict) -> dict:
-        model = self.config.model_name
-        
-        resume_text_full = ResumeProcessor.build_resume_text_from_nested(payload)
-        combined = await self.content_analyzer.analyze_resume_content(resume_text_full or "", model)
-        ats = combined.get("atsCompatibility", {"score": 0.0, "summary": []})
-        content_quality = combined.get("contentQuality", {"score": 0.0, "summary": []})
-        fmt_analysis = combined.get("formattingAnalysis", {"score": 0.0, "summary": []})
-        sections = ResumeProcessor.flatten_resume_sections(payload)
-        base = await self.review_cv_from_sections(sections, model=model)
+    async def review_cv_payload(self, payload: dict, is_platform_mode: Optional[bool] = None) -> dict:
+        from src.services.ai.workflows.review import run_cv_review
 
-        section_overall = TextProcessor.safe_number(base.get("overall_score", 0.0), 0.0)
-        ats_score = TextProcessor.safe_number(ats.get("score", 0.0), 0.0)
-        cq_score = TextProcessor.safe_number(content_quality.get("score", 0.0), 0.0)
-        fmt_score = TextProcessor.safe_number(fmt_analysis.get("score", 0.0), 0.0)
+        return await run_cv_review(
+            chat_model=self.model,
+            payload=payload,
+            is_platform_mode=is_platform_mode,
+        )
 
-        dim_blend = (0.25 * ats_score) + (0.50 * cq_score) + (0.25 * fmt_score)
-        penalty = 0.0
-        if not sections.get("Experience"): penalty += 8.0
-        if not sections.get("Skills"): penalty += 5.0
-        if not sections.get("Education"): penalty += 4.0
-
-        final_overall = max(0.0, min(100.0, round((0.60 * section_overall) + (0.40 * dim_blend) - penalty, 1)))
-
-        base["overall_score"] = final_overall
-        base["atsCompatibility"] = ats
-        base["contentQuality"] = content_quality
-        base["formattingAnalysis"] = fmt_analysis
-
-        if (
-            final_overall <= 0
-            and not base.get("strengths")
-            and not base.get("areas_to_improve")
-            and all(
-                TextProcessor.safe_number(s.get("score", 0), 0.0) <= 0
-                and not s.get("suggestions")
-                for s in (base.get("sections") or [])
-            )
-            and TextProcessor.safe_number(ats.get("score", 0), 0.0) <= 0
-            and not ats.get("summary")
-            and TextProcessor.safe_number(content_quality.get("score", 0), 0.0) <= 0
-            and not content_quality.get("summary")
-            and TextProcessor.safe_number(fmt_analysis.get("score", 0), 0.0) <= 0
-            and not fmt_analysis.get("summary")
-        ):
-            raise ValueError("AI review returned empty response")
-
-        return base
-
-def create_cv_review_service(client: AsyncLLMClient, model_id: str) -> CVReviewService:
+def create_cv_review_service(model: BaseChatModel, model_id: str) -> CVReviewService:
     config = CVReviewConfig(
         active_model_id="dynamic",
         provider="dynamic",
@@ -351,4 +249,4 @@ def create_cv_review_service(client: AsyncLLMClient, model_id: str) -> CVReviewS
         api_key="",
         model_id_map=model_id
     )
-    return CVReviewService(client, config)
+    return CVReviewService(model, config)

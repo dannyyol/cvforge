@@ -19,7 +19,8 @@ from src.services.settings.ai_service import get_configured_ai_client
 from src.services.settings.plan_service import PlanService
 from src.config import settings
 from src.models.user import User
-from src.utils.html_sanitizer import sanitize_rich_text_html
+from src.utils.html_sanitizer import insert_paragraph_spacing, plain_text_to_rich_html, sanitize_rich_text_html
+from src.services.ai.guardrails import GuardrailViolation, enforce_safe_user_inputs
 
 class CoverLetterService:
     def __init__(self, db: AsyncSession, user: Optional[User] = None):
@@ -169,6 +170,16 @@ class CoverLetterService:
                 lines.append(f"{name}\n{content.strip()}")
         return "\n\n".join(lines).strip()
 
+    @staticmethod
+    def _format_recipient_salutation(title: str | None, name: str | None) -> str:
+        title = (title or "").strip()
+        name = (name or "").strip()
+        if title and name and title.casefold() == name.casefold():
+            return name
+        if title and name:
+            return f"{title} {name}".strip()
+        return name or title or "Hiring Manager"
+
     def _compose_cover_letter_prompt(self, resume_text: str, body: CoverLetterGenerateRequest, guidelines: dict, length_hint: str) -> str:
         opening = guidelines.get("opening", "")
         closing = guidelines.get("closing", "")
@@ -176,6 +187,7 @@ class CoverLetterService:
         word_count = guidelines.get("word_count", "")
         style_tips = guidelines.get("style_tips", [])
         tips = "\n".join([f"- {t}" for t in style_tips]) if style_tips else ""
+        salutation = self._format_recipient_salutation(body.recipient_title, body.recipient_name)
         
         instruction = "Write a tailored cover letter using the resume and job context."
         resume_section = f"Resume:\n\"\"\"\n{resume_text}\n\"\"\"\n\n"
@@ -186,17 +198,24 @@ class CoverLetterService:
 
         return (
             f"{instruction}\n\n"
-            "Return plain text only.\n\n"
+            "Return HTML only using a separate <p> for:\n"
+            "1) the greeting\n"
+            "2) each body paragraph\n"
+            "3) the closing and signature line(s)\n"
+            "Put an empty <p></p> between each of those sections for spacing. "
+            "Do not put the entire letter in a single <p>. "
+            "Do not use markdown or code fences.\n\n"
             f"Tone: {body.tone}\n"
             f"Desired length: {length_hint}\n"
             f"Company: {body.company_name}\n"
-            f"Recipient: {body.recipient_title} {body.recipient_name}\n"
+            f"Recipient salutation (use exactly once in the greeting, do not repeat words): {salutation}\n"
+            f"Greeting must be exactly: Hello {salutation},\n"
             f"Role: {body.job_title}\n"
             "Job Description:\n"
             f"\"\"\"\n{body.job_description}\n\"\"\"\n\n"
             f"{resume_section}"
             "Template Guidelines:\n"
-            f"- Opening: {opening}\n"
+            f"- Opening style hint: {opening}\n"
             f"- Closing: {closing}\n"
             f"- Structure: {structure}\n"
             f"- Target word count: {word_count}\n"
@@ -294,22 +313,39 @@ class CoverLetterService:
             resume = result.scalar_one_or_none()
             if not resume:
                 raise HTTPException(status_code=404, detail="Resume not found")
+            try:
+                enforce_safe_user_inputs(
+                    body.job_title,
+                    body.job_description,
+                    body.company_name,
+                )
+            except GuardrailViolation as exc:
+                raise HTTPException(status_code=400, detail=exc.detail) from exc
             client, model_id, is_platform_mode = await get_configured_ai_client(self.db, self.user_id)
             plan_service = PlanService(self.db, self.user)
             cost = settings.COST_GENERATE_COVER_LETTER
             if is_platform_mode:
                 if not await plan_service.has_sufficient_balance(cost):
                      raise HTTPException(status_code=402, detail=f"Insufficient tokens. This action requires at least {cost} tokens.")
-            stmt_t = select(CoverLetterTemplate).where(CoverLetterTemplate.key == body.template_key)
+            requested_key = (body.template_key or "").strip() or "soft-modern"
+            stmt_t = select(CoverLetterTemplate).where(CoverLetterTemplate.key == requested_key)
             res_t = await self.db.execute(stmt_t)
             template = res_t.scalar_one_or_none()
+            if not template and requested_key != "soft-modern":
+                # Legacy resumes sometimes stored resume template keys (e.g. "professional")
+                # on the cover letter theme; fall back to the default CL template.
+                stmt_t = select(CoverLetterTemplate).where(CoverLetterTemplate.key == "soft-modern")
+                res_t = await self.db.execute(stmt_t)
+                template = res_t.scalar_one_or_none()
             if not template:
                 raise HTTPException(status_code=400, detail="Invalid cover letter template key")
             resume_text = self._compose_resume_text(resume)
             length_hint = body.length or "medium"
             prompt = self._compose_cover_letter_prompt(resume_text, body, template.guidelines or {}, length_hint)
             generated = await client.generate(prompt, model_id)
-            content = sanitize_rich_text_html(TextProcessor.strip_code_fences(generated))
+            content = insert_paragraph_spacing(
+                plain_text_to_rich_html(TextProcessor.strip_code_fences(generated))
+            )
             name = body.title or (f"{body.job_title} @ {body.company_name}".strip() if body.job_title or body.company_name else "Cover Letter")
             cl = DBCoverLetter(
                 id=str(uuid.uuid4()),
@@ -322,7 +358,7 @@ class CoverLetterService:
                 content=content or "",
                 job_title=body.job_title or "",
                 job_description=body.job_description or "",
-                template_key=body.template_key or template.key,
+                template_key=template.key,
                 tone=body.tone or "professional",
                 length=length_hint or "medium",
             )

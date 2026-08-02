@@ -50,3 +50,11 @@
   line-height: var(--line-height, 1.6);
   color: #111827;
 }
+
+.cl-mono .cl-content p {
+  margin: 0;
+}
+
+.cl-mono .cl-content p:empty::before {
+  content: "\00a0";
+}

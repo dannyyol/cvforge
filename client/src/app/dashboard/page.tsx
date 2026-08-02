@@ -196,7 +196,7 @@ export default function DashboardPage () {
       await generateCoverLetter({
         title: `${jobTitle} @ ${company}`,
         recipientName: 'Hiring Manager',
-        recipientTitle: 'Hiring Manager',
+        recipientTitle: '',
         companyName: company,
         companyAddress: '',
         jobTitle,

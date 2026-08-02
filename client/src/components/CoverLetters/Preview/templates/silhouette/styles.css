@@ -61,3 +61,11 @@
   color: #111827;
   font-style: italic;
 }
+
+.cl-silhouette .cl-content p {
+  margin: 0;
+}
+
+.cl-silhouette .cl-content p:empty::before {
+  content: "\00a0";
+}

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { CVSection as Section, PersonalDetails, WorkExperience, Education, Skill, Project, Certification, Award, Publication, CustomSectionItem, ThemeConfig, TemplateId, TemplateProps, Template, CoverLetter, CoverLetterTemplateId } from '../types/resume';
+import { isCoverLetterTemplateId } from '../components/CoverLetters/Preview/templates/registry';
 import { resumeService } from '../services/resumeService';
 import type { CoverLetterItem } from '../services/resumeService';
 import type { AIReviewResponse } from '../services/analysisService';
@@ -36,7 +37,10 @@ function apiResponseToCvData(data: ResumeApiResponse): TemplateProps {
       content: data.coverLetter?.content ?? '',
       jobTitle: data.coverLetter?.jobTitle,
       jobDescription: data.coverLetter?.jobDescription,
-      templateKey: (data.coverLetter?.templateKey ?? data.coverLetterTheme?.templateKey ?? 'soft-modern') as CoverLetterTemplateId,
+      templateKey: (() => {
+        const raw = data.coverLetter?.templateKey ?? data.coverLetterTheme?.templateKey ?? 'soft-modern';
+        return (isCoverLetterTemplateId(raw) ? raw : 'soft-modern') as CoverLetterTemplateId;
+      })(),
     },
   };
 }
@@ -492,34 +496,38 @@ export const useCVStore = create<CVStore>((set, get) => ({
     const { currentResumeId, cvData } = get();
     if (!currentResumeId) return;
     set({ isCLGenerating: true });
-    const payload = {
-      title: data.title,
-      recipientName: data.recipientName ?? '',
-      recipientTitle: data.recipientTitle ?? '',
-      companyName: data.companyName ?? '',
-      companyAddress: data.companyAddress ?? '',
-      jobTitle: data.jobTitle ?? '',
-      jobDescription: data.jobDescription ?? '',
-      templateKey: (data.templateKey ?? (cvData.coverLetter?.templateKey as CoverLetterTemplateId) ?? 'soft-modern') as string,
-    };
-    const generated = await resumeService.generateCoverLetter(currentResumeId, payload);
-    set((state) => ({
-      activeDocumentMode: 'cover-letter',
-      cvData: {
-        ...state.cvData,
-        coverLetter: {
-          templateKey: payload.templateKey as CoverLetterTemplateId,
-          recipientName: generated.recipientName,
-          recipientTitle: generated.recipientTitle,
-          companyName: generated.companyName,
-          companyAddress: generated.companyAddress,
-          content: generated.content,
-          jobTitle: generated.jobTitle,
-          jobDescription: generated.jobDescription,
+    try {
+      const rawTemplateKey = (data.templateKey ?? cvData.coverLetter?.templateKey ?? cvData.coverLetterTheme?.templateKey ?? 'soft-modern') as string;
+      const payload = {
+        title: data.title,
+        recipientName: data.recipientName ?? '',
+        recipientTitle: data.recipientTitle ?? '',
+        companyName: data.companyName ?? '',
+        companyAddress: data.companyAddress ?? '',
+        jobTitle: data.jobTitle ?? '',
+        jobDescription: data.jobDescription ?? '',
+        templateKey: isCoverLetterTemplateId(rawTemplateKey) ? rawTemplateKey : 'soft-modern',
+      };
+      const generated = await resumeService.generateCoverLetter(currentResumeId, payload);
+      set((state) => ({
+        activeDocumentMode: 'cover-letter',
+        cvData: {
+          ...state.cvData,
+          coverLetter: {
+            templateKey: payload.templateKey as CoverLetterTemplateId,
+            recipientName: generated.recipientName,
+            recipientTitle: generated.recipientTitle,
+            companyName: generated.companyName,
+            companyAddress: generated.companyAddress,
+            content: generated.content,
+            jobTitle: generated.jobTitle,
+            jobDescription: generated.jobDescription,
+          }
         }
-      }
-    }));
-    set({ isCLGenerating: false });
+      }));
+    } finally {
+      set({ isCLGenerating: false });
+    }
   },
   
   tailorResume: async (data) => {

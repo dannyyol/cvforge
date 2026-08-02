@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useCVStore } from '../../../../store/useCVStore';
 import { Input } from '../../../ui/Form';
 import { RichTextEditor } from '../../../ui/RichTextEditor';
-import { User, Building2, MapPin, RefreshCw, Briefcase, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Building2, MapPin, RefreshCw, Briefcase, FileText, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../../../ui/Card';
 
 export const CoverLetterForm = () => {
@@ -10,6 +10,7 @@ export const CoverLetterForm = () => {
   const { coverLetter } = cvData;
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRecipientOpen, setIsRecipientOpen] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!coverLetter) return null;
 
@@ -25,19 +26,25 @@ export const CoverLetterForm = () => {
   const handleRegenerate = async () => {
     if (isGenerating) return;
     setIsGenerating(true);
+    setErrorMsg(null);
     const company = coverLetter.companyName || 'Company';
     try {
       await generateCoverLetter({
         title: `${coverLetter.jobTitle || 'Cover Letter'} @ ${company}`,
         recipientName: coverLetter.recipientName || 'Hiring Manager',
-        recipientTitle: coverLetter.recipientTitle || 'Hiring Manager',
+        recipientTitle: coverLetter.recipientTitle || '',
         companyName: company,
         companyAddress: coverLetter.companyAddress || '',
         jobTitle: coverLetter.jobTitle || '',
         jobDescription: coverLetter.jobDescription || '',
         templateKey: coverLetter.templateKey || 'soft-modern',
       });
-    } catch {
+    } catch (err: unknown) {
+      setErrorMsg(
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+          ?? (err instanceof Error ? err.message : null)
+          ?? 'Failed to generate cover letter. Please try again.'
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -147,6 +154,12 @@ export const CoverLetterForm = () => {
         </CardHeader>
 
         <CardContent className="editor-section-content space-y-4">
+          {errorMsg && (
+            <div className="flex items-start gap-2.5 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <p>{errorMsg}</p>
+            </div>
+          )}
           <RichTextEditor
             label="Body Content"
             value={coverLetter.content}

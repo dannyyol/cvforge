@@ -1,185 +1,74 @@
-import json
 import uuid
-import re
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
+from langchain_core.language_models.chat_models import BaseChatModel
 from loguru import logger
-from src.services.ai.ai_clients_service import get_ai_client, TextProcessor, AsyncLLMClient
+
+from src.services.ai.llm.models import ainvoke_structured, build_chat_model
+from src.services.ai.llm.schemas import ParsedResumeData
+
 
 class AIResumeParser:
     @staticmethod
-    async def parse_with_client(
-        text: str,
-        client: AsyncLLMClient,
-        model: str
-    ) -> Dict[str, Any]:
-        """
-        Parses resume text using a provided AI client.
-        """
-        prompt = (
-            "You are an expert Resume Parser. Your task is to extract structured data from the provided resume text.\n"
-            "Return ONLY valid JSON matching the following structure. Do not include any explanation or markdown code blocks.\n\n"
-            "Schema Structure:\n"
-            "{\n"
-            '  "personalDetails": {\n'
-            '    "fullName": "...",\n'
-            '    "email": "...",\n'
-            '    "phone": "...",\n'
-            '    "address": "...",\n'
-            '    "jobTitle": "...",\n'
-            '    "website": "...",\n'
-            '    "linkedin": "...",\n'
-            '    "github": "..."\n'
-            '  },\n'
-            '  "professionalSummary": {\n'
-            '    "content": "..."\n'
-            '  },\n'
-            '  "workExperiences": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "company": "...",\n'
-            '      "position": "...",\n'
-            '      "location": "...",\n'
-            '      "startDate": "YYYY-MM",\n'
-            '      "endDate": "YYYY-MM or Present",\n'
-            '      "current": boolean,\n'
-            '      "description": "..."\n'
-            '    }\n'
-            '  ],\n'
-            '  "education": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "institution": "...",\n'
-            '      "degree": "...",\n'
-            '      "fieldOfStudy": "...",\n'
-            '      "startDate": "YYYY-MM",\n'
-            '      "endDate": "YYYY-MM",\n'
-            '      "current": boolean,\n'
-            '      "description": "..."\n'
-            '    }\n'
-            '  ],\n'
-            '  "skills": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "name": "Category name or empty string",\n'
-            '      "items": ["Skill 1", "Skill 2"],\n'
-            '      "level": ""\n'
-            '    }\n'
-            '  ],\n'
-            '  "projects": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "name": "...",\n'
-            '      "description": "...",\n'
-            '      "technologies": ["tech1", "tech2"],\n'
-            '      "link": "...",\n'
-            '      "startDate": "...",\n'
-            '      "endDate": "..."\n'
-            '    }\n'
-            '  ],\n'
-            '  "certifications": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "name": "...",\n'
-            '      "issuer": "...",\n'
-            '      "issueDate": "...",\n'
-            '      "expiryDate": "...",\n'
-            '      "credentialId": "...",\n'
-            '      "link": "..."\n'
-            '    }\n'
-            '  ],\n'
-            '  "awards": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "title": "...",\n'
-            '      "issuer": "...",\n'
-            '      "date": "...",\n'
-            '      "description": "..."\n'
-            '    }\n'
-            '  ],\n'
-            '  "publications": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "title": "...",\n'
-            '      "publisher": "...",\n'
-            '      "date": "...",\n'
-            '      "description": "...",\n'
-            '      "link": "..."\n'
-            '    }\n'
-            '  ],\n'
-            '  "languages": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "name": "Language Name",\n'
-            '      "description": "Proficiency Level"\n'
-            '    }\n'
-            '  ],\n'
-            '  "interests": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "name": "Interest Name",\n'
-            '      "description": "Details"\n'
-            '    }\n'
-            '  ],\n'
-            '  "websites": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "name": "Site Name",\n'
-            '      "url": "..."\n'
-            '    }\n'
-            '  ],\n'
-            '  "references": [\n'
-            '    {\n'
-            '      "id": "generate-uuid",\n'
-            '      "name": "Reference Name",\n'
-            '      "description": "Details/Contact"\n'
-            '    }\n'
-            '  ]\n'
-            '}\n\n'
+    def _build_prompt(text: str) -> str:
+        return (
+            "You are an expert Resume Parser. Extract structured data from the provided resume text.\n\n"
             "Instructions:\n"
-            "1. Generate unique UUIDs for all 'id' fields.\n"
+            "1. Generate unique UUIDs for all 'id' fields when possible "
+            "(empty ids will be filled later).\n"
             "2. If a field is missing in the text, return empty string or empty list.\n"
-            "3. Extract all available sections. If a section like 'volunteering' is present but not in schema, put it in 'projects' or ignore it.\n"
-            "4. For 'personalDetails', try to infer 'fullName' accurately (e.g. split across lines).\n"
-            "5. 'languages', 'interests', 'websites', 'references' should be mapped to the generic structure shown.\n\n"
+            "3. Extract all available sections. If a section like 'volunteering' is present "
+            "but not in schema, put it in 'projects' or ignore it.\n"
+            "4. For 'personalDetails', infer 'fullName' accurately (e.g. split across lines).\n"
+            "5. Map languages, interests, websites, and references to the schema fields.\n"
+            "6. skills.items should be individual skill names under an optional category name.\n\n"
             "Resume Text:\n"
-            f"\"\"\"\n{text}\n\"\"\""
+            f'"""\n{text}\n"""'
         )
 
+    @staticmethod
+    async def parse_with_model(text: str, model: BaseChatModel) -> Dict[str, Any]:
+        """Parse resume text using a LangChain chat model with structured output."""
+        prompt = AIResumeParser._build_prompt(text)
         try:
-            response_text = await client.generate(prompt, model)
-            
-            parsed_data = TextProcessor.extract_json(response_text)
-            if not parsed_data:
-                logger.error("Failed to extract valid JSON from AI response")
-                raise ValueError("Invalid JSON response from AI")
-                
+            parsed = await ainvoke_structured(model, ParsedResumeData, prompt)
+            parsed_data = parsed.model_dump()
             AIResumeParser._ensure_ids(parsed_data)
             AIResumeParser._normalize_data(parsed_data)
-            
             return parsed_data
-            
         except Exception as e:
             logger.error(f"AI Parsing failed: {str(e)}")
             raise
 
     @staticmethod
+    async def parse_with_client(text: str, client: Any, model: str) -> Dict[str, Any]:
+        """Deprecated: prefer ``parse_with_model``. Kept for transitional callers."""
+        raise TypeError(
+            "parse_with_client no longer accepts AsyncLLMClient. "
+            "Use AIResumeParser.parse_with_model(text, chat_model) instead."
+        )
+
+    @staticmethod
     async def parse_with_ai(
-        text: str, 
-        provider: str, 
-        api_key: Optional[str], 
-        base_url: str, 
-        model: str
+        text: str,
+        provider: str,
+        api_key: Optional[str],
+        base_url: str,
+        model: str,
     ) -> Dict[str, Any]:
-        """
-        Legacy wrapper for parsing resume text using the specified AI provider and model.
-        """
-        client = get_ai_client(provider, base_url, api_key)
-        return await AIResumeParser.parse_with_client(text, client, model)
+        """Legacy wrapper for parsing resume text using provider credentials."""
+        chat_model = build_chat_model(
+            provider=provider,
+            model_id=model,
+            base_url=base_url,
+            api_key=api_key,
+        )
+        return await AIResumeParser.parse_with_model(text, chat_model)
 
     @staticmethod
     def _normalize_data(data: Dict[str, Any]):
         """Ensures all required fields are present with default values."""
-        
+
         if "education" in data and isinstance(data["education"], list):
             for item in data["education"]:
                 if isinstance(item, dict):
@@ -257,11 +146,11 @@ class AIResumeParser:
     def _ensure_ids(data: Dict[str, Any]):
         """Ensures all list items have an ID."""
         list_fields = [
-            "workExperiences", "education", "skills", "projects", 
-            "certifications", "awards", "publications", 
-            "languages", "interests", "websites", "references"
+            "workExperiences", "education", "skills", "projects",
+            "certifications", "awards", "publications",
+            "languages", "interests", "websites", "references",
         ]
-        
+
         for field in list_fields:
             if field in data and isinstance(data[field], list):
                 for item in data[field]:

@@ -84,7 +84,7 @@ def test_get_configured_ai_client_platform_mode_uses_platform_ai_key():
         PLATFORM_OPENAI_API_KEY = "platform-key"
         PLATFORM_OPENAI_MODEL = "gpt-platform"
 
-    with patch("src.services.settings.ai_service.get_settings", return_value=_AppSettings()):
+    with patch("src.services.ai.ai_runtime_config.get_settings", return_value=_AppSettings()):
         client, model_id, is_platform_mode = asyncio.run(get_configured_ai_client(db, "user-1"))
 
     assert is_platform_mode is True
@@ -128,7 +128,7 @@ def test_get_configured_ai_client_custom_mode_uses_logged_in_users_ai_api_key():
         PLATFORM_OPENAI_API_KEY = "platform-key"
         PLATFORM_OPENAI_MODEL = "gpt-platform"
 
-    with patch("src.services.settings.ai_service.get_settings", return_value=_AppSettings()):
+    with patch("src.services.ai.ai_runtime_config.get_settings", return_value=_AppSettings()):
         client, model_id, is_platform_mode = asyncio.run(get_configured_ai_client(db, "user-1"))
 
     assert is_platform_mode is False
@@ -199,7 +199,7 @@ def test_review_resume_platform_mode_charges_tokens_for_default_ai_connection():
     with (
         patch("src.api.routes.resumes.review_routes.PlanService", side_effect=lambda s, u: fake_plan_service),
         patch(
-            "src.api.routes.resumes.review_routes.get_configured_ai_client",
+            "src.api.routes.resumes.review_routes.get_chat_model",
             return_value=(SimpleNamespace(), "gpt-platform", True),
         ),
         patch("src.api.routes.resumes.review_routes.create_cv_review_service", return_value=_FakeReviewService()),

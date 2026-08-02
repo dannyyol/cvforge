@@ -123,11 +123,13 @@ export function JobMatchModal({ isOpen, onClose, onAnalyse, onApply }: JobMatchM
   const handleApply = async () => {
     if (!result) return;
     setIsApplying(true);
+    setErrorMsg(null);
     try {
       await onApply(jobTitle, jobDescription);
       handleClose();
-    } catch {
-      setErrorMsg("Failed to apply suggestions. Please try again.");
+    } catch (err: unknown) {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setErrorMsg(detail ?? "Failed to apply suggestions. Please try again.");
     } finally {
       setIsApplying(false);
     }
@@ -345,7 +347,14 @@ export function JobMatchModal({ isOpen, onClose, onAnalyse, onApply }: JobMatchM
                     )}
 
                     {/* Footer actions */}
-                    <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                    <div className="pt-4 border-t border-gray-100 space-y-3">
+                      {errorMsg && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm flex items-start gap-3">
+                          <AlertCircle className="w-5 h-5 mt-0.5 shrink-0 text-red-500" />
+                          <p>{errorMsg}</p>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center">
                       <button
                         onClick={() => setStep("input")}
                         className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
@@ -370,6 +379,7 @@ export function JobMatchModal({ isOpen, onClose, onAnalyse, onApply }: JobMatchM
                         >
                           {isApplying ? "Applying..." : "Tailor CV to This Job"}
                         </Button>
+                      </div>
                       </div>
                     </div>
                   </div>
