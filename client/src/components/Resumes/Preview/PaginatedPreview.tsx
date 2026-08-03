@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Loader2 } from 'lucide-reac
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { clsx } from 'clsx';
-import { A4_DIMENSIONS } from '@/src/lib/paginationUtils';
+import { A4_DIMENSIONS, pagesEqual, stripRegalOrphanTitleShells } from '@/src/lib/paginationUtils';
 import { sanitizeDocumentHtml } from '@/src/lib/sanitizeHtml';
 import {
   getLetterSpacingCssValue,
@@ -294,15 +294,18 @@ export default function PaginatedPreview({
         const nextPages: string[] = [];
         for await (const pageHtml of splitHtmlToPages(safeHtml, { container: splitContainerRef.current }, localAbort)) {
           if (localAbort.aborted) return;
-          
-          nextPages.push(sanitizeDocumentHtml(pageHtml));
-          if (nextPages.length === 1) {
-            setPages([nextPages[0]]);
-          }
+          const sanitized = sanitizeDocumentHtml(pageHtml);
+          nextPages.push(
+            templateId === 'regal' ? stripRegalOrphanTitleShells(sanitized) : sanitized,
+          );
         }
 
         if (!localAbort.aborted) {
-          setPages(nextPages);
+          // Keep previous pages visible until the full split finishes. Updating
+          // after the first page only (setPages([first])) collapses multi-page
+          // state mid-split and flashes blank/empty content — especially visible
+          // on regal, where splits take longer around flex section titles.
+          setPages((prev) => (pagesEqual(prev, nextPages) ? prev : nextPages));
           setCurrentPage((p) => Math.min(p, Math.max(0, nextPages.length - 1)));
           if (isExport) {
             const w = window as Window & { CV_PREVIEW_READY?: boolean };
@@ -369,7 +372,6 @@ export default function PaginatedPreview({
       transform: isExport ? 'none' : `scale(${scale})`,
       transformOrigin: 'top left',
       transition: isExport ? undefined : 'transform 0.2s ease-in-out',
-      willChange: isExport ? undefined : 'transform',
     };
     const vars: Record<string, string> = {
       '--accent-color': accentColor || '#475569',

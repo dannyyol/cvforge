@@ -54,13 +54,13 @@ export default function Legacy({
                   <div className="cv-legacy-contact-col">
                     {personalDetails?.phone ? (
                       <div className="cv-legacy-contact-row">
-                        <span className="cv-legacy-contact-label">Phone</span>
+                        <span className="cv-legacy-contact-label">Phone:</span>
                         <span className="cv-legacy-contact-value">{personalDetails.phone}</span>
                       </div>
                     ) : null}
                     {personalDetails?.email ? (
                       <div className="cv-legacy-contact-row">
-                        <span className="cv-legacy-contact-label">E-mail</span>
+                        <span className="cv-legacy-contact-label">E-mail:</span>
                         <span className="cv-legacy-contact-value">{personalDetails.email}</span>
                       </div>
                     ) : null}
@@ -68,19 +68,19 @@ export default function Legacy({
                   <div className="cv-legacy-contact-col">
                     {personalDetails?.linkedin ? (
                       <div className="cv-legacy-contact-row">
-                        <span className="cv-legacy-contact-label">LinkedIn</span>
+                        <span className="cv-legacy-contact-label">LinkedIn:</span>
                         <span className="cv-legacy-contact-value">{personalDetails.linkedin}</span>
                       </div>
                     ) : null}
                     {personalDetails?.github ? (
                       <div className="cv-legacy-contact-row">
-                        <span className="cv-legacy-contact-label">GitHub</span>
+                        <span className="cv-legacy-contact-label">GitHub:</span>
                         <span className="cv-legacy-contact-value">{personalDetails.github.replace(/^https?:\/\//, '')}</span>
                       </div>
                     ) : null}
                     {personalDetails?.website ? (
                       <div className="cv-legacy-contact-row">
-                        <span className="cv-legacy-contact-label">Website</span>
+                        <span className="cv-legacy-contact-label">Website:</span>
                         <span className="cv-legacy-contact-value">{personalDetails.website}</span>
                       </div>
                     ) : null}

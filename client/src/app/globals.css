@@ -65,6 +65,22 @@
     gap: 0 !important;
   }
 
+  /*
+   * @talers/html-pages marks list items that continue from the previous page
+   * with this class. Hide their markers so a mid-item page break does not look
+   * like a brand-new bullet/number on the next page.
+   * @see https://github.com/talers-io/html-pages (Styling continued list items)
+   */
+  .html-pages__follow-up-list-item::marker {
+    color: transparent;
+  }
+  .html-pages__follow-up-list-item::before {
+    content: none !important;
+  }
+  .html-pages__follow-up-list-item > p:first-child {
+    margin-top: 0;
+  }
+
   .ai-panel { @apply w-full bg-white dark:bg-slate-900 min-h-screen; }
   .ai-container { @apply max-w-4xl mx-auto px-6 pt-3 pb-8 space-y-6; }
 

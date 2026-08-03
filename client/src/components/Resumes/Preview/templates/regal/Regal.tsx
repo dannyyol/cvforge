@@ -77,7 +77,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <div
                   className="cv-regal-paragraph"
                   dangerouslySetInnerHTML={{ __html: sanitizeRichTextHtml(professionalSummary.content) }}
@@ -94,7 +94,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <ul className="cv-regal-list">
                   {workExperiences.map((exp: WorkExperience) => (
                     <li className="cv-regal-list-item" key={exp.id}>
@@ -129,7 +129,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <ul className="cv-regal-list">
                   {education.map((ed: Education) => (
                     <li className="cv-regal-list-item" key={ed.id}>
@@ -165,7 +165,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <div className="cv-regal-skills-grid">
                   {columns.map((col, ci) => (
                     <ul key={ci} className="cv-regal-skills-col">
@@ -194,7 +194,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <ul className="cv-regal-list">
                   {projects.map((p: Project) => (
                     <li className="cv-regal-list-item" key={p.id}>
@@ -221,7 +221,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <ul className="cv-regal-list">
                   {certifications.map((c: Certification) => (
                     <li className="cv-regal-list-item" key={c.id}>
@@ -242,7 +242,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <ul className="cv-regal-list">
                   {awards.map((a: Award) => (
                     <li className="cv-regal-list-item" key={a.id}>
@@ -270,7 +270,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <ul className="cv-regal-list">
                   {publications.map((p: Publication) => (
                     <li className="cv-regal-list-item" key={p.id}>
@@ -304,7 +304,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <div className="cv-regal-skills-grid">
                   {columns.map((col, ci) => (
                     <ul key={ci} className="cv-regal-skills-col">
@@ -329,7 +329,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <ul className="cv-regal-inline-list">
                   {interests.map((int) => (
                     <li key={int.id} className="cv-regal-inline-item">
@@ -349,7 +349,7 @@ export default function Regal({
                 data-cv-section
                 data-section-id={section.id}
               >
-                <h2 className="cv-regal-section-title"><span>{section.title}</span></h2>
+                <h2 className="cv-regal-section-title">{section.title}</h2>
                 <ul className="cv-regal-list">
                   {websites.map((web) => (
                     <li className="cv-regal-list-item" key={web.id}>

@@ -108,6 +108,11 @@
   color: #1a202c;
 }
 
+.cv-elegant-item-date {
+  font-weight: 700;
+  color: #4a5568;
+}
+
 .cv-elegant-company-location {
   font-weight: 700;
   font-size: 0.875em;
@@ -195,19 +200,4 @@
 .cv-elegant-contact-label {
   font-weight: 800;
   color: #1a202c;
-}
-
-/* Education Specific */
-.cv-elegant-education-degree,
-.cv-elegant-education-date {
-  font-weight: 800;
-  font-size: 0.875em;
-  color: #1a202c;
-}
-
-.cv-elegant-education-school {
-  font-weight: 800;
-  font-size: 0.875em;
-  margin-bottom: 0.25em;
-  color: #2d3748;
 }

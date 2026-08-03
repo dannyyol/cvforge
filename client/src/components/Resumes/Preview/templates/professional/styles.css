@@ -47,6 +47,7 @@
   letter-spacing: calc(0.08em + var(--letter-spacing, 0));
   color: #0f172a;
   padding-bottom: 0.375em;
+  margin-bottom: 0.75em;
   border-bottom: 0.125em solid color-mix(in srgb, var(--accent-color), white 70%);
   line-height: 1.8;
 }

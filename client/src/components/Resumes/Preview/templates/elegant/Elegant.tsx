@@ -21,6 +21,32 @@ const HTMLContent = ({ content }: { content: string }) => (
   <div className="cv-elegant-p" dangerouslySetInnerHTML={{ __html: sanitizeRichTextHtml(content) }} />
 );
 
+const ItemBlock = ({
+  title,
+  dateLabel,
+  organization,
+  location,
+  description,
+}: {
+  title: string;
+  dateLabel?: string;
+  organization?: string;
+  location?: string;
+  description?: string;
+}) => {
+  const orgLine = [organization, location ? `- ${location}` : null].filter(Boolean).join(' ');
+  return (
+    <div className="cv-elegant-item">
+      <div className="cv-elegant-item-header">
+        {title}
+        {dateLabel ? <span className="cv-elegant-item-date">, {dateLabel}</span> : null}
+      </div>
+      {orgLine ? <div className="cv-elegant-company-location">{orgLine}</div> : null}
+      {description ? <HTMLContent content={description} /> : null}
+    </div>
+  );
+};
+
 // --- Section Renderers ---
 
 const ContactSection = ({ personalDetails, title }: { personalDetails: PersonalDetails, title: string }) => {
@@ -78,16 +104,18 @@ const ExperienceSection = ({ experiences, title, dateLocale }: { experiences: Wo
     <div className="cv-elegant-section" data-cv-section data-section-id="experience">
       <SectionHeader title={title} />
       {experiences.map(exp => (
-        <div key={exp.id} className="cv-elegant-item">
-          <div className="cv-elegant-item-header">
-            {exp.position}
-            {`, ${formatDateRange(exp.startDate, exp.endDate, dateLocale, { current: exp.current, presentLabel: 'Current', style: 'month-year-numeric' })}`}
-          </div>
-          <div className="cv-elegant-company-location">
-            {exp.company} {exp.location && `- ${exp.location}`}
-          </div>
-          <HTMLContent content={exp.description} />
-        </div>
+        <ItemBlock
+          key={exp.id}
+          title={exp.position || 'Job Title'}
+          dateLabel={formatDateRange(exp.startDate, exp.endDate, dateLocale, {
+            current: exp.current,
+            presentLabel: 'Current',
+            style: 'month-year-numeric',
+          }) || undefined}
+          organization={exp.company}
+          location={exp.location}
+          description={exp.description}
+        />
       ))}
     </div>
   );
@@ -99,18 +127,17 @@ const EducationSection = ({ education, title, dateLocale }: { education: Educati
     <div className="cv-elegant-section" data-cv-section data-section-id="education">
       <SectionHeader title={title} />
       {education.map(edu => (
-        <div key={edu.id} className="cv-elegant-item">
-          <div className="cv-elegant-education-degree">
-            {edu.degree}{edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ''}
-          </div>
-          <div className="cv-elegant-education-date">
-            {formatDateRange(edu.startDate, edu.endDate, dateLocale, { current: edu.current, presentLabel: 'Current', style: 'month-year-numeric' })}
-          </div>
-          <div className="cv-elegant-education-school">
-            {edu.institution}
-          </div>
-          {edu.description && <HTMLContent content={edu.description} />}
-        </div>
+        <ItemBlock
+          key={edu.id}
+          title={[edu.degree, edu.fieldOfStudy].filter(Boolean).join(', ') || 'Degree'}
+          dateLabel={formatDateRange(edu.startDate, edu.endDate, dateLocale, {
+            current: edu.current,
+            presentLabel: 'Current',
+            style: 'month-year-numeric',
+          }) || undefined}
+          organization={edu.institution}
+          description={edu.description}
+        />
       ))}
     </div>
   );

@@ -25,14 +25,14 @@
 .cv-legacy-header-contact { color: rgba(255,255,255,0.85); font-size: 0.85em; margin-top: 0.375em; }
 .cv-legacy-header-dot { color: rgba(255,255,255,0.6); }
 
-.cv-legacy-header-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em 1.5em; margin-top: 0.5em; }
-.cv-legacy-contact-col { display: flex; flex-direction: column; gap: 0.375em; }
-.cv-legacy-contact-row { display: flex; gap: 0.5em; align-items: baseline; font-size: 0.85em; }
-.cv-legacy-contact-label { font-weight: 600; color: rgba(255,255,255,0.9); }
-.cv-legacy-contact-value { color: rgba(255,255,255,0.85); }
+.cv-legacy-header-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em 2em; margin-top: 0.75em; align-items: start; }
+.cv-legacy-contact-col { display: flex; flex-direction: column; gap: 0.375em; min-width: 0; }
+.cv-legacy-contact-row { display: grid; grid-template-columns: 5.75em minmax(0, 1fr); column-gap: 0.5em; align-items: baseline; font-size: 0.85em; }
+.cv-legacy-contact-label { font-weight: 600; color: rgba(255,255,255,0.9); white-space: nowrap; }
+.cv-legacy-contact-value { color: rgba(255,255,255,0.85); overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
 
 .cv-legacy-section { margin-top: 1em; }
-.cv-legacy-section-title { font-size: 0.9em; font-weight: 700; text-transform: uppercase; letter-spacing: calc(0.08em + var(--letter-spacing, 0)); color: var(--accent-color); padding-bottom: 0.375em; border-bottom: 1px solid color-mix(in srgb, var(--accent-color), white 70%); line-height: 1.8; }
+.cv-legacy-section-title { font-size: 0.9em; font-weight: 700; text-transform: uppercase; letter-spacing: calc(0.08em + var(--letter-spacing, 0)); color: var(--accent-color); padding-bottom: 0.375em; margin-bottom: 0.75em; border-bottom: 1px solid color-mix(in srgb, var(--accent-color), white 70%); line-height: 1.8; }
 
 .cv-legacy-paragraph ul, .cv-legacy-paragraph ol { padding-left: 1rem; margin-left: 1rem; list-style-position: outside; }
 .cv-legacy-paragraph ul { list-style-type: disc; }

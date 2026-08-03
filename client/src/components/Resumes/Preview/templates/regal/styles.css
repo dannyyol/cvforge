@@ -68,7 +68,12 @@
   letter-spacing: calc(0.08em + var(--letter-spacing, 0));
   color: var(--accent-color);
   line-height: 1.8;
+  /* Match the text line-box so an empty clone (splitter probe) keeps the same
+     height as a full title. Otherwise flex + 1px ::before/::after collapse and
+     the splitter leaves orphan shells, causing unstable page breaks on edit. */
+  min-height: 1.8em;
   margin: 0.75em 0 0.5em;
+  white-space: nowrap;
 }
 .cv-regal-section-title::before,
 .cv-regal-section-title::after {
@@ -83,13 +88,16 @@
  * The HTML page splitter can leave an empty section-title shell on the previous
  * page when a section starts on the next page. Pseudo-element rules still paint
  * without text — collapse those empty shells so no orphan line remains.
+ *
+ * Scoped to .cv-page only so the hidden split container still measures real
+ * title/section height (empty-clone overflow probes). PaginatedPreview also
+ * strips these shells from regal page HTML after split.
  */
-.cv-regal-section-title:empty,
-.cv-regal-section-title:has(> span:empty):not(:has(> span:not(:empty))) {
+.cv-page .cv-regal-section-title:empty {
   display: none;
   margin: 0;
 }
-.cv-regal-section:not(:has(.cv-regal-list, .cv-regal-paragraph, .cv-regal-skills-grid, .cv-regal-inline-list, .cv-regal-section-title span:not(:empty))) {
+.cv-page .cv-regal-section:not(:has(.cv-regal-list, .cv-regal-paragraph, .cv-regal-skills-grid, .cv-regal-inline-list, .cv-regal-section-title:not(:empty))) {
   display: none;
   margin: 0;
 }
