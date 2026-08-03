@@ -168,15 +168,17 @@ const EducationSection = ({ education, title, dateLocale }: { education: Educati
         {education.map((ed: Education) => (
           <li className="cv-heritage-list-item" key={ed.id}>
             <div className="cv-heritage-item-head">
-              <div className="cv-heritage-item-title">
-                {ed.degree}
+              <div className="cv-heritage-item-row-main">
+                <span className="cv-heritage-item-title">{ed.degree || 'Degree'}</span>
+                {(ed.startDate || ed.endDate || ed.current) ? (
+                  <span className="cv-heritage-item-date">
+                    {formatDateRange(ed.startDate, ed.endDate, dateLocale, { current: ed.current, presentLabel: 'Current' })}
+                  </span>
+                ) : null}
               </div>
-              <div className="cv-heritage-item-sub">
-                {ed.institution}
-              </div>
-              {(ed.startDate || ed.endDate || ed.current) ? (
-                <div className="cv-heritage-item-meta">
-                  {formatDateRange(ed.startDate, ed.endDate, dateLocale, { current: ed.current, presentLabel: 'Present' })}
+              {(ed.institution || ed.fieldOfStudy) ? (
+                <div className="cv-heritage-item-sub">
+                  {[ed.institution, ed.fieldOfStudy].filter(Boolean).join(' - ')}
                 </div>
               ) : null}
             </div>

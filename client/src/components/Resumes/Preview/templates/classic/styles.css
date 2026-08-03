@@ -40,6 +40,7 @@
   letter-spacing: calc(0.08em + var(--letter-spacing, 0));
   color: #111827;
   padding-bottom: 0.25em;
+  margin-bottom: 0.75em;
   border-bottom: 1px solid #d1d5db;
   line-height: 1.8;
   margin-top: 1.25em;
